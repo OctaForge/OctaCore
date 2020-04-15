@@ -1,2 +1,3 @@
 *.o
-src/build
+build
+bin_unix/native_*
