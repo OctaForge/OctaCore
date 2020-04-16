@@ -838,10 +838,6 @@ namespace server
         virtual bool extinfoteam(int team, ucharbuf &p) { return false; }
     };
 
-    #define SERVMODE 1
-    #include "ctf.hh"
-
-    ctfservmode ctfmode;
     servmode *smode = NULL;
 
     bool canspawnitem(int type) { return validitem(type); }
@@ -1925,8 +1921,7 @@ namespace server
         clearteaminfo();
         if(m_teammode) autoteam();
 
-        if(m_ctf) smode = &ctfmode;
-        else smode = NULL;
+        smode = NULL;
 
         if(m_timed && smapname[0]) sendf(-1, 1, "ri2", N_TIMEUP, gamemillis < gamelimit && !interm ? max((gamelimit - gamemillis)/1000, 1) : 0);
         loopv(clients)
@@ -3537,10 +3532,6 @@ namespace server
             case N_SERVCMD:
                 getstring(text, p);
                 break;
-
-            #define PARSEMESSAGES 1
-            #include "ctf.hh"
-            #undef PARSEMESSAGES
 
             case -1:
                 disconnect_client(sender, DISC_MSGERR);

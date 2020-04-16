@@ -92,14 +92,13 @@ enum { ATK_RAIL_SHOOT = 0, ATK_RAIL_MELEE, ATK_PULSE_SHOOT, ATK_PULSE_MELEE, NUM
 enum
 {
     M_TEAM       = 1<<0,
-    M_CTF        = 1<<1,
-    M_OVERTIME   = 1<<2,
-    M_EDIT       = 1<<3,
-    M_DEMO       = 1<<4,
-    M_LOCAL      = 1<<5,
-    M_LOBBY      = 1<<6,
-    M_RAIL       = 1<<7,
-    M_PULSE      = 1<<8
+    M_OVERTIME   = 1<<1,
+    M_EDIT       = 1<<2,
+    M_DEMO       = 1<<3,
+    M_LOCAL      = 1<<4,
+    M_LOBBY      = 1<<5,
+    M_RAIL       = 1<<6,
+    M_PULSE      = 1<<7
 };
 
 static struct gamemodeinfo
@@ -115,8 +114,6 @@ static struct gamemodeinfo
     { "pdm", "pDM", M_LOBBY | M_PULSE, "Pulse Rifle Deathmatch:\nFrag everyone with pulse rifles to score points." },
     { "rtdm", "rTDM", M_TEAM | M_RAIL, "Railgun Team Deathmatch:\nFrag \fs\f3the enemy team\fr with railguns to score points for \fs\f1your team\fr." },
     { "ptdm", "pTDM", M_TEAM | M_PULSE, "Pulse Rifle Team Deathmatch:\nFrag \fs\f3the enemy team\fr with pulse rifles to score points for \fs\f1your team\fr." },
-    { "rctf", "rCTF", M_CTF | M_TEAM | M_RAIL, "Railgun Capture The Flag:\nCapture \fs\f3the enemy flag\fr and bring it back to \fs\f1your flag\fr to score points for \fs\f1your team\fr." },
-    { "pctf", "pCTF", M_CTF | M_TEAM | M_PULSE, "Pulse Rifle Capture The Flag:\nCapture \fs\f3the enemy flag\fr and bring it back to \fs\f1your flag\fr to score points for \fs\f1your team\fr." },
 };
 
 #define STARTGAMEMODE (-1)
@@ -127,7 +124,6 @@ static struct gamemodeinfo
 #define m_checknot(mode, flag) (m_valid(mode) && !(gamemodes[(mode) - STARTGAMEMODE].flags&(flag)))
 #define m_checkall(mode, flag) (m_valid(mode) && (gamemodes[(mode) - STARTGAMEMODE].flags&(flag)) == (flag))
 
-#define m_ctf          (m_check(gamemode, M_CTF))
 #define m_teammode     (m_check(gamemode, M_TEAM))
 #define m_overtime     (m_check(gamemode, M_OVERTIME))
 #define isteam(a,b)    (m_teammode && a==b)

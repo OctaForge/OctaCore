@@ -122,15 +122,11 @@ namespace game
         if(dead) gle::end();
     }
 
-    #include "ctf.hh"
-
     clientmode *cmode = NULL;
-    ctfclientmode ctfmode;
 
     void setclientmode()
     {
-        if(m_ctf) cmode = &ctfmode;
-        else cmode = NULL;
+        cmode = NULL;
     }
 
     bool senditemstoserver = false, sendcrc = false; // after a map change, since server doesn't have map data
@@ -615,7 +611,6 @@ namespace game
     });
     ICOMMAND(intermission, "", (), intret(intermission ? 1 : 0));
 
-    ICOMMANDS("m_ctf", "i", (int *mode), { int gamemode = *mode; intret(m_ctf); });
     ICOMMANDS("m_teammode", "i", (int *mode), { int gamemode = *mode; intret(m_teammode); });
     ICOMMANDS("m_rail", "i", (int *mode), { int gamemode = *mode; intret(m_rail); });
     ICOMMANDS("m_pulse", "i", (int *mode), { int gamemode = *mode; intret(m_pulse); });
@@ -1936,10 +1931,6 @@ namespace game
                     conoutf(fmt[reason], colorname(w), teamnames[w->team]);
                 break;
             }
-
-            #define PARSEMESSAGES 1
-            #include "ctf.hh"
-            #undef PARSEMESSAGES
 
             case N_NEWMAP:
             {
