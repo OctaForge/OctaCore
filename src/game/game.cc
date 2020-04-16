@@ -39,15 +39,6 @@ namespace game
 
     void follow(char *arg)
     {
-        int cn = -1;
-        if(arg[0])
-        {
-            if(player1->state != CS_SPECTATOR) return;
-            cn = parseplayer(arg);
-            if(cn == player1->clientnum) cn = -1;
-        }
-        if(cn < 0 && (following < 0 || specmode)) return;
-        following = cn;
     }
     COMMAND(follow, "s");
 
@@ -96,25 +87,16 @@ namespace game
     gameent *spawnstate(gameent *d)              // reset player state not persistent accross spawns
     {
         d->respawn();
-        d->spawnstate(gamemode);
+        d->spawnstate(0);
         return d;
     }
 
     void respawnself()
     {
         if(ispaused()) return;
-        if(m_mp(gamemode))
-        {
-            int seq = (player1->lifesequence<<16)|((lastmillis/1000)&0xFFFF);
-            if(player1->respawned!=seq) { addmsg(N_TRYSPAWN, "rc", player1); player1->respawned = seq; }
-        }
-        else
-        {
-            spawnplayer(player1);
-            showscores(false);
-            lasthit = 0;
-            if(cmode) cmode->respawned(player1);
-        }
+        spawnplayer(player1);
+        lasthit = 0;
+        if(cmode) cmode->respawned(player1);
     }
 
     gameent *pointatplayer()
@@ -194,7 +176,7 @@ namespace game
         loopv(players)
         {
             gameent *d = players[i];
-            if(d == player1 || d->ai) continue;
+            if(d == player1) continue;
 
             if(d->state==CS_DEAD && d->ragdoll) moveragdoll(d);
             else if(!intermission)
@@ -225,10 +207,8 @@ namespace game
         if(!curtime) { gets2c(); if(player1->clientnum>=0) c2sinfo(); return; }
 
         physicsframe();
-        ai::navigate();
         updateweapons(curtime);
         otherplayers(curtime);
-        ai::update();
         moveragdolls();
         gets2c();
         if(connected)
@@ -354,14 +334,10 @@ namespace game
         }
         damageeffect(damage, d, d!=h);
 
-        ai::damaged(d, actor);
-
         if(d->health<=0) { if(local) killed(d, actor); }
         else if(d==h) playsound(S_PAIN2);
         else playsound(S_PAIN1, &d->o);
     }
-
-    VARP(deathscore, 0, 1, 1);
 
     void deathstate(gameent *d, bool restore)
     {
@@ -374,7 +350,6 @@ namespace game
         }
         if(d==player1)
         {
-            if(deathscore) showscores(true);
             disablezoom();
             d->attacking = ACT_IDLE;
             //d->pitch = 0;
@@ -431,7 +406,6 @@ namespace game
             else conoutf(contype, "\f2%s fragged %s", aname, dname);
         }
         deathstate(d);
-        ai::killed(d, actor);
     }
 
     void timeupdate(int secs)
@@ -451,7 +425,6 @@ namespace game
             int accuracy = (player1->totaldamage*100)/max(player1->totalshots, 1);
             conoutf(CON_GAMEINFO, "\f2player total damage dealt: %d, damage wasted: %d, accuracy(%%): %d", player1->totaldamage, player1->totalshots-player1->totaldamage, accuracy);
 
-            showscores(true);
             disablezoom();
 
             execident("intermission");
@@ -469,7 +442,7 @@ namespace game
 
     gameent *newclient(int cn)   // ensure valid entity
     {
-        if(cn < 0 || cn > max(0xFF, MAXCLIENTS + MAXBOTS))
+        if(cn < 0 || cn > max(0xFF, MAXCLIENTS))
         {
             neterr("clientnum", false);
             return NULL;
@@ -497,7 +470,6 @@ namespace game
     void clientdisconnected(int cn, bool notify)
     {
         if(!clients.inrange(cn)) return;
-        unignore(cn);
         gameent *d = clients[cn];
         if(d)
         {
@@ -506,7 +478,6 @@ namespace game
             removetrackedparticles(d);
             removetrackeddynlights(d);
             if(cmode) cmode->removeplayer(d);
-            removegroupedplayer(d);
             players.removeobj(d);
             DELETEP(clients[cn]);
             cleardynentcache();
@@ -538,8 +509,6 @@ namespace game
         clearbouncers();
         clearragdolls();
 
-        clearteaminfo();
-
         // reset perma-state
         loopv(players) players[i]->startgame();
 
@@ -555,14 +524,8 @@ namespace game
             cmode->setup();
         }
 
-        conoutf(CON_GAMEINFO, "\f2game mode is %s", server::modeprettyname(gamemode));
-
-        const char *info = m_valid(gamemode) ? gamemodes[gamemode - STARTGAMEMODE].info : NULL;
-        if(showmodeinfo && info) conoutf(CON_GAMEINFO, "\f0%s", info);
-
         syncplayer();
 
-        showscores(false);
         disablezoom();
         lasthit = 0;
 
@@ -571,11 +534,7 @@ namespace game
 
     void startmap(const char *name)   // called just after a map load
     {
-        ai::savewaypoints();
-        ai::clearwaypoints(true);
-
-        if(!m_mp(gamemode)) spawnplayer(player1);
-        else findplayerspawn(player1, -1, m_teammode ? player1->team : 0);
+        spawnplayer(player1);
         entities::resetspawns();
         copystring(clientmap, name ? name : "");
 
@@ -584,20 +543,20 @@ namespace game
 
     const char *getmapinfo()
     {
-        return showmodeinfo && m_valid(gamemode) ? gamemodes[gamemode - STARTGAMEMODE].info : NULL;
+        return NULL;
     }
 
     const char *getscreenshotinfo()
     {
-        return server::modename(gamemode, NULL);
+        return NULL;
     }
 
     void physicstrigger(physent *d, bool local, int floorlevel, int waterlevel, int material)
     {
         if     (waterlevel>0) { if(material!=MAT_LAVA) playsound(S_SPLASHOUT, d==player1 ? NULL : &d->o); }
         else if(waterlevel<0) playsound(material==MAT_LAVA ? S_BURN : S_SPLASHIN, d==player1 ? NULL : &d->o);
-        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER || ((gameent *)d)->ai) msgsound(S_JUMP, d); }
-        else if(floorlevel<0) { if(d==player1 || d->type!=ENT_PLAYER || ((gameent *)d)->ai) msgsound(S_LAND, d); }
+        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER) msgsound(S_JUMP, d); }
+        else if(floorlevel<0) { if(d==player1 || d->type!=ENT_PLAYER) msgsound(S_LAND, d); }
     }
 
     void dynentcollide(physent *d, physent *o, const vec &dir)
@@ -613,8 +572,6 @@ namespace game
         }
         else
         {
-            if(d->type==ENT_PLAYER && ((gameent *)d)->ai)
-                addmsg(N_SOUND, "ci", d, n);
             playsound(n, &d->o);
         }
     }
@@ -638,10 +595,10 @@ namespace game
     const char *colorname(gameent *d, const char *name, const char * alt, const char *color)
     {
         if(!name) name = alt && d == player1 ? alt : d->name;
-        bool dup = !name[0] || duplicatename(d, name, alt) || d->aitype != AI_NONE;
+        bool dup = !name[0] || duplicatename(d, name, alt);
         if(dup || color[0])
         {
-            if(dup) return tempformatstring(d->aitype == AI_NONE ? "\fs%s%s \f5(%d)\fr" : "\fs%s%s \f5[%d]\fr", color, name, d->clientnum);
+            if(dup) return tempformatstring("\fs%s%s \f5(%d)\fr", color, name, d->clientnum);
             return tempformatstring("\fs%s%s\fr", color, name);
         }
         return name;
@@ -673,22 +630,6 @@ namespace game
         teamsound(isteam(d->team, player1->team), n, loc);
     }
 
-    void suicide(physent *d)
-    {
-        if(d==player1 || (d->type==ENT_PLAYER && ((gameent *)d)->ai))
-        {
-            if(d->state!=CS_ALIVE) return;
-            gameent *pl = (gameent *)d;
-            if(!m_mp(gamemode)) killed(pl, pl);
-            else
-            {
-                int seq = (pl->lifesequence<<16)|((lastmillis/1000)&0xFFFF);
-                if(pl->suicided!=seq) { addmsg(N_SUICIDE, "rc", pl); pl->suicided = seq; }
-            }
-        }
-    }
-    ICOMMAND(suicide, "", (), suicide(player1));
-
     bool needminimap() { return false; }
 
     void drawicon(int icon, float x, float y, float sz)
@@ -719,52 +660,11 @@ namespace game
 
     void drawhudicons(gameent *d)
     {
-#if 0
-        pushhudscale(2);
-
-        draw_textf("%d", (HICON_X + HICON_SIZE + HICON_SPACE)/2, HICON_TEXTY/2, d->state==CS_DEAD ? 0 : d->health);
-        if(d->state!=CS_DEAD)
-        {
-            draw_textf("%d", (HICON_X + 2*HICON_STEP + HICON_SIZE + HICON_SPACE)/2, HICON_TEXTY/2, d->ammo[d->gunselect]);
-        }
-
-        pophudmatrix();
-        resethudshader();
-
-        drawicon(HICON_HEALTH, HICON_X, HICON_Y);
-        if(d->state!=CS_DEAD)
-        {
-            drawicon(HICON_MELEE+d->gunselect, HICON_X + 2*HICON_STEP, HICON_Y);
-        }
-#endif
     }
 
     void gameplayhud(int w, int h)
     {
         pushhudscale(h/1800.0f);
-
-        if(player1->state==CS_SPECTATOR)
-        {
-            float pw, ph, tw, th, fw, fh;
-            text_boundsf("  ", pw, ph);
-            text_boundsf("SPECTATOR", tw, th);
-            th = max(th, ph);
-            gameent *f = followingplayer();
-            text_boundsf(f ? colorname(f) : " ", fw, fh);
-            fh = max(fh, ph);
-            draw_text("SPECTATOR", w*1800/h - tw - pw, 1650 - th - fh);
-            if(f)
-            {
-                int color = f->state!=CS_DEAD ? 0xFFFFFF : 0x606060;
-                if(f->privilege)
-                {
-                    color = f->privilege>=PRIV_ADMIN ? 0xFF8000 : 0x40FF80;
-                    if(f->state==CS_DEAD) color = (color>>1)&0x7F7F7F;
-                }
-                draw_text(colorname(f), w*1800/h - fw - pw, 1650 - fh, (color>>16)&0xFF, (color>>8)&0xFF, color&0xFF);
-            }
-            resethudshader();
-        }
 
         gameent *d = hudplayer();
         if(d->state!=CS_EDITING)
@@ -795,79 +695,10 @@ namespace game
         }
     }
 
-    int selectcrosshair(vec &col)
+    int selectcrosshair(vec &)
     {
-        gameent *d = hudplayer();
-        if(d->state==CS_SPECTATOR || d->state==CS_DEAD || UI::uivisible("scoreboard")) return -1;
-
-        if(d->state!=CS_ALIVE) return 0;
-
-        int crosshair = 0;
-        if(lasthit && lastmillis - lasthit < hitcrosshair) crosshair = 2;
-        else if(teamcrosshair && m_teammode)
-        {
-            dynent *o = intersectclosest(d->o, worldpos, d);
-            if(o && o->type==ENT_PLAYER && validteam(d->team) && ((gameent *)o)->team == d->team)
-            {
-                crosshair = 1;
-
-                col = vec::hexcolor(teamtextcolor[d->team]);
-            }
-        }
-
-#if 0
-        if(crosshair!=1 && !editmode)
-        {
-            if(d->health<=25) { r = 1.0f; g = b = 0; }
-            else if(d->health<=50) { r = 1.0f; g = 0.5f; b = 0; }
-        }
-#endif
-        if(d->gunwait) col.mul(0.5f);
-        return crosshair;
+        return 0;
     }
-
-    const char *mastermodecolor(int n, const char *unknown)
-    {
-        return (n>=MM_START && size_t(n-MM_START)<sizeof(mastermodecolors)/sizeof(mastermodecolors[0])) ? mastermodecolors[n-MM_START] : unknown;
-    }
-
-    const char *mastermodeicon(int n, const char *unknown)
-    {
-        return (n>=MM_START && size_t(n-MM_START)<sizeof(mastermodeicons)/sizeof(mastermodeicons[0])) ? mastermodeicons[n-MM_START] : unknown;
-    }
-
-    ICOMMAND(servinfomode, "i", (int *i), GETSERVINFOATTR(*i, 0, mode, intret(mode)));
-    ICOMMAND(servinfomodename, "i", (int *i),
-        GETSERVINFOATTR(*i, 0, mode,
-        {
-            const char *name = server::modeprettyname(mode, NULL);
-            if(name) result(name);
-        }));
-    ICOMMAND(servinfomastermode, "i", (int *i), GETSERVINFOATTR(*i, 2, mm, intret(mm)));
-    ICOMMAND(servinfomastermodename, "i", (int *i),
-        GETSERVINFOATTR(*i, 2, mm,
-        {
-            const char *name = server::mastermodename(mm, NULL);
-            if(name) stringret(newconcatstring(mastermodecolor(mm, ""), name));
-        }));
-    ICOMMAND(servinfotime, "ii", (int *i, int *raw),
-        GETSERVINFOATTR(*i, 1, secs,
-        {
-            secs = clamp(secs, 0, 59*60+59);
-            if(*raw) intret(secs);
-            else
-            {
-                int mins = secs/60;
-                secs %= 60;
-                result(tempformatstring("%d:%02d", mins, secs));
-            }
-        }));
-    ICOMMAND(servinfoicon, "i", (int *i),
-        GETSERVINFO(*i, si,
-        {
-            int mm = si->attr.inrange(2) ? si->attr[2] : MM_INVALID;
-            result(si->maxplayers > 0 && si->numplayers >= si->maxplayers ? "serverfull" : mastermodeicon(mm, "serverunk"));
-        }));
 
     // any data written into this vector will get saved with the map data. Must take care to do own versioning, and endianess if applicable. Will not get called when loading maps from other games, so provide defaults.
     void writegamedata(vector<char> &extras) {}

@@ -225,7 +225,6 @@ namespace entities
                 else d->vel = vec(0, 0, 0);
                 entinmap(d);
                 updatedynentcache(d);
-                ai::inferwaypoints(d, ents[n]->o, ents[e]->o, 16.f);
                 break;
             }
         }
@@ -267,7 +266,6 @@ namespace entities
                 d->lastpickup = e->type;
                 d->lastpickupmillis = lastmillis;
                 jumppadeffects(d, n, true);
-                if(d->ai) d->ai->becareful = true;
                 d->falling = vec(0, 0, 0);
                 d->physstate = PHYS_FALL;
                 d->timeinair = 1;

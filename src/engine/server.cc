@@ -194,7 +194,6 @@ void sendpacket(int n, int chan, ENetPacket *packet, int exclude)
 {
     if(n<0)
     {
-        server::recordpacket(chan, packet->data, packet->dataLength);
         loopv(clients) if(i!=exclude && server::allowbroadcast(i)) sendpacket(i, chan, packet);
         return;
     }

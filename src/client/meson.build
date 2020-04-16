@@ -40,14 +40,11 @@ client_src = [
     '../engine/water.cc',
     '../engine/world.cc',
     '../engine/worldio.cc',
-    '../game/ai.cc',
     '../game/client.cc',
     '../game/entities.cc',
     '../game/game.cc',
     '../game/render.cc',
-    '../game/scoreboard.cc',
     '../game/server.cc',
-    '../game/waypoint.cc',
     '../game/weapon.cc'
 ]
 

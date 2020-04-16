@@ -684,7 +684,7 @@ namespace game
 
         shoteffects(atk, from, to, d, true, 0, prevaction);
 
-        if(d==player1 || d->ai)
+        if(d==player1)
         {
             addmsg(N_SHOOT, "rci2i6iv", d, lastmillis-maptime, atk,
                    (int)(from.x*DMF), (int)(from.y*DMF), (int)(from.z*DMF),
@@ -693,7 +693,7 @@ namespace game
         }
 
         d->gunwait = attacks[atk].attackdelay;
-        if(attacks[atk].action != ACT_MELEE && d->ai) d->gunwait += int(d->gunwait*(((101-d->skill)+rnd(111-d->skill))/100.f));
+        if(attacks[atk].action != ACT_MELEE) d->gunwait += int(d->gunwait*((101+rnd(111))/100.f));
         d->totalshots += attacks[atk].damage*attacks[atk].rays;
     }
 
@@ -770,15 +770,6 @@ namespace game
         updateprojectiles(curtime);
         if(player1->clientnum>=0 && player1->state==CS_ALIVE) shoot(player1, worldpos); // only shoot when connected to server
         updatebouncers(curtime); // need to do this after the player shoots so bouncers don't end up inside player's BB next frame
-    }
-
-    void avoidweapons(ai::avoidset &obstacles, float radius)
-    {
-        loopv(projs)
-        {
-            projectile &p = projs[i];
-            obstacles.avoidnear(NULL, p.o.z + attacks[p.atk].exprad + 1, p.o, radius + attacks[p.atk].exprad);
-        }
     }
 };
 

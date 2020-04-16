@@ -21,7 +21,6 @@ namespace game
         gameent *r = new gameent(*d);
         r->lastupdate = ragdollfade && lastmillis > d->lastpain + max(ragdollmillis - ragdollfade, 0) ? lastmillis - max(ragdollmillis - ragdollfade, 0) : d->lastpain;
         r->edit = NULL;
-        r->ai = NULL;
         if(d==player1) r->playermodel = playermodel;
         ragdolls.add(r);
         d->ragdoll = NULL;
@@ -318,14 +317,10 @@ namespace game
 
     void rendergame()
     {
-        ai::render();
-
         if(intermission)
         {
             bestteams.shrink(0);
             bestplayers.shrink(0);
-            if(m_teammode) getbestteams(bestteams);
-            else getbestplayers(bestplayers);
         }
 
         bool third = isthirdperson();

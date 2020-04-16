@@ -104,7 +104,6 @@ namespace server
     extern void localdisconnect(int n);
     extern void localconnect(int n);
     extern bool allowbroadcast(int n);
-    extern void recordpacket(int chan, void *data, int len);
     extern void parsepacket(int sender, int chan, packetbuf &p);
     extern void sendservmsg(const char *s);
     extern bool sendpackets(bool force = false);

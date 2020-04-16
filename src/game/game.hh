@@ -124,18 +124,18 @@ static struct gamemodeinfo
 #define m_checknot(mode, flag) (m_valid(mode) && !(gamemodes[(mode) - STARTGAMEMODE].flags&(flag)))
 #define m_checkall(mode, flag) (m_valid(mode) && (gamemodes[(mode) - STARTGAMEMODE].flags&(flag)) == (flag))
 
-#define m_teammode     (m_check(gamemode, M_TEAM))
-#define m_overtime     (m_check(gamemode, M_OVERTIME))
-#define isteam(a,b)    (m_teammode && a==b)
-#define m_rail         (m_check(gamemode, M_RAIL))
-#define m_pulse        (m_check(gamemode, M_PULSE))
+#define m_teammode     false
+#define m_overtime     false
+#define isteam(a,b)    false
+#define m_rail         false
+#define m_pulse        false
 
-#define m_demo         (m_check(gamemode, M_DEMO))
-#define m_edit         (m_check(gamemode, M_EDIT))
-#define m_lobby        (m_check(gamemode, M_LOBBY))
-#define m_timed        (m_checknot(gamemode, M_DEMO|M_EDIT|M_LOCAL))
-#define m_botmode      (m_checknot(gamemode, M_DEMO|M_LOCAL))
-#define m_mp(mode)     (m_checknot(mode, M_LOCAL))
+#define m_demo         false
+#define m_edit         true
+#define m_lobby        false
+#define m_timed        false
+#define m_botmode      false
+#define m_mp(mode)     false
 
 enum { MM_AUTH = -1, MM_OPEN = 0, MM_VETO, MM_LOCKED, MM_PRIVATE, MM_PASSWORD, MM_START = MM_AUTH, MM_INVALID = MM_START - 1 };
 
@@ -151,14 +151,7 @@ enum
     S_ITEMSPAWN, S_TELEPORT, S_JUMPPAD,
     S_MELEE, S_PULSE1, S_PULSE2, S_PULSEEXPLODE, S_RAIL1, S_RAIL2,
     S_WEAPLOAD, S_NOAMMO, S_HIT,
-    S_PAIN1, S_PAIN2, S_DIE1, S_DIE2,
-
-    S_FLAGPICKUP,
-    S_FLAGDROP,
-    S_FLAGRETURN,
-    S_FLAGSCORE,
-    S_FLAGRESET,
-    S_FLAGFAIL
+    S_PAIN1, S_PAIN2, S_DIE1, S_DIE2
 };
 
 // network messages codes, c2s, c2c, s2c
@@ -177,19 +170,13 @@ enum
     N_TIMEUP, N_FORCEINTERMISSION,
     N_SERVMSG, N_ITEMLIST, N_RESUME,
     N_EDITMODE, N_EDITENT, N_EDITF, N_EDITT, N_EDITM, N_FLIP, N_COPY, N_PASTE, N_ROTATE, N_REPLACE, N_DELCUBE, N_CALCLIGHT, N_REMIP, N_EDITVSLOT, N_UNDO, N_REDO, N_NEWMAP, N_GETMAP, N_SENDMAP, N_CLIPBOARD, N_EDITVAR,
-    N_MASTERMODE, N_KICK, N_CLEARBANS, N_CURRENTMASTER, N_SPECTATOR, N_SETMASTER, N_SETTEAM,
-    N_LISTDEMOS, N_SENDDEMOLIST, N_GETDEMO, N_SENDDEMO,
-    N_DEMOPLAYBACK, N_RECORDDEMO, N_STOPDEMO, N_CLEARDEMOS,
-    N_TAKEFLAG, N_RETURNFLAG, N_RESETFLAG, N_TRYDROPFLAG, N_DROPFLAG, N_SCOREFLAG, N_INITFLAGS,
+    N_SPECTATOR, N_SETTEAM,
     N_SAYTEAM,
     N_CLIENT,
-    N_AUTHTRY, N_AUTHKICK, N_AUTHCHAL, N_AUTHANS, N_REQAUTH,
     N_PAUSEGAME, N_GAMESPEED,
-    N_ADDBOT, N_DELBOT, N_INITAI, N_FROMAI, N_BOTLIMIT, N_BOTBALANCE,
     N_MAPCRC, N_CHECKMAPS,
     N_SWITCHNAME, N_SWITCHMODEL, N_SWITCHCOLOR, N_SWITCHTEAM,
     N_SERVCMD,
-    N_DEMOPACKET,
     NUMMSG
 };
 
@@ -205,19 +192,13 @@ static const int msgsizes[] =               // size inclusive message token, 0 f
     N_TIMEUP, 2, N_FORCEINTERMISSION, 1,
     N_SERVMSG, 0, N_ITEMLIST, 0, N_RESUME, 0,
     N_EDITMODE, 2, N_EDITENT, 11, N_EDITF, 16, N_EDITT, 16, N_EDITM, 16, N_FLIP, 14, N_COPY, 14, N_PASTE, 14, N_ROTATE, 15, N_REPLACE, 17, N_DELCUBE, 14, N_CALCLIGHT, 1, N_REMIP, 1, N_EDITVSLOT, 16, N_UNDO, 0, N_REDO, 0, N_NEWMAP, 2, N_GETMAP, 1, N_SENDMAP, 0, N_EDITVAR, 0, 
-    N_MASTERMODE, 2, N_KICK, 0, N_CLEARBANS, 1, N_CURRENTMASTER, 0, N_SPECTATOR, 3, N_SETMASTER, 0, N_SETTEAM, 0,
-    N_LISTDEMOS, 1, N_SENDDEMOLIST, 0, N_GETDEMO, 2, N_SENDDEMO, 0,
-    N_DEMOPLAYBACK, 3, N_RECORDDEMO, 2, N_STOPDEMO, 1, N_CLEARDEMOS, 2,
-    N_TAKEFLAG, 3, N_RETURNFLAG, 4, N_RESETFLAG, 3, N_TRYDROPFLAG, 1, N_DROPFLAG, 7, N_SCOREFLAG, 9, N_INITFLAGS, 0,
+    N_SPECTATOR, 3, N_SETTEAM, 0,
     N_SAYTEAM, 0,
     N_CLIENT, 0,
-    N_AUTHTRY, 0, N_AUTHKICK, 0, N_AUTHCHAL, 0, N_AUTHANS, 0, N_REQAUTH, 0,
     N_PAUSEGAME, 0, N_GAMESPEED, 0,
-    N_ADDBOT, 2, N_DELBOT, 1, N_INITAI, 0, N_FROMAI, 2, N_BOTLIMIT, 2, N_BOTBALANCE, 2,
     N_MAPCRC, 0, N_CHECKMAPS, 1,
     N_SWITCHNAME, 0, N_SWITCHMODEL, 2, N_SWITCHCOLOR, 2, N_SWITCHTEAM, 2,
     N_SERVCMD, 0,
-    N_DEMOPACKET, 0,
     -1
 };
 
@@ -276,17 +257,14 @@ static const struct guninfo { const char *name, *file, *vwep; int attacks[NUMACT
     { "pulse rifle", "pulserifle", "worldgun/pulserifle", { -1, ATK_PULSE_SHOOT, ATK_PULSE_MELEE } }
 };
 
-#include "ai.hh"
-
 // inherited by gameent and server clients
 struct gamestate
 {
     int health, maxhealth;
     int gunselect, gunwait;
     int ammo[NUMGUNS];
-    int aitype, skill;
 
-    gamestate() : maxhealth(1), aitype(AI_NONE), skill(0) {}
+    gamestate() : maxhealth(1) {}
 
     bool canpickup(int type)
     {
@@ -341,7 +319,6 @@ struct gamestate
 static const char * const teamnames[1+MAXTEAMS] = { "", "azul", "rojo" };
 static const char * const teamtextcode[1+MAXTEAMS] = { "\f0", "\f1", "\f3" };
 static const int teamtextcolor[1+MAXTEAMS] = { 0x1EC850, 0x6496FF, 0xFF4B19 };
-static const int teamscoreboardcolor[1+MAXTEAMS] = { 0, 0x3030C0, 0xC03030 };
 static const char * const teamblipcolor[1+MAXTEAMS] = { "_neutral", "_blue", "_red" };
 static inline int teamnumber(const char *name) { loopi(MAXTEAMS) if(!strcmp(teamnames[1+i], name)) return 1+i; return 0; }
 #define validteam(n) ((n) >= 1 && (n) <= MAXTEAMS)
@@ -350,7 +327,7 @@ static inline int teamnumber(const char *name) { loopi(MAXTEAMS) if(!strcmp(team
 struct gameent : dynent, gamestate
 {
     int weight;                         // affects the effectiveness of hitpush
-    int clientnum, privilege, lastupdate, plag, ping;
+    int clientnum, lastupdate, plag, ping;
     int lifesequence;                   // sequence id for each respawn, used in damage test
     int respawned, suicided;
     int lastpain;
@@ -365,12 +342,11 @@ struct gameent : dynent, gamestate
 
     string name, info;
     int team, playermodel, playercolor;
-    ai::aiinfo *ai;
     int ownernum, lastnode;
 
     vec muzzle;
 
-    gameent() : weight(100), clientnum(-1), privilege(PRIV_NONE), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), edit(NULL), smoothmillis(-1), team(0), playermodel(-1), playercolor(0), ai(NULL), ownernum(-1), muzzle(-1, -1, -1)
+    gameent() : weight(100), clientnum(-1), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), edit(NULL), smoothmillis(-1), team(0), playermodel(-1), playercolor(0), ownernum(-1), muzzle(-1, -1, -1)
     {
         name[0] = info[0] = 0;
         respawn();
@@ -378,7 +354,6 @@ struct gameent : dynent, gamestate
     ~gameent()
     {
         freeeditinfo(edit);
-        if(ai) delete ai;
     }
 
     void hitpush(int damage, const vec &dir, gameent *actor, int atk)
@@ -418,23 +393,6 @@ struct gameent : dynent, gamestate
     }
 };
 
-struct teamscore
-{
-    int team, score;
-    teamscore() {}
-    teamscore(int team, int n) : team(team), score(n) {}
-
-    static bool compare(const teamscore &x, const teamscore &y)
-    {
-        if(x.score > y.score) return true;
-        if(x.score < y.score) return false;
-        return x.team < y.team;
-    }
-};
-
-static inline uint hthash(const teamscore &t) { return hthash(t.team); }
-static inline bool htcmp(int team, const teamscore &t) { return team == t.team; }
-
 struct teaminfo
 {
     int frags;
@@ -467,8 +425,6 @@ namespace entities
 
 namespace game
 {
-    extern int gamemode;
-
     struct clientmode
     {
         virtual ~clientmode() {}
@@ -486,19 +442,12 @@ namespace game
         virtual void removeplayer(gameent *d) {}
         virtual void gameover() {}
         virtual bool hidefrags() { return false; }
-        virtual int getteamscore(int team) { return 0; }
-        virtual void getteamscores(vector<teamscore> &scores) {}
-        virtual void aifind(gameent *d, ai::aistate &b, vector<ai::interest> &interests) {}
-        virtual bool aicheck(gameent *d, ai::aistate &b) { return false; }
-        virtual bool aidefend(gameent *d, ai::aistate &b) { return false; }
-        virtual bool aipursue(gameent *d, ai::aistate &b) { return false; }
     };
 
     extern clientmode *cmode;
     extern void setclientmode();
 
     // game
-    extern int nextmode;
     extern string clientmap;
     extern bool intermission;
     extern int maptime, maprealtime, maplimit;
@@ -542,16 +491,12 @@ namespace game
     extern vector<uchar> messages;
 
     extern int parseplayer(const char *arg);
-    extern void ignore(int cn);
-    extern void unignore(int cn);
-    extern bool isignored(int cn);
     extern bool addmsg(int type, const char *fmt = NULL, ...);
     extern void switchname(const char *name);
     extern void switchteam(const char *name);
     extern void switchplayermodel(int playermodel);
     extern void switchplayercolor(int playercolor);
     extern void sendmapinfo();
-    extern void stopdemo();
     extern void changemap(const char *name, int mode);
     extern void c2sinfo(bool force = false);
     extern void sendposition(gameent *d, bool reliable = false);
@@ -580,15 +525,6 @@ namespace game
     extern void updateweapons(int curtime);
     extern void gunselect(int gun, gameent *d);
     extern void weaponswitch(gameent *d);
-    extern void avoidweapons(ai::avoidset &obstacles, float radius);
-
-    // scoreboard
-    extern void showscores(bool on);
-    extern void getbestplayers(vector<gameent *> &best);
-    extern void getbestteams(vector<int> &best);
-    extern void clearteaminfo();
-    extern void setteaminfo(int team, int frags);
-    extern void removegroupedplayer(gameent *d);
 
     // render
     struct playermodelinfo
