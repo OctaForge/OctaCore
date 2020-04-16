@@ -520,7 +520,7 @@ namespace game
 
     void preloadsounds()
     {
-        for(int i = S_JUMP; i <= S_DIE2; i++) preloadsound(i);
+        //for(int i = S_JUMP; i <= S_DIE2; i++) preloadsound(i);
     }
 
     void preload()

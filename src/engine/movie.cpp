@@ -193,6 +193,7 @@ struct aviwriter
         path(filename);
         if(!strrchr(filename, '.')) concatstring(filename, ".avi");
 
+#if 0
         extern bool nosound; // sound.cpp
         if(sound && !nosound)
         {
@@ -210,6 +211,7 @@ struct aviwriter
             }
             if(dbgmovie) conoutf(CON_DEBUG, "soundspec: %dhz %s x %d", soundfrequency, desc, soundchannels);
         }
+#endif
     }
 
     ~aviwriter()
@@ -958,7 +960,7 @@ namespace recorder
         shouldencode = SDL_CreateCond();
         shouldread = SDL_CreateCond();
         thread = SDL_CreateThread(videoencoder, "video encoder", NULL);
-        if(file->soundfrequency > 0) Mix_SetPostMix(soundencoder, NULL);
+        //if(file->soundfrequency > 0) Mix_SetPostMix(soundencoder, NULL);
     }
 
     void cleanup()
@@ -974,7 +976,7 @@ namespace recorder
     {
         if(!file) return;
         if(state == REC_OK) state = REC_USERHALT;
-        if(file->soundfrequency > 0) Mix_SetPostMix(NULL, NULL);
+        //if(file->soundfrequency > 0) Mix_SetPostMix(NULL, NULL);
 
         SDL_LockMutex(videolock); // wakeup thread enough to kill it
         SDL_CondSignal(shouldencode);

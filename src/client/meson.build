@@ -34,7 +34,6 @@ client_src = [
     '../engine/server.cpp',
     '../engine/serverbrowser.cpp',
     '../engine/shader.cpp',
-    '../engine/sound.cpp',
     '../engine/stain.cpp',
     '../engine/texture.cpp',
     '../engine/ui.cpp',
@@ -55,7 +54,6 @@ client_src = [
 threads_dep = dependency('threads')
 sdl2_dep = dependency('sdl2')
 sdl2_image_dep = dependency('SDL2_image')
-sdl2_mixer_dep = dependency('SDL2_mixer')
 zlib_dep = dependency('zlib')
 gl_dep = dependency('gl')
 rt_dep = cc.find_library('rt', required: false)
@@ -64,7 +62,7 @@ executable('native_client',
     client_src,
     dependencies: [
         threads_dep, libenet, sdl2_dep, sdl2_image_dep,
-        sdl2_mixer_dep, zlib_dep, gl_dep, rt_dep
+        zlib_dep, gl_dep, rt_dep
     ],
     include_directories: octacore_includes,
     install: true,

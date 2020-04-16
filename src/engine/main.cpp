@@ -17,7 +17,7 @@ void cleanup()
     extern void clear_command(); clear_command();
     extern void clear_console(); clear_console();
     extern void clear_models();  clear_models();
-    extern void clear_sound();   clear_sound();
+    //extern void clear_sound();   clear_sound();
     closelogfile();
     #ifdef __APPLE__
         if(screen) SDL_SetWindowFullscreen(screen, 0);
@@ -109,13 +109,6 @@ void writeinitcfg()
     f->printf("fullscreen %d\n", fullscreen);
     f->printf("screenw %d\n", scr_w);
     f->printf("screenh %d\n", scr_h);
-    extern int sound, soundchans, soundfreq, soundbufferlen;
-    extern char *audiodriver;
-    f->printf("sound %d\n", sound);
-    f->printf("soundchans %d\n", soundchans);
-    f->printf("soundfreq %d\n", soundfreq);
-    f->printf("soundbufferlen %d\n", soundbufferlen);
-    if(audiodriver[0]) f->printf("audiodriver %s\n", escapestring(audiodriver));
     delete f;
 }
 
@@ -254,7 +247,7 @@ void renderbackground(const char *caption, Texture *mapshot, const char *mapname
 {
     if(!inbetweenframes && !force) return;
 
-    if(menumute) stopsounds(); // stop sounds while loading
+    //if(menumute) stopsounds(); // stop sounds while loading
 
     int w = hudw, h = hudh;
     if(forceaspect) w = int(ceil(h*forceaspect));
@@ -1123,7 +1116,7 @@ int main(int argc, char **argv)
     emptymap(0, true, NULL, false);
 
     logoutf("init: sound");
-    initsound();
+    //initsound();
 
     logoutf("init: cfg");
     initing = INIT_LOAD;
@@ -1175,7 +1168,7 @@ int main(int argc, char **argv)
 
     if(initscript) execute(initscript);
 
-    initmumble();
+    //initmumble();
     resetfpshistory();
 
     inputgrab(grabinput = true);
@@ -1214,7 +1207,7 @@ int main(int argc, char **argv)
         // miscellaneous general game effects
         recomputecamera();
         updateparticles();
-        updatesounds();
+        //updatesounds();
 
         if(minimized) continue;
 

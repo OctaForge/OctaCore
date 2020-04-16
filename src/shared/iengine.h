@@ -410,13 +410,12 @@ enum
     SND_USE_ALT = 1<<2
 };
 
-extern int playsound(int n, const vec *loc = NULL, extentity *ent = NULL, int flags = 0, int loops = 0, int fade = 0, int chanid = -1, int radius = 0, int expire = -1);
-extern int playsoundname(const char *s, const vec *loc = NULL, int vol = 0, int flags = 0, int loops = 0, int fade = 0, int chanid = -1, int radius = 0, int expire = -1);
-extern void preloadsound(int n);
-extern void preloadmapsound(int n);
-extern bool stopsound(int n, int chanid, int fade = 0);
-extern void stopsounds();
-extern void initsound();
+inline int playsound(
+    int, const vec * = NULL, extentity * = NULL, int = 0, int = 0, int = 0,
+    int = -1, int = 0, int = -1
+) {
+    return -1;
+}
 
 // rendermodel
 enum { MDL_CULL_VFC = 1<<0, MDL_CULL_DIST = 1<<1, MDL_CULL_OCCLUDED = 1<<2, MDL_CULL_QUERY = 1<<3, MDL_FULLBRIGHT = 1<<4, MDL_NORENDER = 1<<5, MDL_MAPMODEL = 1<<6, MDL_NOBATCH = 1<<7, MDL_ONLYSHADOW = 1<<8, MDL_NOSHADOW = 1<<9, MDL_FORCESHADOW = 1<<10, MDL_FORCETRANSPARENT = 1<<11 };

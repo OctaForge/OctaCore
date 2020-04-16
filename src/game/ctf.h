@@ -341,7 +341,7 @@ struct ctfclientmode : clientmode
     {
         preloadmodel("game/flag/rojo");
         preloadmodel("game/flag/azul");
-        for(int i = S_FLAGPICKUP; i <= S_FLAGFAIL; i++) preloadsound(i);
+        //for(int i = S_FLAGPICKUP; i <= S_FLAGFAIL; i++) preloadsound(i);
     }
 
     void drawblip(gameent *d, float x, float y, float s, const vec &pos, bool flagblip)

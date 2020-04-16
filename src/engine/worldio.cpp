@@ -891,7 +891,7 @@ bool load_world(const char *mname, const char *cname)        // still supports a
     game::preload();
     flushpreloadedmodels();
 
-    preloadmapsounds();
+    //preloadmapsounds();
 
     entitiesinoctanodes();
     attachentities();

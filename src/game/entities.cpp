@@ -79,7 +79,7 @@ namespace entities
                 case TELEPORT:
                     if(e.attr2 > 0) preloadmodel(mapmodelname(e.attr2));
                 case JUMPPAD:
-                    if(e.attr4 > 0) preloadmapsound(e.attr4);
+                    //if(e.attr4 > 0) preloadmapsound(e.attr4);
                     break;
             }
         }
@@ -116,7 +116,7 @@ namespace entities
         itemstat &is = itemstats[type-I_FIRST];
         v += is.add;
         if(v>is.max) v = is.max;
-        if(local) msgsound(is.sound);
+        //if(local) msgsound(is.sound);
 #endif
     }
 
