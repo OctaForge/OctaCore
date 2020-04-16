@@ -7,12 +7,7 @@
 //   avidemux - ok - 3Apr09-RockKeyman:had to swap UV channels as it showed up blue
 //   kino - ok
 
-#include "engine.h"
-#ifdef __APPLE__
-  #include "SDL2_mixer/SDL_mixer.h"
-#else
-  #include "SDL_mixer.h"
-#endif
+#include "engine.hh"
 
 VAR(dbgmovie, 0, 0, 1);
 

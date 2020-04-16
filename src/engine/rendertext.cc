@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "engine.hh"
 
 static hashnameset<font> fonts;
 static font *fontdef = NULL;

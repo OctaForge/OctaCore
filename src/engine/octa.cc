@@ -1,6 +1,6 @@
 // core world management routines
 
-#include "engine.h"
+#include "engine.hh"
 
 static struct emptycube : cube
 {

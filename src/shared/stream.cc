@@ -1,4 +1,4 @@
-#include "cube.h"
+#include "cube.hh"
 
 ///////////////////////// character conversion ///////////////
 

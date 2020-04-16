@@ -53,18 +53,18 @@
 
 #include <zlib.h>
 
-#include "tools.h"
-#include "geom.h"
-#include "ents.h"
-#include "command.h"
+#include "tools.hh"
+#include "geom.hh"
+#include "ents.hh"
+#include "command.hh"
 
 #ifndef STANDALONE
-#include "glexts.h"
-#include "glemu.h"
+#include "glexts.hh"
+#include "glemu.hh"
 #endif
 
-#include "iengine.h"
-#include "igame.h"
+#include "iengine.hh"
+#include "igame.hh"
 
 #endif
 

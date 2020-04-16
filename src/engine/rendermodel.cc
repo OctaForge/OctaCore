@@ -1,15 +1,15 @@
-#include "engine.h"
+#include "engine.hh"
 
 VAR(oqdynent, 0, 1, 1);
 VAR(animationinterpolationtime, 0, 200, 1000);
 
 model *loadingmodel = NULL;
 
-#include "ragdoll.h"
-#include "animmodel.h"
-#include "vertmodel.h"
-#include "skelmodel.h"
-#include "hitzone.h"
+#include "ragdoll.hh"
+#include "animmodel.hh"
+#include "vertmodel.hh"
+#include "skelmodel.hh"
+#include "hitzone.hh"
 
 static model *(__cdecl *modeltypes[NUMMODELTYPES])(const char *);
 
@@ -26,12 +26,12 @@ static model *__loadmodel__##modelclass(const char *filename) \
 } \
 UNUSED static int __dummy__##modelclass = addmodeltype((modeltype), __loadmodel__##modelclass);
 
-#include "md2.h"
-#include "md3.h"
-#include "md5.h"
-#include "obj.h"
-#include "smd.h"
-#include "iqm.h"
+#include "md2.hh"
+#include "md3.hh"
+#include "md5.hh"
+#include "obj.hh"
+#include "smd.hh"
+#include "iqm.hh"
 
 MODELTYPE(MDL_MD2, md2);
 MODELTYPE(MDL_MD3, md3);

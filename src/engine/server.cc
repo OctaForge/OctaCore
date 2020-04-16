@@ -1,7 +1,7 @@
 // server.cpp: little more than enhanced multicaster
 // runs dedicated or as client coroutine
 
-#include "engine.h"
+#include "engine.hh"
 
 #define LOGSTRLEN 512
 

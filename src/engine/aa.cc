@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "engine.hh"
 
 extern int intel_texalpha_bug;
 
