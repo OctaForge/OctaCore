@@ -1,12 +1,12 @@
 client_src = [
-    '../shared/crypto.cpp',
-    '../shared/stream.cpp',
-    '../shared/tools.cpp',
-    '../engine/command.cpp',
-    '../engine/server.cpp',
-    '../engine/worldio.cpp',
-    '../game/entities.cpp',
-    '../game/server.cpp'
+    '../shared/crypto.cc',
+    '../shared/stream.cc',
+    '../shared/tools.cc',
+    '../engine/command.cc',
+    '../engine/server.cc',
+    '../engine/worldio.cc',
+    '../game/entities.cc',
+    '../game/server.cc'
 ]
 
 threads_dep = dependency('threads')

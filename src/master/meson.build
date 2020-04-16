@@ -1,9 +1,9 @@
 client_src = [
-    '../shared/crypto.cpp',
-    '../shared/stream.cpp',
-    '../shared/tools.cpp',
-    '../engine/command.cpp',
-    '../engine/master.cpp'
+    '../shared/crypto.cc',
+    '../shared/stream.cc',
+    '../shared/tools.cc',
+    '../engine/command.cc',
+    '../engine/master.cc'
 ]
 
 threads_dep = dependency('threads')
