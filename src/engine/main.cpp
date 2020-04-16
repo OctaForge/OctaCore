@@ -1026,7 +1026,7 @@ int main(int argc, char **argv)
 
     initing = INIT_RESET;
     // set home dir first
-    for(int i = 1; i<argc; i++) if(argv[i][0]=='-' && argv[i][1] == 'u') { sethomedir(&argv[i][2]); break; }
+    sethomedir("$HOME/.octacore");
     // set log after home dir, but before anything else
     for(int i = 1; i<argc; i++) if(argv[i][0]=='-' && argv[i][1] == 'g')
     {
@@ -1040,7 +1040,6 @@ int main(int argc, char **argv)
     {
         if(argv[i][0]=='-') switch(argv[i][1])
         {
-            case 'u': if(homedir[0]) logoutf("Using home directory: %s", homedir); break;
             case 'k':
             {
                 const char *dir = addpackagedir(&argv[i][2]);
