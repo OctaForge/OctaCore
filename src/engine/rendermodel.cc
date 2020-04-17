@@ -1076,7 +1076,7 @@ bool matchanim(const char *name, const char *pattern)
 ICOMMAND(findanims, "s", (char *name),
 {
     vector<int> anims;
-    game::findanims(name, anims);
+    //game::findanims(name, anims);
     vector<char> buf;
     string num;
     loopv(anims)

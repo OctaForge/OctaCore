@@ -45,7 +45,6 @@ client_src = [
     '../game/game.cc',
     '../game/render.cc',
     '../game/server.cc',
-    '../game/weapon.cc'
 ]
 
 threads_dep = dependency('threads')

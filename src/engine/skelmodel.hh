@@ -1790,7 +1790,7 @@ template<class MDL> struct skelcommands : modelcommands<MDL, struct MDL::skelmes
         if(!MDL::loading || MDL::loading->parts.empty()) { conoutf("not loading an %s", MDL::formatname()); return; }
 
         vector<int> anims;
-        game::findanims(anim, anims);
+        //game::findanims(anim, anims);
         if(anims.empty()) conoutf("could not find animation %s", anim);
         else
         {

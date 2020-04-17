@@ -2,7 +2,6 @@
 
 namespace game
 {
-    bool intermission = false;
     int maptime = 0, maprealtime = 0, maplimit = -1;
     int lasthit = 0, lastspawnattempt = 0;
 
@@ -80,8 +79,6 @@ namespace game
 
     void resetgamestate()
     {
-        clearprojectiles();
-        clearbouncers();
     }
 
     gameent *spawnstate(gameent *d)              // reset player state not persistent accross spawns
@@ -101,7 +98,6 @@ namespace game
 
     gameent *pointatplayer()
     {
-        loopv(players) if(players[i] != player1 && intersect(players[i], player1->o, worldpos)) return players[i];
         return NULL;
     }
 
@@ -173,32 +169,6 @@ namespace game
 
     void otherplayers(int curtime)
     {
-        loopv(players)
-        {
-            gameent *d = players[i];
-            if(d == player1) continue;
-
-            if(d->state==CS_DEAD && d->ragdoll) moveragdoll(d);
-            else if(!intermission)
-            {
-                if(lastmillis - d->lastaction >= d->gunwait) d->gunwait = 0;
-            }
-
-            const int lagtime = totalmillis-d->lastupdate;
-            if(!lagtime || intermission) continue;
-            else if(lagtime>1000 && d->state==CS_ALIVE)
-            {
-                d->state = CS_LAGGED;
-                continue;
-            }
-            if(d->state==CS_ALIVE || d->state==CS_EDITING)
-            {
-                crouchplayer(d, 10, false);
-                if(smoothmove && d->smoothmillis>0) predictplayer(d, true);
-                else moveplayer(d, 1, false);
-            }
-            else if(d->state==CS_DEAD && !d->ragdoll && lastmillis-d->lastpain<2000) moveplayer(d, 1, true);
-        }
     }
 
     void updateworld()        // main game update loop
@@ -207,30 +177,15 @@ namespace game
         if(!curtime) { gets2c(); if(player1->clientnum>=0) c2sinfo(); return; }
 
         physicsframe();
-        updateweapons(curtime);
         otherplayers(curtime);
         moveragdolls();
         gets2c();
         if(connected)
         {
-            if(player1->state == CS_DEAD)
-            {
-                if(player1->ragdoll) moveragdoll(player1);
-                else if(lastmillis-player1->lastpain<2000)
-                {
-                    player1->move = player1->strafe = 0;
-                    moveplayer(player1, 10, true);
-                }
-            }
-            else if(!intermission)
-            {
-                if(player1->ragdoll) cleanragdoll(player1);
-                crouchplayer(player1, 10, true);
-                moveplayer(player1, 10, true);
-                swayhudgun(curtime);
-                entities::checkitems(player1);
-                if(cmode) cmode->checkitems(player1);
-            }
+            crouchplayer(player1, 10, true);
+            moveplayer(player1, 10, true);
+            entities::checkitems(player1);
+            if(cmode) cmode->checkitems(player1);
         }
         if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
     }
@@ -238,7 +193,7 @@ namespace game
     void spawnplayer(gameent *d)   // place at random spawn
     {
         if(cmode) cmode->pickspawn(d);
-        else findplayerspawn(d, -1, m_teammode ? d->team : 0);
+        else findplayerspawn(d, -1, 0);
         spawnstate(d);
         if(d==player1)
         {
@@ -255,15 +210,6 @@ namespace game
     {
         if(player1->state==CS_DEAD)
         {
-            player1->attacking = ACT_IDLE;
-            int wait = cmode ? cmode->respawnwait(player1) : 0;
-            if(wait>0)
-            {
-                lastspawnattempt = lastmillis;
-                //conoutf(CON_GAMEINFO, "\f2you must wait %d second%s before respawn!", wait, wait!=1 ? "s" : "");
-                return;
-            }
-            if(lastmillis < player1->lastpain + spawnwait) return;
             respawnself();
         }
     }
@@ -271,87 +217,36 @@ namespace game
 
     // inputs
 
-    VARP(attackspawn, 0, 1, 1);
-
-    void doaction(int act)
-    {
-        if(!connected || intermission) return;
-        if((player1->attacking = act) && attackspawn) respawn();
-    }
-
-    ICOMMAND(shoot, "D", (int *down), doaction(*down ? ACT_SHOOT : ACT_IDLE));
-    ICOMMAND(melee, "D", (int *down), doaction(*down ? ACT_MELEE : ACT_IDLE));
-
     VARP(jumpspawn, 0, 1, 1);
 
     bool canjump()
     {
-        if(!connected || intermission) return false;
+        if(!connected) return false;
         if(jumpspawn) respawn();
         return player1->state!=CS_DEAD;
     }
 
     bool cancrouch()
     {
-        if(!connected || intermission) return false;
+        if(!connected) return false;
         return player1->state!=CS_DEAD;
     }
 
     bool allowmove(physent *d)
     {
-        if(d->type!=ENT_PLAYER) return true;
-        return !((gameent *)d)->lasttaunt || lastmillis-((gameent *)d)->lasttaunt>=1000;
+        return true;
     }
-
-    void taunt()
-    {
-        if(player1->state!=CS_ALIVE || player1->physstate<PHYS_SLOPE) return;
-        if(lastmillis-player1->lasttaunt<1000) return;
-        player1->lasttaunt = lastmillis;
-        addmsg(N_TAUNT, "rc", player1);
-    }
-    COMMAND(taunt, "");
-
-    VARP(hitsound, 0, 0, 1);
 
     void damaged(int damage, gameent *d, gameent *actor, bool local)
     {
-        if((d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) || intermission) return;
-
-        if(local) damage = d->dodamage(damage);
-        else if(actor==player1) return;
-
-        gameent *h = hudplayer();
-        if(h!=player1 && actor==h && d!=actor)
-        {
-            if(hitsound && lasthit != lastmillis) playsound(S_HIT);
-            lasthit = lastmillis;
-        }
-        if(d==h)
-        {
-            damageblend(damage);
-            damagecompass(damage, actor->o);
-        }
-        damageeffect(damage, d, d!=h);
-
-        if(d->health<=0) { if(local) killed(d, actor); }
-        else if(d==h) playsound(S_PAIN2);
-        else playsound(S_PAIN1, &d->o);
     }
 
     void deathstate(gameent *d, bool restore)
     {
         d->state = CS_DEAD;
-        d->lastpain = lastmillis;
-        if(!restore)
-        {
-            gibeffect(max(-d->health, 0), d->vel, d);
-            d->deaths++;
-        }
         if(d==player1)
         {
             disablezoom();
-            d->attacking = ACT_IDLE;
             //d->pitch = 0;
             d->roll = 0;
             playsound(S_DIE2);
@@ -372,39 +267,11 @@ namespace game
         if(d->state==CS_EDITING)
         {
             d->editstate = CS_DEAD;
-            d->deaths++;
             if(d!=player1) d->resetinterp();
             return;
         }
-        else if((d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) || intermission) return;
+        else if(d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) return;
 
-        gameent *h = followingplayer(player1);
-        int contype = d==h || actor==h ? CON_FRAG_SELF : CON_FRAG_OTHER;
-        const char *dname = "", *aname = "";
-        if(m_teammode && teamcolorfrags)
-        {
-            dname = teamcolorname(d, "you");
-            aname = teamcolorname(actor, "you");
-        }
-        else
-        {
-            dname = colorname(d, NULL, "you");
-            aname = colorname(actor, NULL, "you");
-        }
-        if(d==actor)
-            conoutf(contype, "\f2%s suicided%s", dname, d==player1 ? "!" : "");
-        else if(isteam(d->team, actor->team))
-        {
-            contype |= CON_TEAMKILL;
-            if(actor==player1) conoutf(contype, "\f6%s fragged a teammate (%s)", aname, dname);
-            else if(d==player1) conoutf(contype, "\f6%s got fragged by a teammate (%s)", dname, aname);
-            else conoutf(contype, "\f2%s fragged a teammate (%s)", aname, dname);
-        }
-        else
-        {
-            if(d==player1) conoutf(contype, "\f2%s got fragged by %s", dname, aname);
-            else conoutf(contype, "\f2%s fragged %s", aname, dname);
-        }
         deathstate(d);
     }
 
@@ -414,29 +281,7 @@ namespace game
         {
             maplimit = lastmillis + secs*1000;
         }
-        else
-        {
-            intermission = true;
-            player1->attacking = ACT_IDLE;
-            if(cmode) cmode->gameover();
-            conoutf(CON_GAMEINFO, "\f2intermission:");
-            conoutf(CON_GAMEINFO, "\f2game has ended!");
-            conoutf(CON_GAMEINFO, "\f2player frags: %d, deaths: %d", player1->frags, player1->deaths);
-            int accuracy = (player1->totaldamage*100)/max(player1->totalshots, 1);
-            conoutf(CON_GAMEINFO, "\f2player total damage dealt: %d, damage wasted: %d, accuracy(%%): %d", player1->totaldamage, player1->totalshots-player1->totaldamage, accuracy);
-
-            disablezoom();
-
-            execident("intermission");
-        }
     }
-
-    ICOMMAND(getfrags, "", (), intret(player1->frags));
-    ICOMMAND(getflags, "", (), intret(player1->flags));
-    ICOMMAND(getdeaths, "", (), intret(player1->deaths));
-    ICOMMAND(getaccuracy, "", (), intret((player1->totaldamage*100)/max(player1->totalshots, 1)));
-    ICOMMAND(gettotaldamage, "", (), intret(player1->totaldamage));
-    ICOMMAND(gettotalshots, "", (), intret(player1->totalshots));
 
     vector<gameent *> clients;
 
@@ -474,7 +319,6 @@ namespace game
         if(d)
         {
             if(notify && d->name[0]) conoutf("\f4leave:\f7 %s", colorname(d));
-            removeweapons(d);
             removetrackedparticles(d);
             removetrackeddynlights(d);
             if(cmode) cmode->removeplayer(d);
@@ -505,16 +349,11 @@ namespace game
 
     void startgame()
     {
-        clearprojectiles();
-        clearbouncers();
-        clearragdolls();
-
         // reset perma-state
         loopv(players) players[i]->startgame();
 
         setclientmode();
 
-        intermission = false;
         maptime = maprealtime = 0;
         maplimit = -1;
 
@@ -595,67 +434,18 @@ namespace game
     const char *colorname(gameent *d, const char *name, const char * alt, const char *color)
     {
         if(!name) name = alt && d == player1 ? alt : d->name;
-        bool dup = !name[0] || duplicatename(d, name, alt);
-        if(dup || color[0])
-        {
-            if(dup) return tempformatstring("\fs%s%s \f5(%d)\fr", color, name, d->clientnum);
-            return tempformatstring("\fs%s%s\fr", color, name);
-        }
         return name;
-    }
-
-    VARP(teamcolortext, 0, 1, 1);
-
-    const char *teamcolorname(gameent *d, const char *alt)
-    {
-        if(!teamcolortext || !m_teammode || !validteam(d->team) || d->state == CS_SPECTATOR) return colorname(d, NULL, alt);
-        return colorname(d, NULL, alt, teamtextcode[d->team]);
-    }
-
-    const char *teamcolor(const char *prefix, const char *suffix, int team, const char *alt)
-    {
-        if(!teamcolortext || !m_teammode || !validteam(team)) return alt;
-        return tempformatstring("\fs%s%s%s%s\fr", teamtextcode[team], prefix, teamnames[team], suffix);
-    }
-
-    VARP(teamsounds, 0, 1, 1);
-
-    void teamsound(bool sameteam, int n, const vec *loc)
-    {
-        playsound(n, loc, NULL, teamsounds ? (m_teammode && sameteam ? SND_USE_ALT : SND_NO_ALT) : 0);
-    }
-
-    void teamsound(gameent *d, int n, const vec *loc)
-    {
-        teamsound(isteam(d->team, player1->team), n, loc);
     }
 
     bool needminimap() { return false; }
 
     void drawicon(int icon, float x, float y, float sz)
     {
-        settexture("media/interface/hud/items.png");
-        float tsz = 0.25f, tx = tsz*(icon%4), ty = tsz*(icon/4);
-        gle::defvertex(2);
-        gle::deftexcoord0();
-        gle::begin(GL_TRIANGLE_STRIP);
-        gle::attribf(x,    y);    gle::attribf(tx,     ty);
-        gle::attribf(x+sz, y);    gle::attribf(tx+tsz, ty);
-        gle::attribf(x,    y+sz); gle::attribf(tx,     ty+tsz);
-        gle::attribf(x+sz, y+sz); gle::attribf(tx+tsz, ty+tsz);
-        gle::end();
     }
 
     float abovegameplayhud(int w, int h)
     {
-        switch(hudplayer()->state)
-        {
-            case CS_EDITING:
-            case CS_SPECTATOR:
-                return 1;
-            default:
-                return 1650.0f/1800.0f;
-        }
+        return 1;
     }
 
     void drawhudicons(gameent *d)
@@ -682,17 +472,9 @@ namespace game
         return 0;
     }
 
-    VARP(teamcrosshair, 0, 1, 1);
-    VARP(hitcrosshair, 0, 425, 1000);
-
     const char *defaultcrosshair(int index)
     {
-        switch(index)
-        {
-            case 2: return "media/interface/crosshair/default_hit.png";
-            case 1: return "media/interface/crosshair/teammate.png";
-            default: return "media/interface/crosshair/default.png";
-        }
+        return "media/interface/crosshair/default.png";
     }
 
     int selectcrosshair(vec &)

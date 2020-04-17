@@ -35,93 +35,6 @@ namespace game
         settexture("media/interface/radar/radar.png", 3);
     }
 
-    void drawradar(float x, float y, float s)
-    {
-        gle::defvertex(2);
-        gle::deftexcoord0();
-        gle::begin(GL_TRIANGLE_STRIP);
-        gle::attribf(x,   y);   gle::attribf(0, 0);
-        gle::attribf(x+s, y);   gle::attribf(1, 0);
-        gle::attribf(x,   y+s); gle::attribf(0, 1);
-        gle::attribf(x+s, y+s); gle::attribf(1, 1);
-        gle::end();
-    }
-
-    void drawteammate(gameent *d, float x, float y, float s, gameent *o, float scale, float blipsize = 1)
-    {
-        vec dir = d->o;
-        dir.sub(o->o).div(scale);
-        float dist = dir.magnitude2(), maxdist = 1 - 0.05f - 0.05f;
-        if(dist >= maxdist) dir.mul(maxdist/dist);
-        dir.rotate_around_z(-camera1->yaw*RAD);
-        float bs = 0.06f*blipsize*s,
-              bx = x + s*0.5f*(1.0f + dir.x),
-              by = y + s*0.5f*(1.0f + dir.y);
-        vec v(-0.5f, -0.5f, 0);
-        v.rotate_around_z((90+o->yaw-camera1->yaw)*RAD);
-        gle::attribf(bx + bs*v.x, by + bs*v.y); gle::attribf(0, 0);
-        gle::attribf(bx + bs*v.y, by - bs*v.x); gle::attribf(1, 0);
-        gle::attribf(bx - bs*v.x, by - bs*v.y); gle::attribf(1, 1);
-        gle::attribf(bx - bs*v.y, by + bs*v.x); gle::attribf(0, 1);
-    }
-
-    void setbliptex(int team, const char *type = "")
-    {
-        defformatstring(blipname, "media/interface/radar/blip%s%s.png", teamblipcolor[validteam(team) ? team : 0], type);
-        settexture(blipname, 3);
-    }
-
-    void drawplayerblip(gameent *d, float x, float y, float s, float blipsize = 1)
-    {
-        if(d->state != CS_ALIVE && d->state != CS_DEAD) return;
-        float scale = calcradarscale();
-        setbliptex(d->team, d->state == CS_DEAD ? "_dead" : "_alive");
-        gle::defvertex(2);
-        gle::deftexcoord0();
-        gle::begin(GL_QUADS);
-        drawteammate(d, x, y, s, d, scale, blipsize);
-        gle::end();
-    }
-
-    void drawteammates(gameent *d, float x, float y, float s)
-    {
-        if(!radarteammates) return;
-        float scale = calcradarscale();
-        int alive = 0, dead = 0;
-        loopv(players)
-        {
-            gameent *o = players[i];
-            if(o != d && o->state == CS_ALIVE && o->team == d->team)
-            {
-                if(!alive++)
-                {
-                    setbliptex(d->team, "_alive");
-                    gle::defvertex(2);
-                    gle::deftexcoord0();
-                    gle::begin(GL_QUADS);
-                }
-                drawteammate(d, x, y, s, o, scale);
-            }
-        }
-        if(alive) gle::end();
-        loopv(players)
-        {
-            gameent *o = players[i];
-            if(o != d && o->state == CS_DEAD && o->team == d->team)
-            {
-                if(!dead++)
-                {
-                    setbliptex(d->team, "_dead");
-                    gle::defvertex(2);
-                    gle::deftexcoord0();
-                    gle::begin(GL_QUADS);
-                }
-                drawteammate(d, x, y, s, o, scale);
-            }
-        }
-        if(dead) gle::end();
-    }
-
     clientmode *cmode = NULL;
 
     void setclientmode()
@@ -166,7 +79,7 @@ namespace game
         addmsg(N_EDITMODE, "ri", on ? 1 : 0);
         if(player1->state==CS_DEAD) deathstate(player1, true);
         disablezoom();
-        player1->suicided = player1->respawned = -2;
+        player1->respawned = -2;
         checkfollow();
     }
 
@@ -508,14 +421,10 @@ namespace game
         }
     }
 
-    VARP(teamcolorchat, 0, 1, 1);
-    const char *chatcolorname(gameent *d) { return teamcolorchat ? teamcolorname(d, NULL) : colorname(d); }
+    const char *chatcolorname(gameent *d) { return colorname(d); }
 
-    void toserver(char *text) { conoutf(CON_CHAT, "%s:%s %s", chatcolorname(player1), teamtextcode[0], text); addmsg(N_TEXT, "rcs", player1, text); }
+    void toserver(char *text) { conoutf(CON_CHAT, "%s: %s", chatcolorname(player1), text); addmsg(N_TEXT, "rcs", player1, text); }
     COMMANDN(say, toserver, "C");
-
-    void sayteam(char *text) { if(!m_teammode || !validteam(player1->team)) return; conoutf(CON_TEAMCHAT, "%s:%s %s", chatcolorname(player1), teamtextcode[player1->team], text); addmsg(N_SAYTEAM, "rcs", player1, text); }
-    COMMAND(sayteam, "C");
 
     ICOMMAND(servcmd, "C", (char *cmd), addmsg(N_SERVCMD, "rs", cmd));
 
@@ -761,24 +670,6 @@ namespace game
                 break;
             }
 
-            case N_TELEPORT:
-            {
-                int cn = getint(p), tp = getint(p), td = getint(p);
-                gameent *d = getclient(cn);
-                if(!d || d->lifesequence < 0 || d->state==CS_DEAD) continue;
-                entities::teleporteffects(d, tp, td, false);
-                break;
-            }
-
-            case N_JUMPPAD:
-            {
-                int cn = getint(p), jp = getint(p);
-                gameent *d = getclient(cn);
-                if(!d || d->lifesequence < 0 || d->state==CS_DEAD) continue;
-                entities::jumppadeffects(d, jp, false);
-                break;
-            }
-
             default:
                 neterr("type");
                 return;
@@ -792,24 +683,8 @@ namespace game
         {
             if(d==player1) getint(p);
             else d->state = getint(p);
-            d->frags = getint(p);
-            d->flags = getint(p);
-            d->deaths = getint(p);
         }
         d->lifesequence = getint(p);
-        d->health = getint(p);
-        d->maxhealth = getint(p);
-        if(resume && d==player1)
-        {
-            getint(p);
-            loopi(NUMGUNS) getint(p);
-        }
-        else
-        {
-            int gun = getint(p);
-            d->gunselect = clamp(gun, 0, NUMGUNS-1);
-            loopi(NUMGUNS) d->ammo[i] = getint(p);
-        }
     }
 
     void parsemessages(int cn, gameent *d, ucharbuf &p)
@@ -847,7 +722,6 @@ namespace game
                 int cn = getint(p);
                 gameent *a = cn >= 0 ? getclient(cn) : NULL;
                 gamepaused = val;
-                player1->attacking = ACT_IDLE;
                 if(a) conoutf("%s %s the game", colorname(a), val ? "paused" : "resumed");
                 else conoutf("game is %s", val ? "paused" : "resumed");
                 break;
@@ -883,21 +757,7 @@ namespace game
                 filtertext(text, text, true, true);
                 if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
                     particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
-                conoutf(CON_CHAT, "%s:%s %s", chatcolorname(d), teamtextcode[0], text);
-                break;
-            }
-
-            case N_SAYTEAM:
-            {
-                int tcn = getint(p);
-                gameent *t = getclient(tcn);
-                getstring(text, p);
-                filtertext(text, text, true, true);
-                if(!t) break;
-                int team = validteam(t->team) ? t->team : 0;
-                if(t->state!=CS_DEAD && t->state!=CS_SPECTATOR)
-                    particle_textcopy(t->abovehead(), text, PART_TEXT, 2000, teamtextcolor[team], 4.0f, -8);
-                conoutf(CON_TEAMCHAT, "%s:%s %s", chatcolorname(t), teamtextcode[team], text);
+                conoutf(CON_CHAT, "%s: %s", chatcolorname(d), text);
                 break;
             }
 
@@ -934,10 +794,8 @@ namespace game
                     if(needclipboard >= 0) needclipboard++;
                 }
                 copystring(d->name, text, MAXNAMELEN+1);
-                d->team = getint(p);
-                if(!validteam(d->team)) d->team = 0;
-                d->playermodel = getint(p);
-                d->playercolor = getint(p);
+                d->playermodel = 0;
+                d->playercolor = 0;
                 break;
             }
 
@@ -963,7 +821,6 @@ namespace game
             {
                 if(d)
                 {
-                    if(d->state==CS_DEAD && d->lastpain) saveragdoll(d);
                     d->respawn();
                 }
                 parsestate(d, p);
@@ -979,7 +836,6 @@ namespace game
                 int scn = getint(p);
                 gameent *s = getclient(scn);
                 if(!s) { parsestate(NULL, p); break; }
-                if(s->state==CS_DEAD && s->lastpain) saveragdoll(s);
                 if(s==player1)
                 {
                     if(editmode) toggleedit();
@@ -988,37 +844,14 @@ namespace game
                 parsestate(s, p);
                 s->state = CS_ALIVE;
                 if(cmode) cmode->pickspawn(s);
-                else findplayerspawn(s, -1, m_teammode ? s->team : 0);
+                else findplayerspawn(s, -1, 0);
                 if(s == player1)
                 {
                     lasthit = 0;
                 }
                 if(cmode) cmode->respawned(s);
                 checkfollow();
-                addmsg(N_SPAWN, "rcii", s, s->lifesequence, s->gunselect);
-                break;
-            }
-
-            case N_HITPUSH:
-            {
-                int tcn = getint(p), atk = getint(p), damage = getint(p);
-                gameent *target = getclient(tcn);
-                vec dir;
-                loopk(3) dir[k] = getint(p)/DNF;
-                if(!target || !validatk(atk)) break;
-                target->hitpush(damage * (target->health<=0 ? deadpush : 1), dir, NULL, atk);
-                break;
-            }
-
-            case N_DIED:
-            {
-                int vcn = getint(p), acn = getint(p), frags = getint(p), tfrags = getint(p);
-                gameent *victim = getclient(vcn),
-                       *actor = getclient(acn);
-                if(!actor) break;
-                actor->frags = frags;
-                if(!victim) break;
-                killed(victim, actor);
+                addmsg(N_SPAWN, "rci", s, s->lifesequence);
                 break;
             }
 
@@ -1177,10 +1010,6 @@ namespace game
             case N_CLIENTPING:
                 if(!d) return;
                 d->ping = getint(p);
-                break;
-
-            case N_TIMEUP:
-                timeupdate(getint(p));
                 break;
 
             case N_SERVMSG:

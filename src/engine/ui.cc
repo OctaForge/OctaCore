@@ -2878,7 +2878,7 @@ namespace UI
                 else
                 {
                     vector<int> anims;
-                    game::findanims(animspec, anims);
+                    //game::findanims(animspec, anims);
                     if(anims.length()) anim = anims[0];
                 }
             }
@@ -2936,7 +2936,7 @@ namespace UI
             int sx1, sy1, sx2, sy2;
             window->calcscissor(sx, sy, sx+w, sy+h, sx1, sy1, sx2, sy2, false);
             modelpreview::start(sx1, sy1, sx2-sx1, sy2-sy1, false, clipstack.length() > 0);
-            game::renderplayerpreview(model, color, team, weapon);
+            game::renderplayerpreview(model, color, weapon);
             if(clipstack.length()) clipstack.last().scissor();
             modelpreview::end();
         }

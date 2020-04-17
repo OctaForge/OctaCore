@@ -1056,13 +1056,14 @@ struct animmodel : model
 
         void setanim(int animpart, int num, int frame, int range, float speed, int priority = 0)
         {
-            if(animpart<0 || animpart>=MAXANIMPARTS || num<0 || num>=game::numanims()) return;
+            const int NUM_ANIMS = 0; // FIXME
+            if(animpart<0 || animpart>=MAXANIMPARTS || num<0 || num>=NUM_ANIMS) return;
             if(frame<0 || range<=0 || !meshes || !meshes->hasframes(frame, range))
             {
                 conoutf("invalid frame %d, range %d in model %s", frame, range, model->name);
                 return;
             }
-            if(!anims[animpart]) anims[animpart] = new vector<animspec>[game::numanims()];
+            if(!anims[animpart]) anims[animpart] = new vector<animspec>[NUM_ANIMS];
             animspec &spec = anims[animpart][num].add();
             spec.frame = frame;
             spec.range = range;
