@@ -1,6 +1,7 @@
 // rendergl.cpp: core opengl rendering stuff
 
 #include "aa.hh"
+#include "blend.hh"
 
 #include "engine.hh"
 

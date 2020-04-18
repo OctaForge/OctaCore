@@ -1,3 +1,5 @@
+#include "blend.hh"
+
 #include "engine.hh"
 
 extern int outline;

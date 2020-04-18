@@ -1,3 +1,5 @@
+#include "blend.hh"
+
 #include "engine.hh"
 
 enum
@@ -261,7 +263,7 @@ static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, i
     }
 }
 
-void fillblendmap(int x, int y, int w, int h, uchar val)
+static void fillblendmap(int x, int y, int w, int h, uchar val)
 {
     int bmsize = worldsize>>BM_SCALE,
         x1 = clamp(x, 0, bmsize),
@@ -308,7 +310,7 @@ static void invertblendmap(uchar &type, BlendMapNode &node, int size, int x1, in
     }
 }
 
-void invertblendmap(int x, int y, int w, int h)
+static void invertblendmap(int x, int y, int w, int h)
 {
     int bmsize = worldsize>>BM_SCALE,
         x1 = clamp(x, 0, bmsize),
@@ -426,7 +428,7 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
     }
 }
 
-void blitblendmap(uchar *src, int sx, int sy, int sw, int sh, int smode)
+static void blitblendmap(uchar *src, int sx, int sy, int sw, int sh, int smode)
 {
     int bmsize = worldsize>>BM_SCALE;
     if(max(sx, sy) >= bmsize || min(sx+sw, sy+sh) <= 0 || min(sw, sh) <= 0) return;
@@ -549,7 +551,7 @@ void moveblendmap(uchar type, BlendMapNode &node, int size, int x, int y, int dx
     }
 }
 
-void moveblendmap(int dx, int dy)
+static void moveblendmap(int dx, int dy)
 {
     BlendMapRoot old = blendmap;
     blendmap.type = BM_SOLID;
@@ -677,7 +679,7 @@ struct BlendTexture
 
 static vector<BlendTexture> blendtexs;
 
-void dumpblendtexs()
+static void dumpblendtexs()
 {
     loopv(blendtexs)
     {
@@ -877,7 +879,7 @@ ICOMMAND(clearblendbrushes, "", (),
     curbrush = -1;
 });
 
-void delblendbrush(const char *name)
+static void delblendbrush(const char *name)
 {
     loopv(brushes) if(!strcmp(brushes[i]->name, name))
     {
@@ -889,7 +891,7 @@ void delblendbrush(const char *name)
 
 COMMAND(delblendbrush, "s");
 
-void addblendbrush(const char *name, const char *imgname)
+static void addblendbrush(const char *name, const char *imgname)
 {
     delblendbrush(name);
 
@@ -940,7 +942,7 @@ ICOMMAND(curblendbrush, "", (), intret(curbrush));
 
 extern int nompedit;
 
-bool canpaintblendmap(bool brush = true, bool sel = false, bool msg = true)
+static bool canpaintblendmap(bool brush = true, bool sel = false, bool msg = true)
 {
     if(noedit(!sel, msg) || (nompedit && multiplayer())) return false;
     if(!blendpaintmode)
@@ -965,7 +967,7 @@ ICOMMAND(rotateblendbrush, "i", (int *val),
     brush->reorient(r.flipx, r.flipy, r.swapxy);
 });
 
-void paintblendmap(bool msg)
+static void paintblendmap(bool msg)
 {
     if(!canpaintblendmap(true, false, msg)) return;
 
@@ -1010,7 +1012,7 @@ ICOMMAND(paintblendmap, "D", (int *isdown),
     else stoppaintblendmap();
 });
 
-void clearblendmapsel()
+static void clearblendmapsel()
 {
     if(noedit(false) || (nompedit && multiplayer())) return;
     extern selinfo sel;
@@ -1024,7 +1026,7 @@ void clearblendmapsel()
 
 COMMAND(clearblendmapsel, "");
 
-void invertblendmapsel()
+static void invertblendmapsel()
 {
     if(noedit(false) || (nompedit && multiplayer())) return;
     extern selinfo sel;
@@ -1045,7 +1047,7 @@ ICOMMAND(invertblendmap, "", (),
     previewblends(ivec(0, 0, 0), ivec(worldsize, worldsize, worldsize));
 });
 
-void showblendmap()
+static void showblendmap()
 {
     if(noedit(true) || (nompedit && multiplayer())) return;
     previewblends(ivec(0, 0, 0), ivec(worldsize, worldsize, worldsize));

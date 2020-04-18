@@ -1,5 +1,7 @@
 // octarender.cpp: fill vertex arrays with different cube surfaces.
 
+#include "blend.hh"
+
 #include "engine.hh"
 
 struct vboinfo

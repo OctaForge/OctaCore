@@ -1,5 +1,7 @@
 // world.cpp: core map management stuff
 
+#include "blend.hh"
+
 #include "engine.hh"
 
 VARR(mapversion, 1, MAPVERSION, 0);

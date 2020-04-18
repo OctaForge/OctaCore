@@ -1,5 +1,7 @@
 // main.cpp: initialisation & main loop
 
+#include "blend.hh"
+
 #include "engine.hh"
 
 extern void cleargamma();

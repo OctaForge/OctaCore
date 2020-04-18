@@ -1,3 +1,5 @@
+#include "blend.hh"
+
 #include "engine.hh"
 
 VARP(grass, 0, 1, 1);

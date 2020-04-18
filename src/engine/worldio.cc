@@ -1,5 +1,9 @@
 // worldio.cpp: loading & saving of maps and savegames
 
+#ifndef STANDALONE
+#include "blend.hh"
+#endif
+
 #include "engine.hh"
 
 void validmapname(char *dst, const char *src, const char *prefix = NULL, const char *alt = "untitled", size_t maxlen = 100)

@@ -3,8 +3,16 @@
 #ifndef _TOOLS_H
 #define _TOOLS_H
 
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+
 #include <zlib.h>
 #include <enet/enet.h>
+
+#ifndef STANDALONE
+#include "gl.hh"
+#endif
 
 #ifdef NULL
 #undef NULL

@@ -1,3 +1,5 @@
+#include "blend.hh"
+
 #include "engine.hh"
 
 CVAR1R(ambient, 0x191919);
