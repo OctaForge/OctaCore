@@ -1124,7 +1124,6 @@ int main(int argc, char **argv)
     execfile("config/keymap.cfg");
     execfile("config/stdedit.cfg");
     execfile(game::gameconfig());
-    execfile("config/sound.cfg");
     execfile("config/ui.cfg");
     execfile("config/heightmap.cfg");
     execfile("config/blendbrush.cfg");
