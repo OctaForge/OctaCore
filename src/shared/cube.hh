@@ -36,18 +36,7 @@
   #define ZLIB_DLL
 #endif
 
-#ifndef STANDALONE
-  #ifdef __APPLE__
-    #include "SDL2/SDL.h"
-    #define GL_GLEXT_LEGACY
-    #define __glext_h_
-    #include <OpenGL/gl.h>
-    #define main SDL_main
-  #else
-    #include <SDL.h>
-    #include <SDL_opengl.h>
-  #endif
-#endif
+#include "gl.hh"
 
 #include <enet/enet.h>
 

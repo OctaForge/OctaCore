@@ -1,3 +1,5 @@
+#include "aa.hh"
+
 #include "engine.hh"
 
 int gw = -1, gh = -1, bloomw = -1, bloomh = -1, lasthdraccum = 0;

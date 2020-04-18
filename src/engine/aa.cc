@@ -1,3 +1,5 @@
+#include "aa.hh"
+
 #include "engine.hh"
 
 extern int intel_texalpha_bug;
@@ -10,13 +12,13 @@ FVAR(tqaacolorweightscale, 0, 0.25f, 1e3f);
 FVAR(tqaacolorweightbias, 0, 0.01f, 1);
 VAR(tqaaresolvegather, 1, 0, 0);
 
-int tqaaframe = 0;
-GLuint tqaatex[2] = { 0, 0 }, tqaafbo[2] = { 0, 0 };
-matrix4 tqaaprevscreenmatrix;
+static int tqaaframe = 0;
+static GLuint tqaatex[2] = { 0, 0 }, tqaafbo[2] = { 0, 0 };
+static matrix4 tqaaprevscreenmatrix;
 
-int tqaatype = -1;
+static int tqaatype = -1;
 
-void loadtqaashaders()
+static void loadtqaashaders()
 {
     tqaatype = tqaamovemask ? AA_MASKED : AA_UNUSED;
     loadhdrshaders(tqaatype);
@@ -24,7 +26,7 @@ void loadtqaashaders()
     useshaderbyname("tqaaresolve");
 }
 
-void setuptqaa(int w, int h)
+static void setuptqaa(int w, int h)
 {
     loopi(2)
     {
@@ -44,7 +46,7 @@ void setuptqaa(int w, int h)
     loadtqaashaders();
 }
 
-void cleanuptqaa()
+static void cleanuptqaa()
 {
     tqaatype = -1;
     loopi(2) if(tqaatex[i]) { glDeleteTextures(1, &tqaatex[i]); tqaatex[i] = 0; }
@@ -74,7 +76,7 @@ void setaavelocityparams(GLenum tmu)
 
 VAR(debugtqaa, 0, 0, 2);
 
-void viewtqaa()
+static void viewtqaa()
 {
     int w = min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
     SETSHADER(hudrect);
@@ -87,7 +89,7 @@ void viewtqaa()
     debugquad(0, 0, w, h, 0, 0, tw, th);
 }
 
-void resolvetqaa(GLuint outfbo)
+static void resolvetqaa(GLuint outfbo)
 {
     glBindFramebuffer_(GL_FRAMEBUFFER, outfbo);
     SETSHADER(tqaaresolve);
@@ -109,7 +111,7 @@ void resolvetqaa(GLuint outfbo)
     tqaaframe++;
 }
 
-void dotqaa(GLuint outfbo = 0)
+static void dotqaa(GLuint outfbo = 0)
 {
     timer *tqaatimer = begintimer("tqaa");
 
@@ -118,14 +120,30 @@ void dotqaa(GLuint outfbo = 0)
     endtimer(tqaatimer);
 }
 
-GLuint fxaafbo = 0, fxaatex = 0;
+static GLuint fxaafbo = 0, fxaatex = 0;
 
-extern int fxaaquality, fxaagreenluma;
-
-int fxaatype = -1;
+static int fxaatype = -1;
 static Shader *fxaashader = NULL;
 
-void loadfxaashaders()
+static void clearfxaashaders()
+{
+    fxaatype = -1;
+    fxaashader = NULL;
+}
+
+static void cleanupfxaa()
+{
+    if(fxaafbo) { glDeleteFramebuffers_(1, &fxaafbo); fxaafbo = 0; }
+    if(fxaatex) { glDeleteTextures(1, &fxaatex); fxaatex = 0; }
+
+    clearfxaashaders();
+}
+
+VARFP(fxaa, 0, 0, 1, cleanupfxaa());
+VARFP(fxaaquality, 0, 1, 3, cleanupfxaa());
+VARFP(fxaagreenluma, 0, 0, 1, cleanupfxaa());
+
+static void loadfxaashaders()
 {
     fxaatype = tqaatype >= 0 ? tqaatype : (!fxaagreenluma && !intel_texalpha_bug ? AA_LUMA : AA_UNUSED);
     loadhdrshaders(fxaatype);
@@ -139,13 +157,7 @@ void loadfxaashaders()
     fxaashader = generateshader(fxaaname, "fxaashaders %d \"%s\"", fxaaquality, opts);
 }
 
-void clearfxaashaders()
-{
-    fxaatype = -1;
-    fxaashader = NULL;
-}
-
-void setupfxaa(int w, int h)
+static void setupfxaa(int w, int h)
 {
     if(!fxaatex) glGenTextures(1, &fxaatex);
     if(!fxaafbo) glGenFramebuffers_(1, &fxaafbo);
@@ -160,19 +172,7 @@ void setupfxaa(int w, int h)
     loadfxaashaders();
 }
 
-void cleanupfxaa()
-{
-    if(fxaafbo) { glDeleteFramebuffers_(1, &fxaafbo); fxaafbo = 0; }
-    if(fxaatex) { glDeleteTextures(1, &fxaatex); fxaatex = 0; }
-
-    clearfxaashaders();
-}
-
-VARFP(fxaa, 0, 0, 1, cleanupfxaa());
-VARFP(fxaaquality, 0, 1, 3, cleanupfxaa());
-VARFP(fxaagreenluma, 0, 0, 1, cleanupfxaa());
-
-void dofxaa(GLuint outfbo = 0)
+static void dofxaa(GLuint outfbo = 0)
 {
     timer *fxaatimer = begintimer("fxaa");
 
@@ -186,15 +186,47 @@ void dofxaa(GLuint outfbo = 0)
     endtimer(fxaatimer);
 }
 
-GLuint smaaareatex = 0, smaasearchtex = 0, smaafbo[4] = { 0, 0, 0, 0 }, smaatex[5] = { 0, 0, 0, 0, 0 };
-int smaasubsampleorder = -1;
+static GLuint smaaareatex = 0, smaasearchtex = 0, smaafbo[4] = { 0, 0, 0, 0 }, smaatex[5] = { 0, 0, 0, 0, 0 };
+static int smaasubsampleorder = -1;
 
-extern int smaaquality, smaagreenluma, smaacoloredge, smaadepthmask, smaastencil;
-
-int smaatype = -1;
+static int smaatype = -1;
 static Shader *smaalumaedgeshader = NULL, *smaacoloredgeshader = NULL, *smaablendweightshader = NULL, *smaaneighborhoodshader = NULL;
 
-void loadsmaashaders(bool split = false)
+VAR(smaat2x, 1, 0, 0);
+VAR(smaas2x, 1, 0, 0);
+VAR(smaa4x, 1, 0, 0);
+
+static void clearsmaashaders()
+{
+    smaatype = -1;
+    smaalumaedgeshader = NULL;
+    smaacoloredgeshader = NULL;
+    smaablendweightshader = NULL;
+    smaaneighborhoodshader = NULL;
+}
+
+static void cleanupsmaa()
+{
+    if(smaaareatex) { glDeleteTextures(1, &smaaareatex); smaaareatex = 0; }
+    if(smaasearchtex) { glDeleteTextures(1, &smaasearchtex); smaasearchtex = 0; }
+    loopi(4) if(smaafbo[i]) { glDeleteFramebuffers_(1, &smaafbo[i]); smaafbo[i] = 0; }
+    loopi(5) if(smaatex[i]) { glDeleteTextures(1, &smaatex[i]); smaatex[i] = 0; }
+    smaasubsampleorder = -1;
+    smaat2x = smaas2x = smaa4x = 0;
+
+    clearsmaashaders();
+}
+
+VARFP(smaa, 0, 0, 1, cleanupgbuffer());
+VARFP(smaaspatial, 0, 1, 1, cleanupgbuffer());
+VARFP(smaaquality, 0, 2, 3, cleanupsmaa());
+VARFP(smaacoloredge, 0, 0, 1, cleanupsmaa());
+VARFP(smaagreenluma, 0, 0, 1, cleanupsmaa());
+VARF(smaadepthmask, 0, 1, 1, cleanupsmaa());
+VARF(smaastencil, 0, 1, 1, cleanupsmaa());
+VAR(debugsmaa, 0, 0, 5);
+
+static void loadsmaashaders(bool split = false)
 {
     smaatype = tqaatype >= 0 ? tqaatype : (!smaagreenluma && !intel_texalpha_bug && !smaacoloredge ? AA_LUMA : AA_UNUSED);
     if(split) smaatype += AA_SPLIT;
@@ -231,21 +263,12 @@ void loadsmaashaders(bool split = false)
     if(!smaaneighborhoodshader) smaaneighborhoodshader = nullshader;
 }
 
-void clearsmaashaders()
-{
-    smaatype = -1;
-    smaalumaedgeshader = NULL;
-    smaacoloredgeshader = NULL;
-    smaablendweightshader = NULL;
-    smaaneighborhoodshader = NULL;
-}
-
 #define SMAA_SEARCHTEX_WIDTH 66
 #define SMAA_SEARCHTEX_HEIGHT 33
 static uchar smaasearchdata[SMAA_SEARCHTEX_WIDTH*SMAA_SEARCHTEX_HEIGHT];
 static bool smaasearchdatainited = false;
 
-void gensmaasearchdata()
+static void gensmaasearchdata()
 {
     if(smaasearchdatainited) return;
     int edges[33];
@@ -268,7 +291,7 @@ void gensmaasearchdata()
     smaasearchdatainited = true;
 }
 
-vec2 areaunderortho(const vec2 &p1, const vec2 &p2, float x)
+static vec2 areaunderortho(const vec2 &p1, const vec2 &p2, float x)
 {
     vec2 d(p2.x - p1.x, p2.y - p1.y);
     float y1 = p1.y + (x - p1.x)*d.y/d.x,
@@ -306,7 +329,7 @@ static inline void smootharea(float d, vec2 &a1, vec2 &a2)
     a2.lerp(b2, a2, p);
 }
 
-vec2 areaortho(int pattern, float left, float right, float offset)
+static vec2 areaortho(int pattern, float left, float right, float offset)
 {
     float d = left + right + 1, o1 = offset + 0.5f, o2 = offset - 0.5f;
     switch(pattern)
@@ -351,7 +374,7 @@ vec2 areaortho(int pattern, float left, float right, float offset)
     return vec2(0, 0);
 }
 
-float areaunderdiag(const vec2 &p1, const vec2 &p2, const vec2 &p)
+static float areaunderdiag(const vec2 &p1, const vec2 &p2, const vec2 &p)
 {
     vec2 d(p2.y - p1.y, p1.x - p2.x);
     float dp = d.dot(vec2(p1).sub(p));
@@ -423,7 +446,7 @@ static inline vec2 areadiag2(float p1x, float p1y, float p2x, float p2y, float p
     return areadiag(p1, p2, left).avg(areadiag(p3, p4, left));
 }
 
-vec2 areadiag(int pattern, float left, float right, const vec2 &offset)
+static vec2 areadiag(int pattern, float left, float right, const vec2 &offset)
 {
     float d = left + right + 1;
     switch(pattern)
@@ -456,7 +479,7 @@ static const float offsetsdiag[][2] = { { 0.0f, 0.0f, }, { 0.25f, -0.25f }, { -0
 static uchar smaaareadata[SMAA_AREATEX_WIDTH*SMAA_AREATEX_HEIGHT*2];
 static bool smaaareadatainited = false;
 
-void gensmaaareadata()
+static void gensmaaareadata()
 {
     if(smaaareadatainited) return;
     memset(smaaareadata, 0, sizeof(smaaareadata));
@@ -495,11 +518,7 @@ void gensmaaareadata()
     smaaareadatainited = true;
 }
 
-VAR(smaat2x, 1, 0, 0);
-VAR(smaas2x, 1, 0, 0);
-VAR(smaa4x, 1, 0, 0);
-
-void setupsmaa(int w, int h)
+static void setupsmaa(int w, int h)
 {
     if(!smaaareatex) glGenTextures(1, &smaaareatex);
     if(!smaasearchtex) glGenTextures(1, &smaasearchtex);
@@ -543,28 +562,7 @@ void setupsmaa(int w, int h)
     loadsmaashaders(split);
 }
 
-void cleanupsmaa()
-{
-    if(smaaareatex) { glDeleteTextures(1, &smaaareatex); smaaareatex = 0; }
-    if(smaasearchtex) { glDeleteTextures(1, &smaasearchtex); smaasearchtex = 0; }
-    loopi(4) if(smaafbo[i]) { glDeleteFramebuffers_(1, &smaafbo[i]); smaafbo[i] = 0; }
-    loopi(5) if(smaatex[i]) { glDeleteTextures(1, &smaatex[i]); smaatex[i] = 0; }
-    smaasubsampleorder = -1;
-    smaat2x = smaas2x = smaa4x = 0;
-
-    clearsmaashaders();
-}
-
-VARFP(smaa, 0, 0, 1, cleanupgbuffer());
-VARFP(smaaspatial, 0, 1, 1, cleanupgbuffer());
-VARFP(smaaquality, 0, 2, 3, cleanupsmaa());
-VARFP(smaacoloredge, 0, 0, 1, cleanupsmaa());
-VARFP(smaagreenluma, 0, 0, 1, cleanupsmaa());
-VARF(smaadepthmask, 0, 1, 1, cleanupsmaa());
-VARF(smaastencil, 0, 1, 1, cleanupsmaa());
-VAR(debugsmaa, 0, 0, 5);
-
-void viewsmaa()
+static void viewsmaa()
 {
     int w = min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
     SETSHADER(hudrect);
@@ -580,7 +578,7 @@ void viewsmaa()
     debugquad(0, 0, w, h, 0, 0, tw, th);
 }
 
-void dosmaa(GLuint outfbo = 0, bool split = false)
+static void dosmaa(GLuint outfbo = 0, bool split = false)
 {
     timer *smaatimer = begintimer("smaa");
 
@@ -690,7 +688,7 @@ void jitteraa()
     }
 }
 
-int aamaskstencil = -1, aamask = -1;
+static int aamaskstencil = -1, aamask = -1;
 
 void setaamask(bool on)
 {
@@ -770,4 +768,3 @@ void cleanupaa()
     cleanupfxaa();
     cleanuptqaa();
 }
-

@@ -3,6 +3,9 @@
 #ifndef _TOOLS_H
 #define _TOOLS_H
 
+#include <zlib.h>
+#include <enet/enet.h>
+
 #ifdef NULL
 #undef NULL
 #endif

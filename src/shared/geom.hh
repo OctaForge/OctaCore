@@ -1,3 +1,6 @@
+#ifndef GEOM_HH
+#define GEOM_HH
+
 struct vec;
 struct vec4;
 
@@ -1940,3 +1943,4 @@ static inline float sin360(int angle) { return sincos360[angle].y; }
 static inline float tan360(int angle) { const vec2 &sc = sincos360[angle]; return sc.y/sc.x; }
 static inline float cotan360(int angle) { const vec2 &sc = sincos360[angle]; return sc.x/sc.y; }
 
+#endif
