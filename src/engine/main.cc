@@ -32,7 +32,6 @@ extern void writeinitcfg();
 void quit()                     // normal exit
 {
     writeinitcfg();
-    writeservercfg();
     abortconnect();
     disconnect();
     localdisconnect();

@@ -15,8 +15,6 @@ namespace game
     const char *gameident() { return "Tesseract"; }
 }
 
-extern ENetAddress masteraddress;
-
 namespace server
 {
     struct server_entity            // server side version of "entity" type
@@ -971,18 +969,6 @@ namespace server
         return ci && ci->connected;
     }
 
-    void masterconnected()
-    {
-    }
-
-    void masterdisconnected()
-    {
-    }
-
-    void processmasterinput(const char *cmd, int cmdlen, const char *args)
-    {
-    }
-
     void receivefile(int sender, uchar *data, int len)
     {
         clientinfo *ci = getinfo(sender);
@@ -1397,8 +1383,6 @@ namespace server
 
     int laninfoport() { return TESSERACT_LANINFO_PORT; }
     int serverport() { return TESSERACT_SERVER_PORT; }
-    const char *defaultmaster() { return "master.tesseract.gg"; }
-    int masterport() { return TESSERACT_MASTER_PORT; }
     int numchannels() { return 3; }
 
     void serverinforeply(ucharbuf &req, ucharbuf &p)

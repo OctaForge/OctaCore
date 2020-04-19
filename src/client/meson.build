@@ -32,7 +32,6 @@ client_src = [
     '../engine/rendertext.cc',
     '../engine/renderva.cc',
     '../engine/server.cc',
-    '../engine/serverbrowser.cc',
     '../engine/shader.cc',
     '../engine/stain.cc',
     '../engine/texture.cc',
