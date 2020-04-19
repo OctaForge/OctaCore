@@ -7,4 +7,3 @@ add_global_arguments('-fsigned-char', language: 'cpp')
 
 subdir('enet')
 subdir('client')
-subdir('server')
