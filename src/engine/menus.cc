@@ -2,7 +2,7 @@
 
 void notifywelcome()
 {
-    UI::hideui("servers");
+    //UI::hideui("servers");
 }
 
 struct change
@@ -23,7 +23,7 @@ void addchange(const char *desc, int type)
     if(!applydialog) return;
     loopv(needsapply) if(!strcmp(needsapply[i].desc, desc)) return;
     needsapply.add(change(type, desc));
-    if(!hidechanges) UI::showui("changes");
+    //if(!hidechanges) UI::showui("changes");
 }
 
 void clearchanges(int type)
@@ -37,7 +37,7 @@ void clearchanges(int type)
             if(!c.type) needsapply.remove(i);
         }
     }
-    if(needsapply.empty()) UI::hideui("changes");
+    //if(needsapply.empty()) UI::hideui("changes");
 }
 
 void applychanges()
@@ -61,7 +61,7 @@ void menuprocess()
         lastmainmenu = mainmenu;
         execident("mainmenutoggled");
     }    
-    if(mainmenu && !isconnected(true) && !UI::hascursor()) UI::showui("main");
+    //if(mainmenu && !isconnected(true) && !UI::hascursor()) UI::showui("main");
 }
 
 VAR(mainmenu, 1, 1, 0);
@@ -72,7 +72,7 @@ void clearmainmenu()
     if(mainmenu && isconnected())
     {
         mainmenu = 0;
-        UI::hideui(NULL);
+        //UI::hideui(NULL);
     }
 }
 

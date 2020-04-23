@@ -15,7 +15,7 @@ void cleanup()
     if(screen) SDL_SetWindowGrab(screen, SDL_FALSE);
     cleargamma();
     freeocta(worldroot);
-    UI::cleanup();
+    //UI::cleanup();
     extern void clear_command(); clear_command();
     extern void clear_console(); clear_console();
     extern void clear_models();  clear_models();
@@ -800,7 +800,7 @@ void checkinput()
                 {
                     int dx = event.motion.xrel, dy = event.motion.yrel;
                     checkmousemotion(dx, dy);
-                    if(!UI::movecursor(dx, dy)) mousemove(dx, dy);
+                    /*if(!UI::movecursor(dx, dy))*/ mousemove(dx, dy);
                     mousemoved = true;
                 }
                 else if(shouldgrab) inputgrab(grabinput = true);
@@ -1106,7 +1106,7 @@ int main(int argc, char **argv)
     if(!execfile("config/font.cfg", false)) fatal("cannot find font definitions");
     if(!setfont("default")) fatal("no default font specified");
 
-    UI::setup();
+    //UI::setup();
 
     inbetweenframes = true;
     renderbackground("initializing...");
@@ -1123,7 +1123,6 @@ int main(int argc, char **argv)
     execfile("config/keymap.cfg");
     execfile("config/stdedit.cfg");
     execfile(game::gameconfig());
-    execfile("config/ui.cfg");
     execfile("config/heightmap.cfg");
     execfile("config/blendbrush.cfg");
     if(game::savedservers()) execfile(game::savedservers(), false);
@@ -1190,7 +1189,7 @@ int main(int argc, char **argv)
         updatetime();
 
         checkinput();
-        UI::update();
+        //UI::update();
         menuprocess();
         tryedit();
 

@@ -360,7 +360,7 @@ void rendereditcursor()
         od  = dimension(orient),
         odc = dimcoord(orient);
 
-    bool hidecursor = UI::hascursor() || blendpaintmode, hovering = false;
+    bool hidecursor = /*UI::hascursor() ||*/ blendpaintmode, hovering = false;
     hmapsel = false;
 
     if(moving)

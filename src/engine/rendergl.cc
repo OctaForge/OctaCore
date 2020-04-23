@@ -2632,7 +2632,7 @@ void writecrosshairs(stream *f)
 
 void drawcrosshair(int w, int h)
 {
-    bool windowhit = UI::hascursor();
+    bool windowhit = /*UI::hascursor()*/ false;
     if(!windowhit && (hidehud || mainmenu)) return; //(hidehud || player->state==CS_SPECTATOR || player->state==CS_DEAD)) return;
 
     vec color(1, 1, 1);
@@ -2644,7 +2644,7 @@ void drawcrosshair(int w, int h)
         if(!cursor) cursor = textureload("media/interface/cursor.png", 3, true);
         crosshair = cursor;
         chsize = cursorsize*w/900.0f;
-        UI::getcursorpos(cx, cy);
+        //UI::getcursorpos(cx, cy);
     }
     else
     {
@@ -2774,11 +2774,11 @@ void gl_drawhud()
         rendertexturepanel(w, h);
     }
 
-    abovehud = min(abovehud, conh*UI::abovehud());
+    //abovehud = min(abovehud, conh*UI::abovehud());
 
     pushhudscale(conscale);
     abovehud -= rendercommand(FONTH/2, abovehud - FONTH/2, conw-FONTH);
-    if(!hidehud && !UI::uivisible("fullconsole")) renderconsole(conw, conh, abovehud - FONTH/2);
+    if(!hidehud /*&& !UI::uivisible("fullconsole")*/) renderconsole(conw, conh, abovehud - FONTH/2);
     pophudmatrix();
 
     drawcrosshair(w, h);
@@ -2818,7 +2818,7 @@ void gl_drawframe()
     viewh = hudh;
     if(mainmenu) gl_drawmainmenu();
     else gl_drawview();
-    UI::render();
+    //UI::render();
     gl_drawhud();
 }
 

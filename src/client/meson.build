@@ -35,7 +35,6 @@ client_src = [
     '../engine/shader.cc',
     '../engine/stain.cc',
     '../engine/texture.cc',
-    '../engine/ui.cc',
     '../engine/water.cc',
     '../engine/world.cc',
     '../engine/worldio.cc',

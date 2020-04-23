@@ -445,17 +445,6 @@ extern void preloadmodel(const char *name);
 extern void flushpreloadedmodels(bool msg = true);
 extern bool matchanim(const char *name, const char *pattern);
 
-// UI
-
-namespace UI
-{
-    bool showui(const char *name);
-    bool hideui(const char *name);
-    bool toggleui(const char *name);
-    void holdui(const char *name, bool on);
-    bool uivisible(const char *name);
-}
-
 // ragdoll
 
 extern void moveragdoll(dynent *d);

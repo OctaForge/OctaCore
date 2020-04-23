@@ -50,18 +50,6 @@ void conoutf(int type, const char *fmt, ...)
     va_end(args);
 }
 
-ICOMMAND(fullconsole, "iN$", (int *val, int *numargs, ident *id),
-{
-    if(*numargs > 0) UI::holdui("fullconsole", *val!=0);
-    else
-    {
-        int vis = UI::uivisible("fullconsole") ? 1 : 0;
-        if(*numargs < 0) intret(vis);
-        else printvar(id, vis);
-    }
-});
-ICOMMAND(toggleconsole, "", (), UI::toggleui("fullconsole"));
-
 float rendercommand(float x, float y, float w)
 {
     if(commandmillis < 0) return 0;
@@ -105,7 +93,7 @@ void setconskip(int &skip, int filter, int n)
     }
 }
 
-ICOMMAND(conskip, "i", (int *n), setconskip(conskip, UI::uivisible("fullconsole") ? fullconfilter : confilter, *n));
+ICOMMAND(conskip, "i", (int *n), setconskip(conskip, /*UI::uivisible("fullconsole")*/ false ? fullconfilter : confilter, *n));
 ICOMMAND(miniconskip, "i", (int *n), setconskip(miniconskip, miniconfilter, *n));
 
 ICOMMAND(clearconsole, "", (), { while(conlines.length()) delete[] conlines.pop().line; });
@@ -599,7 +587,7 @@ bool consolekey(int code, bool isdown)
 
 void processtextinput(const char *str, int len)
 {
-    if(!UI::textinput(str, len))
+    /*if(!UI::textinput(str, len))*/
         consoleinput(str, len);
 }
 
@@ -613,7 +601,8 @@ void processkey(int code, bool isdown, int modstate)
     keym *haskey = keyms.access(code);
     if(haskey && haskey->pressed) execbind(*haskey, isdown); // allow pressed keys to release
     else if(modstate&KMOD_GUI) return;
-    else if(!UI::keypress(code, isdown)) // UI key intercept
+    //else if(!UI::keypress(code, isdown)) // UI key intercept
+    else
     {
         if(!consolekey(code, isdown))
         {
