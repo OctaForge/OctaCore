@@ -404,15 +404,7 @@ namespace game
 
     void msgsound(int n, physent *d)
     {
-        if(!d || d==player1)
-        {
-            addmsg(N_SOUND, "ci", d, n);
-            playsound(n);
-        }
-        else
-        {
-            playsound(n, &d->o);
-        }
+        playsound(n);
     }
 
     int numdynents() { return players.length(); }

@@ -60,7 +60,7 @@ namespace server
         string name;
         bool connected, local, timesync;
         servstate state;
-        vector<uchar> position, messages;
+        vector<uchar> messages;
         uchar *wsdata;
         int wslen;
         int ping;
@@ -88,7 +88,6 @@ namespace server
         {
             name[0] = 0;
             connected = local = false;
-            position.setsize(0);
             messages.setsize(0);
             ping = 0;
             mapchange();
@@ -215,47 +214,6 @@ namespace server
         }
     }
 
-    void flushclientposition(clientinfo &ci)
-    {
-        if(ci.position.empty() || !hasnonlocalclients()) return;
-        packetbuf p(ci.position.length(), 0);
-        p.put(ci.position.getbuf(), ci.position.length());
-        ci.position.setsize(0);
-        sendpacket(-1, 0, p.finalize(), ci.ownernum);
-    }
-
-    static void sendpositions(worldstate &ws, ucharbuf &wsbuf)
-    {
-        if(wsbuf.empty()) return;
-        int wslen = wsbuf.length();
-        wsbuf.put(wsbuf.buf, wslen);
-        loopv(clients)
-        {
-            clientinfo &ci = *clients[i];
-            uchar *data = wsbuf.buf;
-            int size = wslen;
-            if(ci.wsdata >= wsbuf.buf) { data = ci.wsdata + ci.wslen; size -= ci.wslen; }
-            if(size <= 0) continue;
-            ENetPacket *packet = enet_packet_create(data, size, ENET_PACKET_FLAG_NO_ALLOCATE);
-            sendpacket(ci.clientnum, 0, packet);
-            if(packet->referenceCount) { ws.uses++; packet->freeCallback = cleanworldstate; }
-            else enet_packet_destroy(packet);
-        }
-        wsbuf.offset(wsbuf.length());
-    }
-
-    static inline void addposition(worldstate &ws, ucharbuf &wsbuf, int mtu, clientinfo &bi, clientinfo &ci)
-    {
-        if(bi.position.empty()) return;
-        if(wsbuf.length() + bi.position.length() > mtu) sendpositions(ws, wsbuf);
-        int offset = wsbuf.length();
-        wsbuf.put(bi.position.getbuf(), bi.position.length());
-        bi.position.setsize(0);
-        int len = wsbuf.length() - offset;
-        if(ci.wsdata < wsbuf.buf) { ci.wsdata = &wsbuf.buf[offset]; ci.wslen = len; }
-        else ci.wslen += len;
-    }
-
     static void sendmessages(worldstate &ws, ucharbuf &wsbuf)
     {
         if(wsbuf.empty()) return;
@@ -299,7 +257,6 @@ namespace server
             clientinfo &ci = *clients[i];
             ci.overflow = 0;
             ci.wsdata = NULL;
-            wsmax += ci.position.length();
             if(ci.messages.length()) wsmax += 10 + ci.messages.length();
         }
         if(wsmax <= 0)
@@ -312,12 +269,6 @@ namespace server
         int mtu = getservermtu() - 100;
         if(mtu <= 0) mtu = ws.len;
         ucharbuf wsbuf(ws.data, ws.len);
-        loopv(clients)
-        {
-            clientinfo &ci = *clients[i];
-            addposition(ws, wsbuf, mtu, ci, ci);
-        }
-        sendpositions(ws, wsbuf);
         loopv(clients)
         {
             clientinfo &ci = *clients[i];
@@ -415,14 +366,6 @@ namespace server
         return 1;
     }
 
-    void sendresume(clientinfo *ci)
-    {
-        servstate &gs = ci->state;
-        sendf(-1, 1, "ri3ii", N_RESUME, ci->clientnum, gs.state,
-            gs.lifesequence,
-            -1);
-    }
-
     void sendinitclient(clientinfo *ci)
     {
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
@@ -476,11 +419,6 @@ namespace server
  
     void unspectate(clientinfo *ci)
     {
-        if(shouldspectate(ci)) return;
-        ci->state.state = CS_DEAD;
-        ci->state.respawn();
-        ci->state.lasttimeplayed = lastmillis;
-        sendf(-1, 1, "ri3", N_SPECTATOR, ci->clientnum, 0);
     }
 
     void sendservinfo(clientinfo *ci)
@@ -613,39 +551,6 @@ namespace server
         int curmsg;
         while((curmsg = p.length()) < p.maxlen) switch(type = checktype(getint(p), ci))
         {
-            case N_POS:
-            {
-                int pcn = getuint(p);
-                p.get();
-                uint flags = getuint(p);
-                clientinfo *cp = getinfo(pcn);
-                if(cp && pcn != sender && cp->ownernum != sender) cp = NULL;
-                vec pos;
-                loopk(3)
-                {
-                    int n = p.get(); n |= p.get()<<8; if(flags&(1<<k)) { n |= p.get()<<16; if(n&0x800000) n |= ~0U<<24; }
-                    pos[k] = n/DMF;
-                }
-                loopk(3) p.get();
-                int mag = p.get(); if(flags&(1<<3)) mag |= p.get()<<8;
-                int dir = p.get(); dir |= p.get()<<8;
-                if(flags&(1<<4))
-                {
-                    p.get(); if(flags&(1<<5)) p.get();
-                    if(flags&(1<<6)) loopk(2) p.get();
-                }
-                if(cp)
-                {
-                    if((!ci->local || hasnonlocalclients()) && (cp->state.state==CS_ALIVE || cp->state.state==CS_EDITING))
-                    {
-                        cp->position.setsize(0);
-                        while(curmsg<p.length()) cp->position.add(p.buf[curmsg++]);
-                    }
-                    cp->state.o = pos;
-                }
-                break;
-            }
-
             case N_TRYSPAWN:
                 if(!ci || !cq || cq->state.state!=CS_DEAD || cq->state.lastspawn>=0) break;
                 sendspawn(cq);

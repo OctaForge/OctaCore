@@ -370,7 +370,6 @@ struct databuf
     }
 };
 
-typedef databuf<char> charbuf;
 typedef databuf<uchar> ucharbuf;
 
 struct packetbuf : ucharbuf
