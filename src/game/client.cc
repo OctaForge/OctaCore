@@ -42,20 +42,16 @@ namespace game
         cmode = NULL;
     }
 
-    bool senditemstoserver = false, sendcrc = false; // after a map change, since server doesn't have map data
     int lastping = 0;
 
-    bool connected = false, remote = false, demoplayback = false, gamepaused = false;
-    int sessionid = 0, gamespeed = 100;
+    bool connected = false, remote = false;
+    int sessionid = 0;
     string servdesc = "", servauth = "";
 
     VARP(deadpush, 1, 2, 20);
 
     void sendmapinfo()
     {
-        if(!connected) return;
-        sendcrc = true;
-        senditemstoserver = true;
     }
 
     void writeclientinfo(stream *f)
@@ -76,7 +72,6 @@ namespace game
 
     void edittoggled(bool on)
     {
-        addmsg(N_EDITMODE, "ri", on ? 1 : 0);
         if(player1->state==CS_DEAD) deathstate(player1, true);
         disablezoom();
         player1->respawned = -2;
@@ -91,7 +86,6 @@ namespace game
         if((m_edit && !name[0]) || !load_world(name))
         {
             emptymap(0, true, name);
-            senditemstoserver = false;
         }
         startgame();
     }
@@ -118,214 +112,18 @@ namespace game
         addmsg(N_NEWMAP, "ri", size);
     }
 
-    int needclipboard = -1;
-
-    void sendclipboard()
-    {
-        uchar *outbuf = NULL;
-        int inlen = 0, outlen = 0;
-        if(!packeditinfo(localedit, inlen, outbuf, outlen))
-        {
-            outbuf = NULL;
-            inlen = outlen = 0;
-        }
-        packetbuf p(16 + outlen, ENET_PACKET_FLAG_RELIABLE);
-        putint(p, N_CLIPBOARD);
-        putint(p, inlen);
-        putint(p, outlen);
-        if(outlen > 0) p.put(outbuf, outlen);
-        sendclientpacket(p.finalize(), 1);
-        needclipboard = -1;
-    }
-
     void edittrigger(const selinfo &sel, int op, int arg1, int arg2, int arg3, const VSlot *vs)
     {
-        if(m_edit) switch(op)
-        {
-            case EDIT_FLIP:
-            case EDIT_COPY:
-            case EDIT_PASTE:
-            case EDIT_DELCUBE:
-            {
-                switch(op)
-                {
-                    case EDIT_COPY: needclipboard = 0; break;
-                    case EDIT_PASTE:
-                        if(needclipboard > 0)
-                        {
-                            c2sinfo(true);
-                            sendclipboard();
-                        }
-                        break;
-                }
-                addmsg(N_EDITF + op, "ri9i4",
-                   sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                   sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner);
-                break;
-            }
-            case EDIT_ROTATE:
-            {
-                addmsg(N_EDITF + op, "ri9i5",
-                   sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                   sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner,
-                   arg1);
-                break;
-            }
-            case EDIT_MAT:
-            case EDIT_FACE:
-            {
-                addmsg(N_EDITF + op, "ri9i6",
-                   sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                   sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner,
-                   arg1, arg2);
-                break;
-            }
-            case EDIT_TEX:
-            {
-                int tex1 = shouldpacktex(arg1);
-                if(addmsg(N_EDITF + op, "ri9i6",
-                    sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                    sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner,
-                    tex1 ? tex1 : arg1, arg2))
-                {
-                    messages.pad(2);
-                    int offset = messages.length();
-                    if(tex1) packvslot(messages, arg1);
-                    *(ushort *)&messages[offset-2] = lilswap(ushort(messages.length() - offset));
-                }
-                break;
-            }
-            case EDIT_REPLACE:
-            {
-                int tex1 = shouldpacktex(arg1), tex2 = shouldpacktex(arg2);
-                if(addmsg(N_EDITF + op, "ri9i7",
-                    sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                    sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner,
-                    tex1 ? tex1 : arg1, tex2 ? tex2 : arg2, arg3))
-                {
-                    messages.pad(2);
-                    int offset = messages.length();
-                    if(tex1) packvslot(messages, arg1);
-                    if(tex2) packvslot(messages, arg2);
-                    *(ushort *)&messages[offset-2] = lilswap(ushort(messages.length() - offset));
-                }
-                break;
-            }
-            case EDIT_CALCLIGHT:
-            case EDIT_REMIP:
-            {
-                addmsg(N_EDITF + op, "r");
-                break;
-            }
-            case EDIT_VSLOT:
-            {
-                if(addmsg(N_EDITF + op, "ri9i6",
-                    sel.o.x, sel.o.y, sel.o.z, sel.s.x, sel.s.y, sel.s.z, sel.grid, sel.orient,
-                    sel.cx, sel.cxs, sel.cy, sel.cys, sel.corner,
-                    arg1, arg2))
-                {
-                    messages.pad(2);
-                    int offset = messages.length();
-                    packvslot(messages, vs);
-                    *(ushort *)&messages[offset-2] = lilswap(ushort(messages.length() - offset));
-                }
-                break;
-            }
-            case EDIT_UNDO:
-            case EDIT_REDO:
-            {
-                uchar *outbuf = NULL;
-                int inlen = 0, outlen = 0;
-                if(packundo(op, inlen, outbuf, outlen))
-                {
-                    if(addmsg(N_EDITF + op, "ri2", inlen, outlen)) messages.put(outbuf, outlen);
-                    delete[] outbuf;
-                }
-                break;
-            }
-        }
-    }
-
-    void printvar(gameent *d, ident *id)
-    {
-        if(id) switch(id->type)
-        {
-            case ID_VAR:
-            {
-                int val = *id->storage.i;
-                string str;
-                if(val < 0)
-                    formatstring(str, "%d", val);
-                else if(id->flags&IDF_HEX && id->maxval==0xFFFFFF)
-                    formatstring(str, "0x%.6X (%d, %d, %d)", val, (val>>16)&0xFF, (val>>8)&0xFF, val&0xFF);
-                else
-                    formatstring(str, id->flags&IDF_HEX ? "0x%X" : "%d", val);
-                conoutf("%s set map var \"%s\" to %s", colorname(d), id->name, str);
-                break;
-            }
-            case ID_FVAR:
-                conoutf("%s set map var \"%s\" to %s", colorname(d), id->name, floatstr(*id->storage.f));
-                break;
-            case ID_SVAR:
-                conoutf("%s set map var \"%s\" to \"%s\"", colorname(d), id->name, *id->storage.s);
-                break;
-        }
     }
 
     void vartrigger(ident *id)
     {
-        if(!m_edit) return;
-        switch(id->type)
-        {
-            case ID_VAR:
-                addmsg(N_EDITVAR, "risi", ID_VAR, id->name, *id->storage.i);
-                break;
-
-            case ID_FVAR:
-                addmsg(N_EDITVAR, "risf", ID_FVAR, id->name, *id->storage.f);
-                break;
-
-            case ID_SVAR:
-                addmsg(N_EDITVAR, "riss", ID_SVAR, id->name, *id->storage.s);
-                break;
-            default: return;
-        }
-        printvar(player1, id);
     }
 
-    void pausegame(bool val)
-    {
-        if(!connected) return;
-        if(!remote) server::forcepaused(val);
-        else addmsg(N_PAUSEGAME, "ri", val ? 1 : 0);
-    }
-    ICOMMAND(pausegame, "i", (int *val), pausegame(*val > 0));
-    ICOMMAND(paused, "iN$", (int *val, int *numargs, ident *id),
-    {
-        if(*numargs > 0) pausegame(clampvar(id, *val, 0, 1) > 0);
-        else if(*numargs < 0) intret(gamepaused ? 1 : 0);
-        else printvar(id, gamepaused ? 1 : 0);
-    });
+    bool ispaused() { return false; }
+    bool allowmouselook() { return true; }
 
-    bool ispaused() { return gamepaused; }
-
-    bool allowmouselook() { return !gamepaused || !remote || m_edit; }
-
-    void changegamespeed(int val)
-    {
-        if(!connected) return;
-        if(!remote) server::forcegamespeed(val);
-        else addmsg(N_GAMESPEED, "ri", val);
-    }
-    ICOMMAND(gamespeed, "iN$", (int *val, int *numargs, ident *id),
-    {
-        if(*numargs > 0) changegamespeed(clampvar(id, *val, 10, 1000));
-        else if(*numargs < 0) intret(gamespeed);
-        else printvar(id, gamespeed);
-    });
-    ICOMMAND(prettygamespeed, "i", (), result(tempformatstring("%d.%02dx", gamespeed/100, gamespeed%100)));
-
-    int scaletime(int t) { return t*gamespeed; }
+    int scaletime(int t) { return t*100; }
 
     // collect c2s messages conveniently
     vector<uchar> messages;
@@ -410,10 +208,6 @@ namespace game
         player1->respawn();
         player1->lifesequence = 0;
         player1->state = CS_ALIVE;
-        sendcrc = senditemstoserver = false;
-        demoplayback = false;
-        gamepaused = false;
-        gamespeed = 100;
         clearclients(false);
         if(cleanup)
         {
@@ -422,11 +216,7 @@ namespace game
     }
 
     const char *chatcolorname(gameent *d) { return colorname(d); }
-
-    void toserver(char *text) { conoutf(CON_CHAT, "%s: %s", chatcolorname(player1), text); addmsg(N_TEXT, "rcs", player1, text); }
-    COMMANDN(say, toserver, "C");
-
-    ICOMMAND(servcmd, "C", (char *cmd), addmsg(N_SERVCMD, "rs", cmd));
+    void toserver(char *text) { conoutf(CON_CHAT, "%s", text); }
 
     static void sendposition(gameent *d, packetbuf &q)
     {
@@ -516,22 +306,6 @@ namespace game
     void sendmessages()
     {
         packetbuf p(MAXTRANS);
-        if(sendcrc)
-        {
-            p.reliable();
-            sendcrc = false;
-            const char *mname = getclientmap();
-            putint(p, N_MAPCRC);
-            sendstring(mname, p);
-            putint(p, mname[0] ? getmapcrc() : 0);
-        }
-        if(senditemstoserver)
-        {
-            p.reliable();
-            entities::putitems(p);
-            if(cmode) cmode->senditems(p);
-            senditemstoserver = false;
-        }
         if(messages.length())
         {
             p.put(messages.getbuf(), messages.length());
@@ -564,8 +338,6 @@ namespace game
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
         putint(p, N_CONNECT);
         sendstring(player1->name, p);
-        putint(p, player1->playermodel);
-        putint(p, player1->playercolor);
         sendclientpacket(p.finalize(), 1);
     }
 
@@ -716,27 +488,6 @@ namespace game
                 break;
             }
 
-            case N_PAUSEGAME:
-            {
-                bool val = getint(p) > 0;
-                int cn = getint(p);
-                gameent *a = cn >= 0 ? getclient(cn) : NULL;
-                gamepaused = val;
-                if(a) conoutf("%s %s the game", colorname(a), val ? "paused" : "resumed");
-                else conoutf("game is %s", val ? "paused" : "resumed");
-                break;
-            }
-
-            case N_GAMESPEED:
-            {
-                int val = clamp(getint(p), 10, 1000), cn = getint(p);
-                gameent *a = cn >= 0 ? getclient(cn) : NULL;
-                gamespeed = val;
-                if(a) conoutf("%s set gamespeed to %d", colorname(a), val);
-                else conoutf("gamespeed is %d", val);
-                break;
-            }
-
             case N_CLIENT:
             {
                 int cn = getint(p), len = getuint(p);
@@ -745,27 +496,9 @@ namespace game
                 break;
             }
 
-            case N_SOUND:
-                if(!d) return;
-                playsound(getint(p), &d->o);
-                break;
-
-            case N_TEXT:
-            {
-                if(!d) return;
-                getstring(text, p);
-                filtertext(text, text, true, true);
-                if(d->state!=CS_DEAD && d->state!=CS_SPECTATOR)
-                    particle_textcopy(d->abovehead(), text, PART_TEXT, 2000, 0x32FF64, 4.0f, -8);
-                conoutf(CON_CHAT, "%s: %s", chatcolorname(d), text);
-                break;
-            }
-
             case N_MAPCHANGE:
                 getstring(text, p);
-                changemapserv(text, getint(p));
-                if(getint(p)) entities::spawnitems();
-                else senditemstoserver = false;
+                changemapserv(text, 0);
                 break;
 
             case N_INITCLIENT:            // another client either connected or changed name/team
@@ -783,35 +516,11 @@ namespace game
                 getstring(text, p);
                 filtertext(text, text, false, false, MAXNAMELEN);
                 if(!text[0]) copystring(text, "unnamed");
-                if(d->name[0])          // already connected
-                {
-                    if(strcmp(d->name, text))
-                        conoutf("%s is now known as %s", colorname(d), colorname(d, text));
-                }
-                else                    // new client
-                {
-                    conoutf("\f0join:\f7 %s", colorname(d, text));
-                    if(needclipboard >= 0) needclipboard++;
-                }
                 copystring(d->name, text, MAXNAMELEN+1);
                 d->playermodel = 0;
                 d->playercolor = 0;
                 break;
             }
-
-            case N_SWITCHNAME:
-                getstring(text, p);
-                if(d)
-                {
-                    filtertext(text, text, false, false, MAXNAMELEN);
-                    if(!text[0]) copystring(text, "unnamed");
-                    if(strcmp(text, d->name))
-                    {
-                        conoutf("%s is now known as %s", colorname(d), colorname(d, text));
-                        copystring(d->name, text, MAXNAMELEN+1);
-                    }
-                }
-                break;
 
             case N_CDIS:
                 clientdisconnected(getint(p));
@@ -867,142 +576,6 @@ namespace game
                 break;
             }
 
-            case N_CLIPBOARD:
-            {
-                int cn = getint(p), unpacklen = getint(p), packlen = getint(p);
-                gameent *d = getclient(cn);
-                ucharbuf q = p.subbuf(max(packlen, 0));
-                if(d) unpackeditinfo(d->edit, q.buf, q.maxlen, unpacklen);
-                break;
-            }
-            case N_UNDO:
-            case N_REDO:
-            {
-                int cn = getint(p), unpacklen = getint(p), packlen = getint(p);
-                gameent *d = getclient(cn);
-                ucharbuf q = p.subbuf(max(packlen, 0));
-                if(d) unpackundo(q.buf, q.maxlen, unpacklen);
-                break;
-            }
-
-            case N_EDITF:              // coop editing messages
-            case N_EDITT:
-            case N_EDITM:
-            case N_FLIP:
-            case N_COPY:
-            case N_PASTE:
-            case N_ROTATE:
-            case N_REPLACE:
-            case N_DELCUBE:
-            case N_EDITVSLOT:
-            {
-                if(!d) return;
-                selinfo sel;
-                sel.o.x = getint(p); sel.o.y = getint(p); sel.o.z = getint(p);
-                sel.s.x = getint(p); sel.s.y = getint(p); sel.s.z = getint(p);
-                sel.grid = getint(p); sel.orient = getint(p);
-                sel.cx = getint(p); sel.cxs = getint(p); sel.cy = getint(p), sel.cys = getint(p);
-                sel.corner = getint(p);
-                switch(type)
-                {
-                    case N_EDITF: { int dir = getint(p), mode = getint(p); if(sel.validate()) mpeditface(dir, mode, sel, false); break; }
-                    case N_EDITT:
-                    {
-                        int tex = getint(p),
-                            allfaces = getint(p);
-                        if(p.remaining() < 2) return;
-                        int extra = lilswap(*(const ushort *)p.pad(2));
-                        if(p.remaining() < extra) return;
-                        ucharbuf ebuf = p.subbuf(extra);
-                        if(sel.validate()) mpedittex(tex, allfaces, sel, ebuf);
-                        break;
-                    }
-                    case N_EDITM: { int mat = getint(p), filter = getint(p); if(sel.validate()) mpeditmat(mat, filter, sel, false); break; }
-                    case N_FLIP: if(sel.validate()) mpflip(sel, false); break;
-                    case N_COPY: if(d && sel.validate()) mpcopy(d->edit, sel, false); break;
-                    case N_PASTE: if(d && sel.validate()) mppaste(d->edit, sel, false); break;
-                    case N_ROTATE: { int dir = getint(p); if(sel.validate()) mprotate(dir, sel, false); break; }
-                    case N_REPLACE:
-                    {
-                        int oldtex = getint(p),
-                            newtex = getint(p),
-                            insel = getint(p);
-                        if(p.remaining() < 2) return;
-                        int extra = lilswap(*(const ushort *)p.pad(2));
-                        if(p.remaining() < extra) return;
-                        ucharbuf ebuf = p.subbuf(extra);
-                        if(sel.validate()) mpreplacetex(oldtex, newtex, insel>0, sel, ebuf);
-                        break;
-                    }
-                    case N_DELCUBE: if(sel.validate()) mpdelcube(sel, false); break;
-                    case N_EDITVSLOT:
-                    {
-                        int delta = getint(p),
-                            allfaces = getint(p);
-                        if(p.remaining() < 2) return;
-                        int extra = lilswap(*(const ushort *)p.pad(2));
-                        if(p.remaining() < extra) return;
-                        ucharbuf ebuf = p.subbuf(extra);
-                        if(sel.validate()) mpeditvslot(delta, allfaces, sel, ebuf);
-                        break;
-                    }
-                }
-                break;
-            }
-            case N_REMIP:
-                if(!d) return;
-                conoutf("%s remipped", colorname(d));
-                mpremip(false);
-                break;
-            case N_CALCLIGHT:
-                if(!d) return;
-                conoutf("%s calced lights", colorname(d));
-                mpcalclight(false);
-                break;
-            case N_EDITENT:            // coop edit of ent
-            {
-                if(!d) return;
-                int i = getint(p);
-                float x = getint(p)/DMF, y = getint(p)/DMF, z = getint(p)/DMF;
-                int type = getint(p);
-                int attr1 = getint(p), attr2 = getint(p), attr3 = getint(p), attr4 = getint(p), attr5 = getint(p);
-
-                mpeditent(i, vec(x, y, z), type, attr1, attr2, attr3, attr4, attr5, false);
-                break;
-            }
-            case N_EDITVAR:
-            {
-                if(!d) return;
-                int type = getint(p);
-                getstring(text, p);
-                string name;
-                filtertext(name, text, false);
-                ident *id = getident(name);
-                switch(type)
-                {
-                    case ID_VAR:
-                    {
-                        int val = getint(p);
-                        if(id && id->flags&IDF_OVERRIDE && !(id->flags&IDF_READONLY)) setvar(name, val);
-                        break;
-                    }
-                    case ID_FVAR:
-                    {
-                        float val = getfloat(p);
-                        if(id && id->flags&IDF_OVERRIDE && !(id->flags&IDF_READONLY)) setfvar(name, val);
-                        break;
-                    }
-                    case ID_SVAR:
-                    {
-                        getstring(text, p);
-                        if(id && id->flags&IDF_OVERRIDE && !(id->flags&IDF_READONLY)) setsvar(name, text);
-                        break;
-                    }
-                }
-                printvar(d, id);
-                break;
-            }
-
             case N_PONG:
                 addmsg(N_CLIENTPING, "i", player1->ping = (player1->ping*5+totalmillis-getint(p))/6);
                 break;
@@ -1011,29 +584,6 @@ namespace game
                 if(!d) return;
                 d->ping = getint(p);
                 break;
-
-            case N_SERVMSG:
-                getstring(text, p);
-                conoutf("%s", text);
-                break;
-
-            case N_EDITMODE:
-            {
-                int val = getint(p);
-                if(!d) break;
-                if(val)
-                {
-                    d->editstate = d->state;
-                    d->state = CS_EDITING;
-                }
-                else
-                {
-                    d->state = d->editstate;
-                    if(d->state==CS_DEAD) deathstate(d, true);
-                }
-                checkfollow();
-                break;
-            }
 
             case N_NEWMAP:
             {
@@ -1048,10 +598,6 @@ namespace game
                 }
                 break;
             }
-
-            case N_SERVCMD:
-                getstring(text, p);
-                break;
 
             default:
                 neterr("type", cn < 0);

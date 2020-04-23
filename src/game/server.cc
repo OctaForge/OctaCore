@@ -17,54 +17,17 @@ namespace game
 
 namespace server
 {
-    struct server_entity            // server side version of "entity" type
-    {
-        int type;
-        int spawntime;
-        bool spawned;
-    };
-
-    static const int DEATHMILLIS = 300;
-
     struct clientinfo;
-
-    struct gameevent
-    {
-        virtual ~gameevent() {}
-
-        virtual bool flush(clientinfo *ci, int fmillis);
-        virtual void process(clientinfo *ci) {}
-
-        virtual bool keepable() const { return false; }
-    };
-
-    struct timedevent : gameevent
-    {
-        int millis;
-
-        bool flush(clientinfo *ci, int fmillis);
-    };
-
 
     struct servstate : gamestate
     {
         vec o;
         int state, editstate;
-        int lastdeath, deadflush, lastspawn, lifesequence;
+        int lastspawn, lifesequence;
         int lasttimeplayed, timeplayed;
         float effectiveness;
 
         servstate() : state(CS_DEAD), editstate(CS_DEAD), lifesequence(0) {}
-
-        bool isalive(int gamemillis)
-        {
-            return state==CS_ALIVE || (state==CS_DEAD && gamemillis - lastdeath <= DEATHMILLIS);
-        }
-
-        bool waitexpired(int gamemillis)
-        {
-            return true;
-        }
 
         void reset()
         {
@@ -73,8 +36,6 @@ namespace server
             timeplayed = 0;
             effectiveness = 0;
 
-            lastdeath = 0;
-
             respawn();
         }
 
@@ -82,7 +43,6 @@ namespace server
         {
             gamestate::respawn();
             o = vec(-1e10f, -1e10f, -1e10f);
-            deadflush = 0;
             lastspawn = -1;
         }
 
@@ -92,142 +52,54 @@ namespace server
         }
     };
 
-    extern int gamemillis, nextexceeded;
+    extern int gamemillis;
 
     struct clientinfo
     {
         int clientnum, ownernum, connectmillis, sessionid, overflow;
         string name;
-        int team, playermodel, playercolor;
         bool connected, local, timesync;
-        int gameoffset, lastevent, pushed, exceeded;
         servstate state;
-        vector<gameevent *> events;
         vector<uchar> position, messages;
         uchar *wsdata;
         int wslen;
-        int ping, aireinit;
+        int ping;
         string clientmap;
-        int mapcrc;
-        bool warned, gameclip;
-        ENetPacket *getmap, *clipboard;
-        int lastclipboard, needclipboard;
+        bool warned;
 
-        clientinfo() : getmap(NULL), clipboard(NULL) { reset(); }
-        ~clientinfo() { events.deletecontents(); cleanclipboard(); }
-
-        void addevent(gameevent *e)
-        {
-            if(state.state==CS_SPECTATOR || events.length()>100) delete e;
-            else events.add(e);
-        }
-
-        enum
-        {
-            PUSHMILLIS = 3000
-        };
-
-        int calcpushrange()
-        {
-            ENetPeer *peer = getclientpeer(ownernum);
-            return PUSHMILLIS + (peer ? peer->roundTripTime + peer->roundTripTimeVariance : ENET_PEER_DEFAULT_ROUND_TRIP_TIME);
-        }
-
-        bool checkpushed(int millis, int range)
-        {
-            return millis >= pushed - range && millis <= pushed + range;
-        }
-
-        void scheduleexceeded()
-        {
-            if(state.state!=CS_ALIVE || !exceeded) return;
-            int range = calcpushrange();
-            if(!nextexceeded || exceeded + range < nextexceeded) nextexceeded = exceeded + range;
-        }
-
-        void setexceeded()
-        {
-            if(state.state==CS_ALIVE && !exceeded && !checkpushed(gamemillis, calcpushrange())) exceeded = gamemillis;
-            scheduleexceeded();
-        }
-
-        void setpushed()
-        {
-            pushed = max(pushed, gamemillis);
-            if(exceeded && checkpushed(exceeded, calcpushrange())) exceeded = 0;
-        }
-
-        bool checkexceeded()
-        {
-            return state.state==CS_ALIVE && exceeded && gamemillis > exceeded + calcpushrange();
-        }
+        clientinfo() { reset(); }
 
         void mapchange()
         {
             state.reset();
-            events.deletecontents();
             overflow = 0;
             timesync = false;
-            lastevent = 0;
-            exceeded = 0;
-            pushed = 0;
             clientmap[0] = '\0';
-            mapcrc = 0;
             warned = false;
-            gameclip = false;
         }
 
         void reassign()
         {
             state.reassign();
-            events.deletecontents();
             timesync = false;
-            lastevent = 0;
-        }
-
-        void cleanclipboard(bool fullclean = true)
-        {
-            if(clipboard) { if(--clipboard->referenceCount <= 0) enet_packet_destroy(clipboard); clipboard = NULL; }
-            if(fullclean) lastclipboard = 0;
         }
 
         void reset()
         {
             name[0] = 0;
-            team = 0;
-            playermodel = -1;
-            playercolor = 0;
             connected = local = false;
             position.setsize(0);
             messages.setsize(0);
             ping = 0;
-            aireinit = 0;
-            needclipboard = 0;
-            cleanclipboard();
             mapchange();
-        }
-
-        int geteventmillis(int servmillis, int clientmillis)
-        {
-            if(!timesync || (events.empty() && state.waitexpired(servmillis)))
-            {
-                timesync = true;
-                gameoffset = servmillis - clientmillis;
-                return servmillis;
-            }
-            else return gameoffset + clientmillis;
         }
     };
 
-    bool notgotitems = true;        // true when map has changed and waiting for clients to send item
-    int gamemode = 0;
-    int gamemillis = 0, gamelimit = 0, nextexceeded = 0, gamespeed = 100;
-    bool gamepaused = false, shouldstep = true;
+    int gamemillis = 0;
+    bool shouldstep = true;
 
     string smapname = "";
-    int interm = 0;
     enet_uint32 lastsend = 0;
-    stream *mapdata = NULL;
 
     vector<clientinfo *> connects, clients;
 
@@ -240,10 +112,6 @@ namespace server
         return NULL;
     }
 
-    uint mcrc = 0;
-    vector<entity> ments;
-    vector<server_entity> sents;
-
     int msgsizelookup(int msg)
     {
         static int sizetable[NUMMSG] = { -1 };
@@ -255,22 +123,7 @@ namespace server
         return msg >= 0 && msg < NUMMSG ? sizetable[msg] : -1;
     }
 
-    void sendservmsg(const char *s) { sendf(-1, 1, "ris", N_SERVMSG, s); }
-
-    void sendservmsgf(const char *fmt, ...) PRINTFARGS(1, 2);
-    void sendservmsgf(const char *fmt, ...)
-    {
-         defvformatstring(s, fmt, fmt);
-         sendf(-1, 1, "ris", N_SERVMSG, s);
-    }
-
-    void resetitems()
-    {
-        mcrc = 0;
-        ments.setsize(0);
-        sents.setsize(0);
-        //cps.reset();
-    }
+    void sendservmsg(const char *) {}
 
     bool serveroption(const char *arg)
     {
@@ -280,7 +133,6 @@ namespace server
     void serverinit()
     {
         smapname[0] = '\0';
-        resetitems();
     }
 
     int numclients(int exclude = -1, bool nospec = true, bool noai = true, bool priv = false)
@@ -300,47 +152,6 @@ namespace server
         loopv(clients) if(clients[i]!=ci && !strcmp(name, clients[i]->name)) return true;
         return false;
     }
-
-    const char *colorname(clientinfo *ci, const char *name = NULL)
-    {
-        if(!name) name = ci->name;
-        if(name[0] && !duplicatename(ci, name)) return name;
-        static string cname[3];
-        static int cidx = 0;
-        cidx = (cidx+1)%3;
-        formatstring(cname[cidx], "%s \fs\f5(%d)\fr", name, ci->clientnum);
-        return cname[cidx];
-    }
-
-    struct servmode
-    {
-        virtual ~servmode() {}
-
-        virtual void entergame(clientinfo *ci) {}
-        virtual void leavegame(clientinfo *ci, bool disconnecting = false) {}
-
-        virtual void moved(clientinfo *ci, const vec &oldpos, bool oldclip, const vec &newpos, bool newclip) {}
-        virtual bool canspawn(clientinfo *ci, bool connecting = false) { return true; }
-        virtual void spawned(clientinfo *ci) {}
-        virtual int fragvalue(clientinfo *victim, clientinfo *actor)
-        {
-            if(victim==actor) return -1;
-            return 1;
-        }
-        virtual void died(clientinfo *victim, clientinfo *actor) {}
-        virtual bool canchangeteam(clientinfo *ci, int oldteam, int newteam) { return true; }
-        virtual void changeteam(clientinfo *ci, int oldteam, int newteam) {}
-        virtual void initclient(clientinfo *ci, packetbuf &p, bool connecting) {}
-        virtual void update() {}
-        virtual void cleanup() {}
-        virtual void setup() {}
-        virtual void newmap() {}
-        virtual bool hidefrags() { return false; }
-    };
-
-    servmode *smode = NULL;
-
-    bool canspawnitem(int type) { return validitem(type); }
 
     int spawntime(int type)
     {
@@ -362,85 +173,15 @@ namespace server
         }
     }
 
-    bool pickup(int i, int sender)         // server side item pickup, acknowledge first client that gets it
-    {
-        return false;
-    }
-
     int welcomepacket(packetbuf &p, clientinfo *ci);
     void sendwelcome(clientinfo *ci);
 
-    void pausegame(bool val, clientinfo *ci = NULL)
-    {
-        if(gamepaused==val) return;
-        gamepaused = val;
-        sendf(-1, 1, "riii", N_PAUSEGAME, gamepaused ? 1 : 0, ci ? ci->clientnum : -1);
-    }
+    bool ispaused() { return false; }
 
-    void checkpausegame()
-    {
-    }
-
-    void forcepaused(bool paused)
-    {
-        pausegame(paused);
-    }
-
-    bool ispaused() { return gamepaused; }
-
-    void changegamespeed(int val, clientinfo *ci = NULL)
-    {
-        val = clamp(val, 10, 1000);
-        if(gamespeed==val) return;
-        gamespeed = val;
-        sendf(-1, 1, "riii", N_GAMESPEED, gamespeed, ci ? ci->clientnum : -1);
-    }
-
-    void forcegamespeed(int speed)
-    {
-        changegamespeed(speed);
-    }
-
-    int scaletime(int t) { return t*gamespeed; }
-
-    static struct msgfilter
-    {
-        uchar msgmask[NUMMSG];
-
-        msgfilter(int msg, ...)
-        {
-            memset(msgmask, 0, sizeof(msgmask));
-            va_list msgs;
-            va_start(msgs, msg);
-            for(uchar val = 1; msg < NUMMSG; msg = va_arg(msgs, int))
-            {
-                if(msg < 0) val = uchar(-msg);
-                else msgmask[msg] = val;
-            }
-            va_end(msgs);
-        }
-
-        uchar operator[](int msg) const { return msg >= 0 && msg < NUMMSG ? msgmask[msg] : 0; }
-    } msgfilter(-1, N_CONNECT, N_SERVINFO, N_INITCLIENT, N_WELCOME, N_MAPCHANGE, N_SERVMSG, N_DAMAGE, N_HITPUSH, N_SHOTFX, N_EXPLODEFX, N_DIED, N_SPAWNSTATE, N_FORCEDEATH, N_CDIS, N_PONG, N_RESUME, N_SENDMAP, N_CLIENT, -2, N_CALCLIGHT, N_REMIP, N_NEWMAP, N_GETMAP, N_SENDMAP, N_CLIPBOARD, -3, N_EDITENT, N_EDITF, N_EDITT, N_EDITM, N_FLIP, N_COPY, N_PASTE, N_ROTATE, N_REPLACE, N_DELCUBE, N_EDITVAR, N_EDITVSLOT, N_UNDO, N_REDO, -4, N_POS, NUMMSG);
+    int scaletime(int t) { return t*100; }
 
     int checktype(int type, clientinfo *ci)
     {
-        if(ci)
-        {
-            return type;
-        }
-        switch(msgfilter[type])
-        {
-            // server-only messages
-            case 1: return ci ? -1 : type;
-            // only allowed in coop-edit
-            case 2: if(m_edit) break; return -1;
-            // only allowed in coop-edit, no overflow check
-            case 3: return m_edit ? type : -1;
-            // no overflow check
-            case 4: return type;
-        }
-        if(ci && ++ci->overflow >= 200) return -2;
         return type;
     }
 
@@ -609,7 +350,7 @@ namespace server
     void spawnstate(clientinfo *ci)
     {
         servstate &gs = ci->state;
-        gs.spawnstate(gamemode);
+        gs.spawnstate(0);
         gs.lifesequence = (gs.lifesequence + 1)&0x7F;
     }
 
@@ -657,44 +398,6 @@ namespace server
         putint(p, N_WELCOME);
         putint(p, N_MAPCHANGE);
         sendstring(smapname, p);
-        putint(p, gamemode);
-        putint(p, notgotitems ? 1 : 0);
-        if(!notgotitems)
-        {
-            putint(p, N_ITEMLIST);
-            loopv(sents) if(sents[i].spawned)
-            {
-                putint(p, i);
-                putint(p, sents[i].type);
-            }
-            putint(p, -1);
-        }
-        if(gamepaused)
-        {
-            putint(p, N_PAUSEGAME);
-            putint(p, 1);
-            putint(p, -1);
-        }
-        if(gamespeed != 100)
-        {
-            putint(p, N_GAMESPEED);
-            putint(p, gamespeed);
-            putint(p, -1);
-        }
-        if(ci)
-        {
-            putint(p, N_SETTEAM);
-            putint(p, ci->clientnum);
-            putint(p, ci->team);
-            putint(p, -1);
-        }
-        if(ci && ci->state.state==CS_SPECTATOR)
-        {
-            putint(p, N_SPECTATOR);
-            putint(p, ci->clientnum);
-            putint(p, 1);
-            sendf(-1, 1, "ri3x", N_SPECTATOR, ci->clientnum, 1, ci->clientnum);
-        }
         if(!ci || clients.length()>1)
         {
             putint(p, N_RESUME);
@@ -709,7 +412,6 @@ namespace server
             putint(p, -1);
             welcomeinitclient(p, ci ? ci->clientnum : -1);
         }
-        if(smode) smode->initclient(ci, p, true);
         return 1;
     }
 
@@ -728,35 +430,10 @@ namespace server
         sendpacket(-1, 1, p.finalize(), ci->clientnum);
     }
 
-    void loaditems()
-    {
-        resetitems();
-        notgotitems = true;
-        if(m_edit || !loadents(smapname, ments, &mcrc))
-            return;
-        loopv(ments) if(canspawnitem(ments[i].type))
-        {
-            server_entity se = { NOTUSED, 0, false };
-            while(sents.length()<=i) sents.add(se);
-            sents[i].type = ments[i].type;
-            sents[i].spawned = true;
-        }
-        notgotitems = false;
-    }
-
     void changemap(const char *s, int mode)
     {
-        pausegame(false);
-        changegamespeed(100);
-        if(smode) smode->cleanup();
-
-        gamemode = mode;
         gamemillis = 0;
-        gamelimit = 600000;
-        interm = 0;
-        nextexceeded = 0;
         copystring(smapname, s);
-        loaditems();
         loopv(clients)
         {
             clientinfo *ci = clients[i];
@@ -765,9 +442,7 @@ namespace server
 
         kicknonlocalclients(DISC_LOCAL);
 
-        sendf(-1, 1, "risii", N_MAPCHANGE, smapname, gamemode, 1);
-
-        smode = NULL;
+        sendf(-1, 1, "ris", N_MAPCHANGE, smapname);
 
         loopv(clients)
         {
@@ -775,8 +450,6 @@ namespace server
             ci->mapchange();
             ci->state.lasttimeplayed = lastmillis;
         }
-
-        if(smode) smode->setup();
     }
 
     void forcemap(const char *map, int mode)
@@ -784,116 +457,18 @@ namespace server
         changemap(map, mode);
     }
 
-    bool gameevent::flush(clientinfo *ci, int fmillis)
-    {
-        process(ci);
-        return true;
-    }
-
-    bool timedevent::flush(clientinfo *ci, int fmillis)
-    {
-        if(millis > fmillis) return false;
-        else if(millis >= ci->lastevent)
-        {
-            ci->lastevent = millis;
-            process(ci);
-        }
-        return true;
-    }
-
-    void clearevent(clientinfo *ci)
-    {
-        delete ci->events.remove(0);
-    }
-
-    void flushevents(clientinfo *ci, int millis)
-    {
-        while(ci->events.length())
-        {
-            gameevent *ev = ci->events[0];
-            if(ev->flush(ci, millis)) clearevent(ci);
-            else break;
-        }
-    }
-
-    void processevents()
-    {
-        loopv(clients)
-        {
-            clientinfo *ci = clients[i];
-            flushevents(ci, gamemillis);
-        }
-    }
-
-    void cleartimedevents(clientinfo *ci)
-    {
-        int keep = 0;
-        loopv(ci->events)
-        {
-            if(ci->events[i]->keepable())
-            {
-                if(keep < i)
-                {
-                    for(int j = keep; j < i; j++) delete ci->events[j];
-                    ci->events.remove(keep, i - keep);
-                    i = keep;
-                }
-                keep = i+1;
-                continue;
-            }
-        }
-        while(ci->events.length() > keep) delete ci->events.pop();
-        ci->timesync = false;
-    }
-
     void serverupdate()
     {
-        if(shouldstep && !gamepaused)
+        if(shouldstep)
         {
             gamemillis += curtime;
-
-            processevents();
-            if(smode) smode->update();
         }
 
         loopv(connects) if(totalmillis-connects[i]->connectmillis>15000) disconnect_client(connects[i]->clientnum, DISC_TIMEOUT);
 
-        if(nextexceeded && gamemillis > nextexceeded)
-        {
-            nextexceeded = 0;
-            loopvrev(clients)
-            {
-                clientinfo &c = *clients[i];
-                if(c.checkexceeded()) disconnect_client(c.clientnum, DISC_MSGERR);
-                else c.scheduleexceeded();
-            }
-        }
-
-        if(shouldstep && !gamepaused)
-        {
-            if(interm > 0 && gamemillis>interm)
-            {
-                interm = -1;
-            }
-        }
-
         shouldstep = clients.length() > 0;
     }
-
-    struct crcinfo
-    {
-        int crc, matches;
-
-        crcinfo() {}
-        crcinfo(int crc, int matches) : crc(crc), matches(matches) {}
-
-        static bool compare(const crcinfo &x, const crcinfo &y) { return x.matches > y.matches; }
-    };
  
-    void checkmaps(int req = -1)
-    {
-    }
-
     bool shouldspectate(clientinfo *ci)
     {
         return false;
@@ -906,7 +481,6 @@ namespace server
         ci->state.respawn();
         ci->state.lasttimeplayed = lastmillis;
         sendf(-1, 1, "ri3", N_SPECTATOR, ci->clientnum, 0);
-        if(ci->clientmap[0] || ci->mapcrc) checkmaps();
     }
 
     void sendservinfo(clientinfo *ci)
@@ -951,12 +525,10 @@ namespace server
         clientinfo *ci = getinfo(n);
         if(ci->connected)
         {
-            if(smode) smode->leavegame(ci, true);
             ci->state.timeplayed += lastmillis - ci->state.lasttimeplayed;
             sendf(-1, 1, "ri2", N_CDIS, n);
             clients.removeobj(ci);
             if(!numclients(-1, false, true)) noclients(); // bans clear when server empties
-            if(ci->local) checkpausegame();
         }
         else connects.removeobj(ci);
     }
@@ -971,28 +543,6 @@ namespace server
 
     void receivefile(int sender, uchar *data, int len)
     {
-        clientinfo *ci = getinfo(sender);
-        if(ci->state.state==CS_SPECTATOR && !ci->local) return;
-        if(mapdata) DELETEP(mapdata);
-        mapdata = opentempfile("mapdata", "w+b");
-        if(!mapdata) { sendf(sender, 1, "ris", N_SERVMSG, "failed to open temporary file for map"); return; }
-        mapdata->write(data, len);
-        sendservmsgf("[%s sent a map to server, \"/getmap\" to receive it]", colorname(ci));
-    }
-
-    void sendclipboard(clientinfo *ci)
-    {
-        if(!ci->lastclipboard || !ci->clipboard) return;
-        bool flushed = false;
-        loopv(clients)
-        {
-            clientinfo &e = *clients[i];
-            if(e.clientnum != ci->clientnum && e.needclipboard - ci->lastclipboard >= 0)
-            {
-                if(!flushed) { flushserver(true); flushed = true; }
-                sendpacket(e.clientnum, 1, ci->clipboard);
-            }
-        }
     }
 
     void connected(clientinfo *ci)
@@ -1003,10 +553,7 @@ namespace server
         clients.add(ci);
 
         ci->connected = true;
-        ci->needclipboard = totalmillis ? totalmillis : 1;
         ci->state.lasttimeplayed = lastmillis;
-
-        ci->team = 0;
 
         sendwelcome(ci);
         sendinitclient(ci);
@@ -1030,8 +577,6 @@ namespace server
                     filtertext(text, text, false, false, MAXNAMELEN);
                     if(!text[0]) copystring(text, "unnamed");
                     copystring(ci->name, text, MAXNAMELEN+1);
-                    ci->playermodel = getint(p);
-                    ci->playercolor = getint(p);
                     connected(ci);
                     break;
                 }
@@ -1084,7 +629,6 @@ namespace server
                 loopk(3) p.get();
                 int mag = p.get(); if(flags&(1<<3)) mag |= p.get()<<8;
                 int dir = p.get(); dir |= p.get()<<8;
-                vec vel = vec((dir%360)*RAD, (clamp(dir/360, 0, 180)-90)*RAD).mul(mag/DVELF);
                 if(flags&(1<<4))
                 {
                     p.get(); if(flags&(1<<5)) p.get();
@@ -1094,76 +638,16 @@ namespace server
                 {
                     if((!ci->local || hasnonlocalclients()) && (cp->state.state==CS_ALIVE || cp->state.state==CS_EDITING))
                     {
-                        if(!ci->local && !m_edit && max(vel.magnitude2(), (float)fabs(vel.z)) >= 180)
-                            cp->setexceeded();
                         cp->position.setsize(0);
                         while(curmsg<p.length()) cp->position.add(p.buf[curmsg++]);
                     }
-                    if(smode && cp->state.state==CS_ALIVE) smode->moved(cp, cp->state.o, cp->gameclip, pos, (flags&0x80)!=0);
                     cp->state.o = pos;
-                    cp->gameclip = (flags&0x80)!=0;
                 }
-                break;
-            }
-
-            case N_EDITMODE:
-            {
-                int val = getint(p);
-                if(!ci->local && !m_edit) break;
-                if(val ? ci->state.state!=CS_ALIVE && ci->state.state!=CS_DEAD : ci->state.state!=CS_EDITING) break;
-                if(smode)
-                {
-                    if(val) smode->leavegame(ci);
-                    else smode->entergame(ci);
-                }
-                if(val)
-                {
-                    ci->state.editstate = ci->state.state;
-                    ci->state.state = CS_EDITING;
-                    ci->events.setsize(0);
-                }
-                else ci->state.state = ci->state.editstate;
-                QUEUE_MSG;
-                break;
-            }
-
-            case N_MAPCRC:
-            {
-                getstring(text, p);
-                int crc = getint(p);
-                if(!ci) break;
-                if(strcmp(text, smapname))
-                {
-                    if(ci->clientmap[0])
-                    {
-                        ci->clientmap[0] = '\0';
-                        ci->mapcrc = 0;
-                    }
-                    else if(ci->mapcrc > 0) ci->mapcrc = 0;
-                    break;
-                }
-                copystring(ci->clientmap, text);
-                ci->mapcrc = text[0] ? crc : 1;
-                checkmaps();
-                if(cq && cq != ci && cq->ownernum != ci->clientnum) cq = NULL;
                 break;
             }
 
             case N_TRYSPAWN:
-                if(!ci || !cq || cq->state.state!=CS_DEAD || cq->state.lastspawn>=0 || (smode && !smode->canspawn(cq))) break;
-                if(!ci->clientmap[0] && !ci->mapcrc)
-                {
-                    ci->mapcrc = -1;
-                    checkmaps();
-                    if(ci == cq) { if(ci->state.state != CS_DEAD) break; }
-                    else if(cq->ownernum != ci->clientnum) { cq = NULL; break; }
-                }
-                if(cq->state.deadflush)
-                {
-                    flushevents(cq, cq->state.deadflush);
-                    cq->state.respawn();
-                }
-                cleartimedevents(cq);
+                if(!ci || !cq || cq->state.state!=CS_DEAD || cq->state.lastspawn>=0) break;
                 sendspawn(cq);
                 break;
 
@@ -1173,71 +657,11 @@ namespace server
                 if(!cq || (cq->state.state!=CS_ALIVE && cq->state.state!=CS_DEAD && cq->state.state!=CS_EDITING) || ls!=cq->state.lifesequence || cq->state.lastspawn<0) break;
                 cq->state.lastspawn = -1;
                 cq->state.state = CS_ALIVE;
-                cq->exceeded = 0;
-                if(smode) smode->spawned(cq);
                 QUEUE_AI;
                 QUEUE_BUF({
                     putint(cm->messages, N_SPAWN);
                     sendstate(cq->state, cm->messages);
                 });
-                break;
-            }
-
-            case N_TEXT:
-            {
-                QUEUE_AI;
-                QUEUE_MSG;
-                getstring(text, p);
-                filtertext(text, text, true, true);
-                QUEUE_STR(text);
-                if(isdedicatedserver() && cq) logoutf("%s: %s", colorname(cq), text);
-                break;
-            }
-
-            case N_SWITCHNAME:
-            {
-                QUEUE_MSG;
-                getstring(text, p);
-                filtertext(ci->name, text, false, false, MAXNAMELEN);
-                if(!ci->name[0]) copystring(ci->name, "unnamed");
-                QUEUE_STR(ci->name);
-                break;
-            }
-
-            case N_EDITENT:
-            {
-                int i = getint(p);
-                loopk(3) getint(p);
-                int type = getint(p);
-                loopk(5) getint(p);
-                if(!ci || ci->state.state==CS_SPECTATOR) break;
-                QUEUE_MSG;
-                bool canspawn = canspawnitem(type);
-                if(i<MAXENTS && (sents.inrange(i) || canspawnitem(type)))
-                {
-                    server_entity se = { NOTUSED, 0, false };
-                    while(sents.length()<=i) sents.add(se);
-                    sents[i].type = type;
-                    if(canspawn ? !sents[i].spawned : (sents[i].spawned || sents[i].spawntime))
-                    {
-                        sents[i].spawntime = canspawn ? 1 : 0;
-                        sents[i].spawned = false;
-                    }
-                }
-                break;
-            }
-
-            case N_EDITVAR:
-            {
-                int type = getint(p);
-                getstring(text, p);
-                switch(type)
-                {
-                    case ID_VAR: getint(p); break;
-                    case ID_FVAR: getfloat(p); break;
-                    case ID_SVAR: getstring(text, p);
-                }
-                if(ci && ci->state.state!=CS_SPECTATOR) QUEUE_MSG;
                 break;
             }
 
@@ -1263,100 +687,10 @@ namespace server
                 if(size>=0)
                 {
                     smapname[0] = '\0';
-                    resetitems();
-                    notgotitems = false;
-                    if(smode) smode->newmap();
                 }
                 QUEUE_MSG;
                 break;
             }
-
-            case N_PAUSEGAME:
-            {
-                int val = getint(p);
-                pausegame(val > 0, ci);
-                break;
-            }
-
-            case N_GAMESPEED:
-            {
-                int val = getint(p);
-                changegamespeed(val, ci);
-                break;
-            }
-
-            case N_COPY:
-                ci->cleanclipboard();
-                ci->lastclipboard = totalmillis ? totalmillis : 1;
-                goto genericmsg;
-
-            case N_PASTE:
-                if(ci->state.state!=CS_SPECTATOR) sendclipboard(ci);
-                goto genericmsg;
-
-            case N_CLIPBOARD:
-            {
-                int unpacklen = getint(p), packlen = getint(p);
-                ci->cleanclipboard(false);
-                if(ci->state.state==CS_SPECTATOR)
-                {
-                    if(packlen > 0) p.subbuf(packlen);
-                    break;
-                }
-                if(packlen <= 0 || packlen > (1<<16) || unpacklen <= 0)
-                {
-                    if(packlen > 0) p.subbuf(packlen);
-                    packlen = unpacklen = 0;
-                }
-                packetbuf q(32 + packlen, ENET_PACKET_FLAG_RELIABLE);
-                putint(q, N_CLIPBOARD);
-                putint(q, ci->clientnum);
-                putint(q, unpacklen);
-                putint(q, packlen);
-                if(packlen > 0) p.get(q.subbuf(packlen).buf, packlen);
-                ci->clipboard = q.finalize();
-                ci->clipboard->referenceCount++;
-                break;
-            }
-
-            case N_EDITT:
-            case N_REPLACE:
-            case N_EDITVSLOT:
-            {
-                int size = server::msgsizelookup(type);
-                if(size<=0) { disconnect_client(sender, DISC_MSGERR); return; }
-                loopi(size-1) getint(p);
-                if(p.remaining() < 2) { disconnect_client(sender, DISC_MSGERR); return; }
-                int extra = lilswap(*(const ushort *)p.pad(2));
-                if(p.remaining() < extra) { disconnect_client(sender, DISC_MSGERR); return; }                
-                p.pad(extra); 
-                if(ci && ci->state.state!=CS_SPECTATOR) QUEUE_MSG;
-                break;
-            }
-  
-            case N_UNDO:
-            case N_REDO:
-            {
-                int unpacklen = getint(p), packlen = getint(p);
-                if(!ci || ci->state.state==CS_SPECTATOR || packlen <= 0 || packlen > (1<<16) || unpacklen <= 0)
-                {
-                    if(packlen > 0) p.subbuf(packlen);
-                    break;
-                }
-                if(p.remaining() < packlen) { disconnect_client(sender, DISC_MSGERR); return; }
-                packetbuf q(32 + packlen, ENET_PACKET_FLAG_RELIABLE);
-                putint(q, type);
-                putint(q, ci->clientnum);
-                putint(q, unpacklen);
-                putint(q, packlen);
-                if(packlen > 0) p.get(q.subbuf(packlen).buf, packlen);
-                sendpacket(-1, 1, q.finalize(), ci->clientnum);
-                break;
-            }
- 
-            case N_SERVCMD:
-                getstring(text, p);
-                break;
 
             case -1:
                 disconnect_client(sender, DISC_MSGERR);
@@ -1366,17 +700,12 @@ namespace server
                 disconnect_client(sender, DISC_OVERFLOW);
                 return;
 
-            default: genericmsg:
+            default:
             {
                 int size = server::msgsizelookup(type);
                 if(size<=0) { disconnect_client(sender, DISC_MSGERR); return; }
                 loopi(size-1) getint(p);
-                if(ci) switch(msgfilter[type])
-                {
-                    case 2: case 3: if(ci->state.state != CS_SPECTATOR) QUEUE_MSG; break;
-                    default: if(cq && (ci != cq || ci->state.state!=CS_SPECTATOR)) { QUEUE_AI; QUEUE_MSG; } break;
-                }
-                break;
+                if(cq && (ci != cq || ci->state.state!=CS_SPECTATOR)) { QUEUE_AI; QUEUE_MSG; }
             }
         }
     }
@@ -1390,15 +719,6 @@ namespace server
         putint(p, PROTOCOL_VERSION);
         putint(p, numclients(-1, false, true));
         putint(p, maxclients);
-        putint(p, gamepaused || gamespeed != 100 ? 5 : 3); // number of attrs following
-        putint(p, gamemode);
-        putint(p, 0);
-        putint(p, 0);
-        if(gamepaused || gamespeed != 100)
-        {
-            putint(p, gamepaused ? 1 : 0);
-            putint(p, gamespeed);
-        }
         sendstring(smapname, p);
         sendserverinforeply(p);
     }
