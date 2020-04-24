@@ -54,7 +54,6 @@ namespace game
 
     void writeclientinfo(stream *f)
     {
-        f->printf("name %s\n", escapestring(player1->name));
     }
 
     bool allowedittoggle()
@@ -70,7 +69,6 @@ namespace game
 
     void edittoggled(bool on)
     {
-        if(player1->state==CS_DEAD) deathstate(player1, true);
         disablezoom();
         player1->respawned = -2;
     }
@@ -211,7 +209,6 @@ namespace game
         }
     }
 
-    const char *chatcolorname(gameent *d) { return colorname(d); }
     void toserver(char *text) { conoutf(CON_CHAT, "%s", text); }
 
     void sendmessages()
@@ -319,12 +316,6 @@ namespace game
                 int size = getint(p);
                 if(size>=0) emptymap(size, true, NULL);
                 else enlargemap(true);
-                if(d && d!=player1)
-                {
-                    int newsize = 0;
-                    while(1<<newsize < getworldsize()) newsize++;
-                    conoutf(size>=0 ? "%s started a new map of size %d" : "%s enlarged the map to size %d", colorname(d), newsize);
-                }
                 break;
             }
 
@@ -334,10 +325,6 @@ namespace game
         }
     }
 
-    void receivefile(packetbuf &p)
-    {
-    }
-
     void parsepacketclient(int chan, packetbuf &p)   // processes any updates from the server
     {
         if(p.packet->flags&ENET_PACKET_FLAG_UNSEQUENCED) return;
@@ -345,10 +332,6 @@ namespace game
         {
             case 1:
                 parsemessages(-1, NULL, p);
-                break;
-
-            case 2:
-                receivefile(p);
                 break;
         }
     }

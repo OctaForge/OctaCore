@@ -2,11 +2,9 @@
 
 namespace game
 {
-    int maptime = 0, maprealtime = 0, maplimit = -1;
-    int lastspawnattempt = 0;
+    static int maptime = 0, maprealtime = 0;
 
     gameent *player1 = NULL;         // our client
-    vector<gameent *> players;       // other clients
 
     const char *getclientmap() { return clientmap; }
 
@@ -121,52 +119,6 @@ namespace game
         return true;
     }
 
-    void damaged(int damage, gameent *d, gameent *actor, bool local)
-    {
-    }
-
-    void deathstate(gameent *d, bool restore)
-    {
-        d->state = CS_DEAD;
-        if(d==player1)
-        {
-            disablezoom();
-            //d->pitch = 0;
-            d->roll = 0;
-            playsound(S_DIE2);
-        }
-        else
-        {
-            d->move = d->strafe = 0;
-            d->resetinterp();
-            d->smoothmillis = 0;
-            playsound(S_DIE1, &d->o);
-        }
-    }
-
-    VARP(teamcolorfrags, 0, 1, 1);
-
-    void killed(gameent *d, gameent *actor)
-    {
-        if(d->state==CS_EDITING)
-        {
-            d->editstate = CS_DEAD;
-            if(d!=player1) d->resetinterp();
-            return;
-        }
-        else if(d->state!=CS_ALIVE && d->state != CS_LAGGED && d->state != CS_SPAWNING) return;
-
-        deathstate(d);
-    }
-
-    void timeupdate(int secs)
-    {
-        if(secs > 0)
-        {
-            maplimit = lastmillis + secs*1000;
-        }
-    }
-
     vector<gameent *> clients;
 
     gameent *getclient(int cn)   // ensure valid entity
@@ -181,11 +133,9 @@ namespace game
         gameent *d = clients[cn];
         if(d)
         {
-            if(notify && d->name[0]) conoutf("\f4leave:\f7 %s", colorname(d));
             removetrackedparticles(d);
             removetrackeddynlights(d);
             if(cmode) cmode->removeplayer(d);
-            players.removeobj(d);
             DELETEP(clients[cn]);
             cleardynentcache();
         }
@@ -200,7 +150,6 @@ namespace game
     {
         player1 = spawnstate(new gameent);
         filtertext(player1->name, "unnamed", false, false, MAXNAMELEN);
-        players.add(player1);
     }
 
     VARP(showmodeinfo, 0, 1, 1);
@@ -208,12 +157,11 @@ namespace game
     void startgame()
     {
         // reset perma-state
-        loopv(players) players[i]->startgame();
+        player1->startgame();
 
         setclientmode();
 
         maptime = maprealtime = 0;
-        maplimit = -1;
 
         if(cmode)
         {
@@ -264,26 +212,12 @@ namespace game
         playsound(n);
     }
 
-    int numdynents() { return players.length(); }
+    int numdynents() { return 1; }
 
     dynent *iterdynents(int i)
     {
-        if(i<players.length()) return players[i];
+        if(!i) return player1;
         return NULL;
-    }
-
-    bool duplicatename(gameent *d, const char *name = NULL, const char *alt = NULL)
-    {
-        if(!name) name = d->name;
-        if(alt && d != player1 && !strcmp(name, alt)) return true;
-        loopv(players) if(d!=players[i] && !strcmp(name, players[i]->name)) return true;
-        return false;
-    }
-
-    const char *colorname(gameent *d, const char *name, const char * alt, const char *color)
-    {
-        if(!name) name = alt && d == player1 ? alt : d->name;
-        return name;
     }
 
     bool needminimap() { return false; }

@@ -248,24 +248,19 @@ namespace game
 
     // game
     extern string clientmap;
-    extern int maptime, maprealtime, maplimit;
+
     extern gameent *player1;
-    extern vector<gameent *> players, clients;
-    extern int lastspawnattempt;
-    extern int smoothmove, smoothdist;
+    extern vector<gameent *> clients;
 
     extern bool clientoption(const char *arg);
     extern gameent *getclient(int cn);
     extern gameent *newclient(int cn);
-    extern const char *colorname(gameent *d, const char *name = NULL, const char *alt = NULL, const char *color = "");
     extern gameent *pointatplayer();
     extern gameent *hudplayer();
     extern void clientdisconnected(int cn, bool notify = true);
     extern void clearclients(bool notify = true);
     extern void startgame();
     extern void spawnplayer(gameent *);
-    extern void deathstate(gameent *d, bool restore = false);
-    extern void timeupdate(int timeremain);
     extern void msgsound(int n, physent *d = NULL);
 
     // client

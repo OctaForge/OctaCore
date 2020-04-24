@@ -24,17 +24,12 @@ namespace server
         vec o;
         int state, editstate;
         int lastspawn, lifesequence;
-        int lasttimeplayed, timeplayed;
-        float effectiveness;
 
         servstate() : state(CS_DEAD), editstate(CS_DEAD), lifesequence(0) {}
 
         void reset()
         {
-            if(state!=CS_SPECTATOR) state = editstate = CS_DEAD;
-
-            timeplayed = 0;
-            effectiveness = 0;
+            state = editstate = CS_DEAD;
 
             respawn();
         }
@@ -296,13 +291,6 @@ namespace server
         putint(p, gs.lifesequence);
     }
 
-    void spawnstate(clientinfo *ci)
-    {
-        servstate &gs = ci->state;
-        gs.spawnstate(0);
-        gs.lifesequence = (gs.lifesequence + 1)&0x7F;
-    }
-
     void sendwelcome(clientinfo *ci)
     {
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
@@ -327,11 +315,6 @@ namespace server
     {
         gamemillis = 0;
         copystring(smapname, s);
-        loopv(clients)
-        {
-            clientinfo *ci = clients[i];
-            ci->state.timeplayed += lastmillis - ci->state.lasttimeplayed;
-        }
 
         kicknonlocalclients(DISC_LOCAL);
 
@@ -341,7 +324,6 @@ namespace server
         {
             clientinfo *ci = clients[i];
             ci->mapchange();
-            ci->state.lasttimeplayed = lastmillis;
         }
     }
 
@@ -413,7 +395,6 @@ namespace server
         clientinfo *ci = getinfo(n);
         if(ci->connected)
         {
-            ci->state.timeplayed += lastmillis - ci->state.lasttimeplayed;
             sendf(-1, 1, "ri2", N_CDIS, n);
             clients.removeobj(ci);
             if(!numclients(-1, false, true)) noclients(); // bans clear when server empties
@@ -441,7 +422,6 @@ namespace server
         clients.add(ci);
 
         ci->connected = true;
-        ci->state.lasttimeplayed = lastmillis;
 
         sendwelcome(ci);
     }
