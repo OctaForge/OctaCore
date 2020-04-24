@@ -3,77 +3,10 @@
 namespace game
 {
     int maptime = 0, maprealtime = 0, maplimit = -1;
-    int lasthit = 0, lastspawnattempt = 0;
+    int lastspawnattempt = 0;
 
     gameent *player1 = NULL;         // our client
     vector<gameent *> players;       // other clients
-
-    int following = -1;
-
-    VARFP(specmode, 0, 0, 2,
-    {
-        if(!specmode) stopfollowing();
-        else if(following < 0) nextfollow();
-    });
-
-    gameent *followingplayer(gameent *fallback)
-    {
-        if(player1->state!=CS_SPECTATOR || following<0) return fallback;
-        gameent *target = getclient(following);
-        if(target && target->state!=CS_SPECTATOR) return target;
-        return fallback;
-    }
-
-    ICOMMAND(getfollow, "", (),
-    {
-        gameent *f = followingplayer();
-        intret(f ? f->clientnum : -1);
-    });
-
-    void stopfollowing()
-    {
-        if(following<0) return;
-        following = -1;
-    }
-
-    void follow(char *arg)
-    {
-    }
-    COMMAND(follow, "s");
-
-    void nextfollow(int dir)
-    {
-        if(player1->state!=CS_SPECTATOR) return;
-        int cur = following >= 0 ? following : (dir < 0 ? clients.length() - 1 : 0);
-        loopv(clients)
-        {
-            cur = (cur + dir + clients.length()) % clients.length();
-            if(clients[cur] && clients[cur]->state!=CS_SPECTATOR)
-            {
-                following = cur;
-                return;
-            }
-        }
-        stopfollowing();
-    }
-    ICOMMAND(nextfollow, "i", (int *dir), nextfollow(*dir < 0 ? -1 : 1));
-
-    void checkfollow()
-    {
-        if(player1->state != CS_SPECTATOR)
-        {
-            if(following >= 0) stopfollowing();
-        }
-        else
-        {
-            if(following >= 0)
-            {
-                gameent *d = clients.inrange(following) ? clients[following] : NULL;
-                if(!d || d->state == CS_SPECTATOR) stopfollowing();
-            }
-            if(following < 0 && specmode) nextfollow();
-        }
-    }
 
     const char *getclientmap() { return clientmap; }
 
@@ -92,7 +25,6 @@ namespace game
     {
         if(ispaused()) return;
         spawnplayer(player1);
-        lasthit = 0;
         if(cmode) cmode->respawned(player1);
     }
 
@@ -103,72 +35,26 @@ namespace game
 
     gameent *hudplayer()
     {
-        if((thirdperson && allowthirdperson()) || specmode > 1) return player1;
-        return followingplayer(player1);
+        return player1;
     }
 
     void setupcamera()
     {
-        gameent *target = followingplayer();
-        if(target)
-        {
-            player1->yaw = target->yaw;
-            player1->pitch = target->state==CS_DEAD ? 0 : target->pitch;
-            player1->o = target->o;
-            player1->resetinterp();
-        }
     }
 
     bool allowthirdperson()
     {
-        return !multiplayer(false) || player1->state==CS_SPECTATOR || player1->state==CS_EDITING || m_edit;
+        return true;
     }
 
     bool detachcamera()
     {
-        gameent *d = followingplayer();
-        if(d) return specmode > 1 || d->state == CS_DEAD;
         return player1->state == CS_DEAD;
     }
 
     bool collidecamera()
     {
-        switch(player1->state)
-        {
-            case CS_EDITING: return false;
-            case CS_SPECTATOR: return followingplayer()!=NULL;
-        }
-        return true;
-    }
-
-    VARP(smoothmove, 0, 75, 100);
-    VARP(smoothdist, 0, 32, 64);
-
-    void predictplayer(gameent *d, bool move)
-    {
-        d->o = d->newpos;
-        d->yaw = d->newyaw;
-        d->pitch = d->newpitch;
-        d->roll = d->newroll;
-        if(move)
-        {
-            moveplayer(d, 1, false);
-            d->newpos = d->o;
-        }
-        float k = 1.0f - float(lastmillis - d->smoothmillis)/smoothmove;
-        if(k>0)
-        {
-            d->o.add(vec(d->deltapos).mul(k));
-            d->yaw += d->deltayaw*k;
-            if(d->yaw<0) d->yaw += 360;
-            else if(d->yaw>=360) d->yaw -= 360;
-            d->pitch += d->deltapitch*k;
-            d->roll += d->deltaroll*k;
-        }
-    }
-
-    void otherplayers(int curtime)
-    {
+        return (player1->state != CS_EDITING);
     }
 
     void updateworld()        // main game update loop
@@ -177,7 +63,6 @@ namespace game
         if(!curtime) { gets2c(); if(player1->clientnum>=0) c2sinfo(); return; }
 
         physicsframe();
-        otherplayers(curtime);
         moveragdolls();
         gets2c();
         if(connected)
@@ -201,7 +86,6 @@ namespace game
             else if(d->state != CS_SPECTATOR) d->state = CS_ALIVE;
         }
         else d->state = CS_ALIVE;
-        checkfollow();
     }
 
     VARP(spawnwait, 0, 0, 1000);
@@ -285,27 +169,6 @@ namespace game
 
     vector<gameent *> clients;
 
-    gameent *newclient(int cn)   // ensure valid entity
-    {
-        if(cn < 0 || cn > max(0xFF, MAXCLIENTS))
-        {
-            neterr("clientnum", false);
-            return NULL;
-        }
-
-        if(cn == player1->clientnum) return player1;
-
-        while(cn >= clients.length()) clients.add(NULL);
-        if(!clients[cn])
-        {
-            gameent *d = new gameent;
-            d->clientnum = cn;
-            clients[cn] = d;
-            players.add(d);
-        }
-        return clients[cn];
-    }
-
     gameent *getclient(int cn)   // ensure valid entity
     {
         if(cn == player1->clientnum) return player1;
@@ -325,11 +188,6 @@ namespace game
             players.removeobj(d);
             DELETEP(clients[cn]);
             cleardynentcache();
-        }
-        if(following == cn)
-        {
-            if(specmode) nextfollow();
-            else stopfollowing();
         }
     }
 
@@ -366,7 +224,6 @@ namespace game
         syncplayer();
 
         disablezoom();
-        lasthit = 0;
 
         execident("mapstart");
     }

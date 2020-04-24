@@ -73,7 +73,6 @@ namespace game
         if(player1->state==CS_DEAD) deathstate(player1, true);
         disablezoom();
         player1->respawned = -2;
-        checkfollow();
     }
 
     string clientmap = "";
@@ -195,7 +194,6 @@ namespace game
 
     void gamedisconnect(bool cleanup)
     {
-        if(remote) stopfollowing();
         connected = remote = false;
         player1->clientnum = -1;
         if(editmode) toggleedit();
@@ -313,8 +311,6 @@ namespace game
                 parsestate(d, p);
                 if(!d) break;
                 d->state = CS_SPAWNING;
-                if(d == followingplayer()) lasthit = 0;
-                checkfollow();
                 break;
             }
 

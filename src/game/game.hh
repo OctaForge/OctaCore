@@ -252,8 +252,6 @@ namespace game
     extern gameent *player1;
     extern vector<gameent *> players, clients;
     extern int lastspawnattempt;
-    extern int lasthit;
-    extern int following;
     extern int smoothmove, smoothdist;
 
     extern bool clientoption(const char *arg);
@@ -262,10 +260,6 @@ namespace game
     extern const char *colorname(gameent *d, const char *name = NULL, const char *alt = NULL, const char *color = "");
     extern gameent *pointatplayer();
     extern gameent *hudplayer();
-    extern gameent *followingplayer(gameent *fallback = NULL);
-    extern void stopfollowing();
-    extern void checkfollow();
-    extern void nextfollow(int dir = 1);
     extern void clientdisconnected(int cn, bool notify = true);
     extern void clearclients(bool notify = true);
     extern void startgame();
