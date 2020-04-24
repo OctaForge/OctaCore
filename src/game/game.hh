@@ -99,24 +99,20 @@ enum
 
 enum
 {
-    N_CONNECT = 0, N_SERVINFO, N_WELCOME, N_INITCLIENT, N_CDIS,
-    N_TRYSPAWN, N_SPAWNSTATE, N_SPAWN,
+    N_CONNECT = 0, N_SERVINFO, N_WELCOME, N_CDIS,
+    N_SPAWN,
     N_MAPCHANGE,
-    N_PING, N_PONG, N_CLIENTPING,
     N_NEWMAP,
-    N_RESUME,
     N_CLIENT,
     NUMMSG
 };
 
 static const int msgsizes[] =               // size inclusive message token, 0 for variable or not-checked sizes
 {
-    N_CONNECT, 0, N_SERVINFO, 0, N_WELCOME, 1, N_INITCLIENT, 0, N_CDIS, 2,
-    N_TRYSPAWN, 1, N_SPAWNSTATE, 8, N_SPAWN, 2,
+    N_CONNECT, 0, N_SERVINFO, 0, N_WELCOME, 1, N_CDIS, 2,
+    N_SPAWN, 2,
     N_MAPCHANGE, 0,
-    N_PING, 2, N_PONG, 2, N_CLIENTPING, 2,
     N_NEWMAP, 2,
-    N_RESUME, 0,
     N_CLIENT, 0,
     -1
 };

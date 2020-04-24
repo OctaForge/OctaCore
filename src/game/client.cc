@@ -42,8 +42,6 @@ namespace game
         cmode = NULL;
     }
 
-    int lastping = 0;
-
     bool connected = false, remote = false;
     int sessionid = 0;
     string servdesc = "", servauth = "";
@@ -229,12 +227,6 @@ namespace game
             messagereliable = false;
             messagecn = -1;
         }
-        if(totalmillis-lastping>250)
-        {
-            putint(p, N_PING);
-            putint(p, totalmillis);
-            lastping = totalmillis;
-        }
         sendclientpacket(p.finalize(), 1);
     }
 
@@ -308,27 +300,6 @@ namespace game
                 changemapserv(text, 0);
                 break;
 
-            case N_INITCLIENT:            // another client either connected or changed name/team
-            {
-                int cn = getint(p);
-                gameent *d = newclient(cn);
-                if(!d)
-                {
-                    getstring(text, p);
-                    getstring(text, p);
-                    getint(p);
-                    getint(p);
-                    break;
-                }
-                getstring(text, p);
-                filtertext(text, text, false, false, MAXNAMELEN);
-                if(!text[0]) copystring(text, "unnamed");
-                copystring(d->name, text, MAXNAMELEN+1);
-                d->playermodel = 0;
-                d->playercolor = 0;
-                break;
-            }
-
             case N_CDIS:
                 clientdisconnected(getint(p));
                 break;
@@ -346,51 +317,6 @@ namespace game
                 checkfollow();
                 break;
             }
-
-            case N_SPAWNSTATE:
-            {
-                int scn = getint(p);
-                gameent *s = getclient(scn);
-                if(!s) { parsestate(NULL, p); break; }
-                if(s==player1)
-                {
-                    if(editmode) toggleedit();
-                }
-                s->respawn();
-                parsestate(s, p);
-                s->state = CS_ALIVE;
-                if(cmode) cmode->pickspawn(s);
-                else findplayerspawn(s, -1, 0);
-                if(s == player1)
-                {
-                    lasthit = 0;
-                }
-                if(cmode) cmode->respawned(s);
-                checkfollow();
-                addmsg(N_SPAWN, "rci", s, s->lifesequence);
-                break;
-            }
-
-            case N_RESUME:
-            {
-                for(;;)
-                {
-                    int cn = getint(p);
-                    if(p.overread() || cn<0) break;
-                    gameent *d = (cn == player1->clientnum ? player1 : newclient(cn));
-                    parsestate(d, p, true);
-                }
-                break;
-            }
-
-            case N_PONG:
-                addmsg(N_CLIENTPING, "i", player1->ping = (player1->ping*5+totalmillis-getint(p))/6);
-                break;
-
-            case N_CLIENTPING:
-                if(!d) return;
-                d->ping = getint(p);
-                break;
 
             case N_NEWMAP:
             {

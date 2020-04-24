@@ -63,7 +63,6 @@ namespace server
         vector<uchar> messages;
         uchar *wsdata;
         int wslen;
-        int ping;
         string clientmap;
         bool warned;
 
@@ -89,7 +88,6 @@ namespace server
             name[0] = 0;
             connected = local = false;
             messages.setsize(0);
-            ping = 0;
             mapchange();
         }
     };
@@ -305,38 +303,11 @@ namespace server
         gs.lifesequence = (gs.lifesequence + 1)&0x7F;
     }
 
-    void sendspawn(clientinfo *ci)
-    {
-        servstate &gs = ci->state;
-        spawnstate(ci);
-        sendf(ci->ownernum, 1, "rii4", N_SPAWNSTATE, ci->clientnum, gs.lifesequence,
-            1, 1);
-        gs.lastspawn = gamemillis;
-    }
-
     void sendwelcome(clientinfo *ci)
     {
         packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
         int chan = welcomepacket(p, ci);
         sendpacket(ci->clientnum, chan, p.finalize());
-    }
-
-    void putinitclient(clientinfo *ci, packetbuf &p)
-    {
-        putint(p, N_INITCLIENT);
-        putint(p, ci->clientnum);
-        sendstring(ci->name, p);
-    }
-
-    void welcomeinitclient(packetbuf &p, int exclude = -1)
-    {
-        loopv(clients)
-        {
-            clientinfo *ci = clients[i];
-            if(!ci->connected || ci->clientnum == exclude) continue;
-
-            putinitclient(ci, p);
-        }
     }
 
     bool hasmap(clientinfo *ci)
@@ -349,28 +320,7 @@ namespace server
         putint(p, N_WELCOME);
         putint(p, N_MAPCHANGE);
         sendstring(smapname, p);
-        if(!ci || clients.length()>1)
-        {
-            putint(p, N_RESUME);
-            loopv(clients)
-            {
-                clientinfo *oi = clients[i];
-                if(ci && oi->clientnum==ci->clientnum) continue;
-                putint(p, oi->clientnum);
-                putint(p, oi->state.state);
-                sendstate(oi->state, p);
-            }
-            putint(p, -1);
-            welcomeinitclient(p, ci ? ci->clientnum : -1);
-        }
         return 1;
-    }
-
-    void sendinitclient(clientinfo *ci)
-    {
-        packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
-        putinitclient(ci, p);
-        sendpacket(-1, 1, p.finalize(), ci->clientnum);
     }
 
     void changemap(const char *s, int mode)
@@ -494,7 +444,6 @@ namespace server
         ci->state.lasttimeplayed = lastmillis;
 
         sendwelcome(ci);
-        sendinitclient(ci);
     }
 
     void parsepacket(int sender, int chan, packetbuf &p)     // has to parse exactly each byte of the packet
@@ -518,10 +467,6 @@ namespace server
                     connected(ci);
                     break;
                 }
-
-                case N_PING:
-                    getint(p);
-                    break;
 
                 default:
                     disconnect_client(sender, DISC_MSGERR);
@@ -551,11 +496,6 @@ namespace server
         int curmsg;
         while((curmsg = p.length()) < p.maxlen) switch(type = checktype(getint(p), ci))
         {
-            case N_TRYSPAWN:
-                if(!ci || !cq || cq->state.state!=CS_DEAD || cq->state.lastspawn>=0) break;
-                sendspawn(cq);
-                break;
-
             case N_SPAWN:
             {
                 int ls = getint(p);
@@ -567,21 +507,6 @@ namespace server
                     putint(cm->messages, N_SPAWN);
                     sendstate(cq->state, cm->messages);
                 });
-                break;
-            }
-
-            case N_PING:
-                sendf(sender, 1, "i2", N_PONG, getint(p));
-                break;
-
-            case N_CLIENTPING:
-            {
-                int ping = getint(p);
-                if(ci)
-                {
-                    ci->ping = ping;
-                }
-                QUEUE_MSG;
                 break;
             }
 
