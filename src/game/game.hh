@@ -224,28 +224,6 @@ namespace entities
 
 namespace game
 {
-    struct clientmode
-    {
-        virtual ~clientmode() {}
-
-        virtual void preload() {}
-        virtual float clipconsole(float w, float h) { return 0; }
-        virtual void drawhud(gameent *d, int w, int h) {}
-        virtual void rendergame() {}
-        virtual void respawned(gameent *d) {}
-        virtual void setup() {}
-        virtual void checkitems(gameent *d) {}
-        virtual int respawnwait(gameent *d, int delay = 0) { return 0; }
-        virtual void pickspawn(gameent *d) { findplayerspawn(d, -1, 0); }
-        virtual void senditems(packetbuf &p) {}
-        virtual void removeplayer(gameent *d) {}
-        virtual void gameover() {}
-        virtual bool hidefrags() { return false; }
-    };
-
-    extern clientmode *cmode;
-    extern void setclientmode();
-
     // game
     extern string clientmap;
 
@@ -276,17 +254,10 @@ namespace game
     extern void sendposition(gameent *d, bool reliable = false);
 
     // render
-    struct playermodelinfo
-    {
-        const char *model[1], *hudguns[1],
-                   *icon[1];
-        bool ragdoll;
-    };
 
     extern void saveragdoll(gameent *d);
     extern void clearragdolls();
     extern void moveragdolls();
-    extern const playermodelinfo &getplayermodelinfo(gameent *d);
     extern int getplayercolor(gameent *d, int team);
     extern int chooserandomplayermodel(int seed);
     extern void syncplayer();

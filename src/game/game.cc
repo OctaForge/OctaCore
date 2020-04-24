@@ -23,7 +23,6 @@ namespace game
     {
         if(ispaused()) return;
         spawnplayer(player1);
-        if(cmode) cmode->respawned(player1);
     }
 
     gameent *pointatplayer()
@@ -68,15 +67,13 @@ namespace game
             crouchplayer(player1, 10, true);
             moveplayer(player1, 10, true);
             entities::checkitems(player1);
-            if(cmode) cmode->checkitems(player1);
         }
         if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
     }
 
     void spawnplayer(gameent *d)   // place at random spawn
     {
-        if(cmode) cmode->pickspawn(d);
-        else findplayerspawn(d, -1, 0);
+        findplayerspawn(d, -1, 0);
         spawnstate(d);
         if(d==player1)
         {
@@ -135,7 +132,6 @@ namespace game
         {
             removetrackedparticles(d);
             removetrackeddynlights(d);
-            if(cmode) cmode->removeplayer(d);
             DELETEP(clients[cn]);
             cleardynentcache();
         }
@@ -159,15 +155,7 @@ namespace game
         // reset perma-state
         player1->startgame();
 
-        setclientmode();
-
         maptime = maprealtime = 0;
-
-        if(cmode)
-        {
-            cmode->preload();
-            cmode->setup();
-        }
 
         syncplayer();
 
@@ -243,7 +231,6 @@ namespace game
         if(d->state!=CS_EDITING)
         {
             if(d->state!=CS_SPECTATOR) drawhudicons(d);
-            if(cmode) cmode->drawhud(d, w, h);
         }
 
         pophudmatrix();
@@ -251,7 +238,6 @@ namespace game
 
     float clipconsole(float w, float h)
     {
-        if(cmode) return cmode->clipconsole(w, h);
         return 0;
     }
 

@@ -26,14 +26,6 @@ namespace game
     {
     }
 
-    void renderplayer(gameent *d, const playermodelinfo &mdl, int color, float fade, int flags = 0, bool mainpass = true)
-    {
-    }
-
-    static inline void renderplayer(gameent *d, float fade = 1, int flags = 0)
-    {
-    }
-
     void rendergame()
     {
     }

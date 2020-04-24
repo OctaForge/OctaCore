@@ -35,13 +35,6 @@ namespace game
         settexture("media/interface/radar/radar.png", 3);
     }
 
-    clientmode *cmode = NULL;
-
-    void setclientmode()
-    {
-        cmode = NULL;
-    }
-
     bool connected = false, remote = false;
     int sessionid = 0;
     string servdesc = "", servauth = "";
