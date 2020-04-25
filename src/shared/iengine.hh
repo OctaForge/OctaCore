@@ -450,62 +450,10 @@ extern void moveragdoll(dynent *d);
 extern void cleanragdoll(dynent *d);
 
 // server
-#define MAXTRANS 5000                  // max amount of data to swallow in 1 go
 
-enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, DISC_PRIVATE, DISC_MAXCLIENTS, DISC_TIMEOUT, DISC_OVERFLOW, DISC_PASSWORD, DISC_NUM };
-
-extern void *getclientinfo(int i);
-extern ENetPacket *sendf(int cn, int chan, const char *format, ...);
-extern void sendpacket(int cn, int chan, ENetPacket *packet, int exclude = -1);
 extern void localconnect();
-extern const char *disconnectreason(int reason);
-extern void disconnect_client(int n, int reason);
-extern void kicknonlocalclients(int reason = DISC_NONE);
-extern bool hasnonlocalclients();
 extern bool haslocalclients();
 
-// serverbrowser
-
-struct servinfo
-{
-    string name, map, desc;
-    int protocol, numplayers, maxplayers, ping;
-    vector<int> attr;
-
-    servinfo() : protocol(INT_MIN), numplayers(0), maxplayers(0)
-    {
-        name[0] = map[0] = desc[0] = '\0';
-    }
-};
-
-extern servinfo *getservinfo(int i);
-
-#define GETSERVINFO(idx, si, body) do { \
-    servinfo *si = getservinfo(idx); \
-    if(si) \
-    { \
-        body; \
-    } \
-} while(0)
-#define GETSERVINFOATTR(idx, aidx, aval, body) \
-    GETSERVINFO(idx, si, { if(si->attr.inrange(aidx)) { int aval = si->attr[aidx]; body; } })
-
 // client
-extern void sendclientpacket(ENetPacket *packet, int chan);
 extern bool isconnected(bool attempt = false, bool local = true);
 extern bool multiplayer(bool msg = true);
-extern void neterr(const char *s, bool disc = true);
-extern void gets2c();
-extern void notifywelcome();
-
-// crypto
-extern void genprivkey(const char *seed, vector<char> &privstr, vector<char> &pubstr);
-extern bool calcpubkey(const char *privstr, vector<char> &pubstr);
-extern bool hashstring(const char *str, char *result, int maxlen);
-extern void answerchallenge(const char *privstr, const char *challenge, vector<char> &answerstr);
-extern void *parsepubkey(const char *pubstr);
-extern void freepubkey(void *pubkey);
-extern void *genchallenge(void *pubkey, const void *seed, int seedlen, vector<char> &challengestr);
-extern void freechallenge(void *answer);
-extern bool checkchallenge(const char *answerstr, void *correct);
-

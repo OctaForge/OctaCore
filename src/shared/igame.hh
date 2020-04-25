@@ -27,7 +27,6 @@ namespace game
     extern void parseoptions(vector<const char *> &args);
 
     extern void gamedisconnect(bool cleanup);
-    extern void parsepacketclient(int chan, packetbuf &p);
     extern void connectfail();
     extern void gameconnect(bool _remote);
     extern bool allowedittoggle();
@@ -90,27 +89,3 @@ namespace game
     extern void dynlighttrack(physent *owner, vec &o, vec &hud);
     extern bool needminimap();
 }
-
-namespace server
-{
-    extern void *newclientinfo();
-    extern void deleteclientinfo(void *ci);
-    extern void serverinit();
-    extern int reserveclients();
-    extern int numchannels();
-    extern void clientdisconnect(int n);
-    extern int clientconnect(int n, uint ip);
-    extern void localdisconnect(int n);
-    extern void localconnect(int n);
-    extern bool allowbroadcast(int n);
-    extern void parsepacket(int sender, int chan, packetbuf &p);
-    extern void sendservmsg(const char *s);
-    extern bool sendpackets(bool force = false);
-    extern void serverupdate();
-    extern int protocolversion();
-    extern int laninfoport();
-    extern int serverport();
-    extern bool ispaused();
-    extern int scaletime(int t);
-}
-

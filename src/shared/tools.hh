@@ -9,52 +9,6 @@
 
 #include <zlib.h>
 
-typedef enum _ENetPacketFlag
-{
-   ENET_PACKET_FLAG_RELIABLE    = (1 << 0),
-   ENET_PACKET_FLAG_UNSEQUENCED = (1 << 1)
-} ENetPacketFlag;
-
-typedef struct _ENetPacket
-{
-   int flags;
-   unsigned char *data;
-   size_t dataLength;
-   size_t referenceCount;
-} ENetPacket;
-
-inline ENetPacket *enet_packet_create(void const *data, size_t len, int flags) {
-    ENetPacket *ret = new ENetPacket;
-    if (!len) {
-        ret->data = nullptr;
-    } else {
-        ret->data = new unsigned char[len];
-        if (data) {
-            memcpy(ret->data, data, len);
-        }
-    }
-    ret->referenceCount = 0;
-    ret->flags = flags;
-    return ret;
-}
-
-inline void enet_packet_destroy(ENetPacket *p) {
-    delete[] p->data;
-    delete p;
-}
-
-inline int enet_packet_resize(ENetPacket *p, size_t len) {
-    if (len <= p->dataLength) {
-        p->dataLength = len;
-        return 0;
-    }
-    auto *nd = new unsigned char[len];
-    memcpy(nd, p->data, p->dataLength);
-    delete[] p->data;
-    p->data = nd;
-    return 0;
-}
-
 #ifndef STANDALONE
 #include "gl.hh"
 #endif
@@ -416,64 +370,6 @@ struct databuf
 };
 
 typedef databuf<uchar> ucharbuf;
-
-struct packetbuf : ucharbuf
-{
-    ENetPacket *packet;
-    int growth;
-
-    packetbuf(ENetPacket *packet) : ucharbuf(packet->data, packet->dataLength), packet(packet), growth(0) {}
-    packetbuf(int growth, int pflags = 0) : growth(growth)
-    {
-        packet = enet_packet_create(NULL, growth, pflags);
-        buf = (uchar *)packet->data;
-        maxlen = packet->dataLength;
-    }
-    ~packetbuf() { cleanup(); }
-
-    void reliable() { packet->flags |= ENET_PACKET_FLAG_RELIABLE; }
-
-    void resize(int n)
-    {
-        enet_packet_resize(packet, n);
-        buf = (uchar *)packet->data;
-        maxlen = packet->dataLength;
-    }
-
-    void checkspace(int n)
-    {
-        if(len + n > maxlen && packet && growth > 0) resize(max(len + n, maxlen + growth));
-    }
-
-    ucharbuf subbuf(int sz)
-    {
-        checkspace(sz);
-        return ucharbuf::subbuf(sz);
-    }
-
-    void put(const uchar &val)
-    {
-        checkspace(1);
-        ucharbuf::put(val);
-    }
-
-    void put(const uchar *vals, int numvals)
-    {
-        checkspace(numvals);
-        ucharbuf::put(vals, numvals);
-    }
-
-    ENetPacket *finalize()
-    {
-        resize(len);
-        return packet;
-    }
-
-    void cleanup()
-    {
-        if(growth > 0 && packet && !packet->referenceCount) { enet_packet_destroy(packet); packet = NULL; buf = NULL; len = maxlen = 0; }
-    }
-};
 
 template<class T>
 static inline float heapscore(const T &n) { return n; }
@@ -1433,19 +1329,15 @@ extern void seedMT(uint seed);
 extern uint randomMT();
 
 extern void putint(ucharbuf &p, int n);
-extern void putint(packetbuf &p, int n);
 extern void putint(vector<uchar> &p, int n);
 extern int getint(ucharbuf &p);
 extern void putuint(ucharbuf &p, int n);
-extern void putuint(packetbuf &p, int n);
 extern void putuint(vector<uchar> &p, int n);
 extern int getuint(ucharbuf &p);
 extern void putfloat(ucharbuf &p, float f);
-extern void putfloat(packetbuf &p, float f);
 extern void putfloat(vector<uchar> &p, float f);
 extern float getfloat(ucharbuf &p);
 extern void sendstring(const char *t, ucharbuf &p);
-extern void sendstring(const char *t, packetbuf &p);
 extern void sendstring(const char *t, vector<uchar> &p);
 extern void getstring(char *t, ucharbuf &p, size_t len);
 template<size_t N> static inline void getstring(char (&t)[N], ucharbuf &p) { getstring(t, p, N); }

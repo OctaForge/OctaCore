@@ -42,7 +42,6 @@ client_src = [
     '../game/entities.cc',
     '../game/game.cc',
     '../game/render.cc',
-    '../game/server.cc',
 ]
 
 threads_dep = dependency('threads')

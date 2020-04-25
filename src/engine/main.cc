@@ -1182,8 +1182,6 @@ int main(int argc, char **argv)
 
         checksleep(lastmillis);
 
-        server::serverupdate();
-
         if(frames) updatefpshistory(elapsedtime);
         frames++;
 

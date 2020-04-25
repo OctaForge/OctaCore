@@ -8,6 +8,8 @@ namespace game
 
     const char *getclientmap() { return clientmap; }
 
+    const char *gameident() { return "OctaForge"; }
+
     void resetgamestate()
     {
     }
@@ -65,7 +67,6 @@ namespace game
         {
             crouchplayer(player1, 10, true);
             moveplayer(player1, 10, true);
-            entities::checkitems(player1);
         }
     }
 
@@ -145,7 +146,6 @@ namespace game
     void startmap(const char *name)   // called just after a map load
     {
         spawnplayer(player1);
-        entities::resetspawns();
         copystring(clientmap, name ? name : "");
 
         sendmapinfo();

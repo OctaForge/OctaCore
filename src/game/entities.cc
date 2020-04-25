@@ -14,28 +14,12 @@ namespace entities
     {
     }
 
-#ifndef STANDALONE
     vector<extentity *> ents;
 
     vector<extentity *> &getents() { return ents; }
 
     bool mayattach(extentity &e) { return false; }
     bool attachent(extentity &e, extentity &a) { return false; }
-
-    const char *itemname(int i)
-    {
-        return NULL;
-    }
-
-    int itemicon(int i)
-    {
-        return -1;
-    }
-
-    const char *entmdlname(int type)
-    {
-        return NULL;
-    }
 
     const char *entmodel(const entity &e)
     {
@@ -49,26 +33,6 @@ namespace entities
     void renderentities()
     {
     }
-
-    void trypickup(int n, gameent *d)
-    {
-    }
-
-    void checkitems(gameent *d)
-    {
-    }
-
-    void putitems(packetbuf &p)            // puts items in network stream and also spawns them locally
-    {
-    }
-
-    void resetspawns() { }
-
-    void spawnitems(bool force)
-    {
-    }
-
-    void setspawn(int i, bool on) { if(ents.inrange(i)) { extentity *e = ents[i]; e->setspawned(on); e->clearnopickup(); } }
 
     extentity *newentity() { return new gameentity(); }
     void deleteentity(extentity *e) { delete (gameentity *)e; }
@@ -113,6 +77,5 @@ namespace entities
     {
         return 4.0f;
     }
-#endif
 }
 

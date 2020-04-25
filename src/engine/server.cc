@@ -123,32 +123,6 @@ void cleanupserver()
 {
 }
 
-const char *disconnectreason(int reason)
-{
-    switch(reason)
-    {
-        case DISC_EOP: return "end of packet";
-        case DISC_LOCAL: return "server is in local mode";
-        case DISC_KICK: return "kicked/banned";
-        case DISC_MSGERR: return "message error";
-        case DISC_IPBAN: return "ip is banned";
-        case DISC_PRIVATE: return "server is in private mode";
-        case DISC_MAXCLIENTS: return "server FULL";
-        case DISC_TIMEOUT: return "connection timed out";
-        case DISC_OVERFLOW: return "overflow";
-        case DISC_PASSWORD: return "invalid password";
-        default: return NULL;
-    }
-}
-
-void disconnect_client(int n, int reason)
-{
-}
-
-void kicknonlocalclients(int reason)
-{
-}
-
 void updatetime()
 {
 }
@@ -158,7 +132,6 @@ void localdisconnect(bool cleanup)
     bool disconnected = false;
     loopv(clients) if(clients[i]->type==ST_LOCAL)
     {
-        server::localdisconnect(i);
         delclient(clients[i]);
         disconnected = true;
     }
@@ -183,5 +156,4 @@ void logoutfv(const char *fmt, va_list args)
 
 void initserver()
 {
-    server::serverinit();
 }

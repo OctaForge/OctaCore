@@ -529,13 +529,10 @@ extern void preloadwatershaders(bool force = false);
 extern void initserver();
 extern void cleanupserver();
 extern void updatetime();
-
-extern void localclienttoserver(int chan, ENetPacket *);
 extern void localconnect();
 
 // client
 extern void localdisconnect(bool cleanup = true);
-extern void localservertoclient(int chan, ENetPacket *packet);
 extern void clientkeepalive();
 
 // command
