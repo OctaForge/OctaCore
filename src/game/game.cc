@@ -57,18 +57,16 @@ namespace game
     void updateworld()        // main game update loop
     {
         if(!maptime) { maptime = lastmillis; maprealtime = totalmillis; return; }
-        if(!curtime) { gets2c(); if(player1->clientnum>=0) c2sinfo(); return; }
+        if(!curtime) { return; }
 
         physicsframe();
         moveragdolls();
-        gets2c();
         if(connected)
         {
             crouchplayer(player1, 10, true);
             moveplayer(player1, 10, true);
             entities::checkitems(player1);
         }
-        if(player1->clientnum>=0) c2sinfo();   // do this last, to reduce the effective frame lag
     }
 
     void spawnplayer(gameent *d)   // place at random spawn

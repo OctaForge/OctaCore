@@ -22,17 +22,6 @@ ICOMMAND(disconnect, "", (), trydisconnect());
 ICOMMAND(localconnect, "", (), { if(!isconnected()) localconnect(); });
 ICOMMAND(localdisconnect, "", (), { if(haslocalclients()) localdisconnect(); });
 
-void localservertoclient(int chan, ENetPacket *packet)   // processes any updates from the server
-{
-    packetbuf p(packet);
-    game::parsepacketclient(chan, p);
-}
-
-void sendclientpacket(ENetPacket *packet, int chan)
-{
-    localclienttoserver(chan, packet);
-}
-
 void clientkeepalive() {}
 
 void gets2c() {}

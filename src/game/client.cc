@@ -1,5 +1,7 @@
 #include "game.hh"
 
+extern void clearmainmenu();
+
 namespace game
 {
     VARP(minradarscale, 0, 384, 10000);
@@ -75,8 +77,10 @@ namespace game
 
     void changemap(const char *name, int mode) // request map change, server may ignore
     {
-        server::forcemap(name, mode);
-        if(!isconnected()) localconnect();
+        changemapserv(name, 0);
+        localconnect();
+        clearmainmenu(); /* XXX hack */
+        connected = true;
     }
     void changemap(const char *name)
     {
@@ -91,7 +95,10 @@ namespace game
 
     void newmap(int size)
     {
-        addmsg(N_NEWMAP, "ri", size);
+        if(size>=0) emptymap(size, true, NULL);
+        else enlargemap(true);
+        localconnect();
+        connected = true;
     }
 
     void edittrigger(const selinfo &sel, int op, int arg1, int arg2, int arg3, const VSlot *vs)
@@ -106,63 +113,6 @@ namespace game
     bool allowmouselook() { return true; }
 
     int scaletime(int t) { return t*100; }
-
-    // collect c2s messages conveniently
-    vector<uchar> messages;
-    int messagecn = -1, messagereliable = false;
-
-    bool addmsg(int type, const char *fmt, ...)
-    {
-        if(!connected) return false;
-        static uchar buf[MAXTRANS];
-        ucharbuf p(buf, sizeof(buf));
-        putint(p, type);
-        int numi = 1, numf = 0, nums = 0;
-        bool reliable = false;
-        if(fmt)
-        {
-            va_list args;
-            va_start(args, fmt);
-            while(*fmt) switch(*fmt++)
-            {
-                case 'r': reliable = true; break;
-                case 'c':
-                {
-                    break;
-                }
-                case 'v':
-                {
-                    int n = va_arg(args, int);
-                    int *v = va_arg(args, int *);
-                    loopi(n) putint(p, v[i]);
-                    numi += n;
-                    break;
-                }
-
-                case 'i':
-                {
-                    int n = isdigit(*fmt) ? *fmt++-'0' : 1;
-                    loopi(n) putint(p, va_arg(args, int));
-                    numi += n;
-                    break;
-                }
-                case 'f':
-                {
-                    int n = isdigit(*fmt) ? *fmt++-'0' : 1;
-                    loopi(n) putfloat(p, (float)va_arg(args, double));
-                    numf += n;
-                    break;
-                }
-                case 's': sendstring(va_arg(args, const char *), p); nums++; break;
-            }
-            va_end(args);
-        }
-        int num = nums || numf ? 0 : numi, msgsize = server::msgsizelookup(type);
-        if(msgsize && num!=msgsize) { fatal("inconsistent msg size for %d (%d != %d)", type, num, msgsize); }
-        if(reliable) messagereliable = true;
-        messages.put(buf, p.length());
-        return true;
-    }
 
     void connectfail()
     {
@@ -179,11 +129,7 @@ namespace game
         player1->clientnum = -1;
         if(editmode) toggleedit();
         sessionid = 0;
-        messages.setsize(0);
-        messagereliable = false;
-        messagecn = -1;
         player1->respawn();
-        player1->lifesequence = 0;
         player1->state = CS_ALIVE;
         if(cleanup)
         {
@@ -192,112 +138,5 @@ namespace game
     }
 
     void toserver(char *text) { conoutf(CON_CHAT, "%s", text); }
-
-    void sendmessages()
-    {
-        packetbuf p(MAXTRANS);
-        if(messages.length())
-        {
-            p.put(messages.getbuf(), messages.length());
-            messages.setsize(0);
-            if(messagereliable) p.reliable();
-            messagereliable = false;
-            messagecn = -1;
-        }
-        sendclientpacket(p.finalize(), 1);
-    }
-
-    void c2sinfo(bool force) // send update to the server
-    {
-        static int lastupdate = -1000;
-        if(totalmillis - lastupdate < 40 && !force) return; // don't update faster than 30fps
-        lastupdate = totalmillis;
-        sendmessages();
-    }
-
-    void sendintro()
-    {
-        packetbuf p(MAXTRANS, ENET_PACKET_FLAG_RELIABLE);
-        putint(p, N_CONNECT);
-        sendstring(player1->name, p);
-        sendclientpacket(p.finalize(), 1);
-    }
-
-    void parsestate(gameent *d, ucharbuf &p, bool resume = false)
-    {
-        if(!d) { static gameent dummy; d = &dummy; }
-        if(resume)
-        {
-            if(d==player1) getint(p);
-            else d->state = getint(p);
-        }
-        d->lifesequence = getint(p);
-    }
-
-    void parsemessages(int cn, gameent *d, ucharbuf &p)
-    {
-        static char text[MAXTRANS];
-        int type;
-
-        while(p.remaining()) switch((type = getint(p)))
-        {
-            case N_SERVINFO:                   // welcome messsage from the server
-            {
-                int mycn = getint(p);
-                sessionid = getint(p);
-                player1->clientnum = mycn;      // we are now connected
-                sendintro();
-                break;
-            }
-
-            case N_WELCOME:
-            {
-                connected = true;
-                notifywelcome();
-                break;
-            }
-
-            case N_MAPCHANGE:
-                getstring(text, p);
-                changemapserv(text, 0);
-                break;
-
-            case N_SPAWN:
-            {
-                printf("spawn\n");
-                if(d)
-                {
-                    d->respawn();
-                }
-                parsestate(d, p);
-                if(!d) break;
-                d->state = CS_SPAWNING;
-                break;
-            }
-
-            case N_NEWMAP:
-            {
-                int size = getint(p);
-                if(size>=0) emptymap(size, true, NULL);
-                else enlargemap(true);
-                break;
-            }
-
-            default:
-                neterr("type", cn < 0);
-                return;
-        }
-    }
-
-    void parsepacketclient(int chan, packetbuf &p)   // processes any updates from the server
-    {
-        if(p.packet->flags&ENET_PACKET_FLAG_UNSEQUENCED) return;
-        switch(chan)
-        {
-            case 1:
-                parsemessages(-1, NULL, p);
-                break;
-        }
-    }
 }
 

@@ -77,31 +77,6 @@ struct gameentity : extentity
 {
 };
 
-enum
-{
-    M_EDIT       = 1<<0
-};
-
-// network messages codes, c2s, c2c, s2c
-
-enum
-{
-    N_CONNECT = 0, N_SERVINFO, N_WELCOME,
-    N_SPAWN,
-    N_MAPCHANGE,
-    N_NEWMAP,
-    NUMMSG
-};
-
-static const int msgsizes[] =               // size inclusive message token, 0 for variable or not-checked sizes
-{
-    N_CONNECT, 0, N_SERVINFO, 0, N_WELCOME, 1,
-    N_SPAWN, 2,
-    N_MAPCHANGE, 0,
-    N_NEWMAP, 2,
-    -1
-};
-
 #define TESSERACT_SERVER_PORT 42000
 #define TESSERACT_LANINFO_PORT 41998
 
@@ -136,7 +111,6 @@ struct gameent : dynent, gamestate
 {
     int weight;                         // affects the effectiveness of hitpush
     int clientnum, lastupdate, plag, ping;
-    int lifesequence;                   // sequence id for each respawn, used in damage test
     int respawned;
     int lastaction;
     editinfo *edit;
@@ -149,7 +123,7 @@ struct gameent : dynent, gamestate
 
     vec muzzle;
 
-    gameent() : weight(100), clientnum(-1), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), edit(NULL), smoothmillis(-1), team(0), playermodel(-1), playercolor(0), ownernum(-1), muzzle(-1, -1, -1)
+    gameent() : weight(100), clientnum(-1), lastupdate(0), plag(0), ping(0), respawned(-1), edit(NULL), smoothmillis(-1), team(0), playermodel(-1), playercolor(0), ownernum(-1), muzzle(-1, -1, -1)
     {
         name[0] = info[0] = 0;
         respawn();
@@ -175,7 +149,6 @@ struct gameent : dynent, gamestate
 
     void startgame()
     {
-        lifesequence = -1;
         respawned = -2;
     }
 };
@@ -224,14 +197,10 @@ namespace game
     // client
     extern bool connected, remote, demoplayback;
     extern string servdesc;
-    extern vector<uchar> messages;
 
     extern int parseplayer(const char *arg);
-    extern bool addmsg(int type, const char *fmt = NULL, ...);
     extern void sendmapinfo();
     extern void changemap(const char *name, int mode);
-    extern void c2sinfo(bool force = false);
-    extern void sendposition(gameent *d, bool reliable = false);
 
     // render
 

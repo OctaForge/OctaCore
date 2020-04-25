@@ -100,7 +100,6 @@ client &addclient(int type)
         c->num = clients.length();
         clients.add(c);
     }
-    c->info = server::newclientinfo();
     c->type = type;
     switch(type)
     {
@@ -118,82 +117,10 @@ void delclient(client *c)
         case ST_EMPTY: return;
     }
     c->type = ST_EMPTY;
-    if(c->info)
-    {
-        server::deleteclientinfo(c->info);
-        c->info = NULL;
-    }
 }
 
 void cleanupserver()
 {
-}
-
-void process(ENetPacket *packet, int sender, int chan);
-
-void *getclientinfo(int i) { return !clients.inrange(i) || clients[i]->type==ST_EMPTY ? NULL : clients[i]->info; }
-
-void sendpacket(int n, int chan, ENetPacket *packet, int exclude)
-{
-    if(n<0)
-    {
-        loopv(clients) if(i!=exclude && server::allowbroadcast(i)) sendpacket(i, chan, packet);
-        return;
-    }
-    switch(clients[n]->type)
-    {
-        case ST_LOCAL:
-            localservertoclient(chan, packet);
-            break;
-    }
-}
-
-ENetPacket *sendf(int cn, int chan, const char *format, ...)
-{
-    int exclude = -1;
-    bool reliable = false;
-    if(*format=='r') { reliable = true; ++format; }
-    packetbuf p(MAXTRANS, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
-    va_list args;
-    va_start(args, format);
-    while(*format) switch(*format++)
-    {
-        case 'x':
-            exclude = va_arg(args, int);
-            break;
-
-        case 'v':
-        {
-            int n = va_arg(args, int);
-            int *v = va_arg(args, int *);
-            loopi(n) putint(p, v[i]);
-            break;
-        }
-
-        case 'i':
-        {
-            int n = isdigit(*format) ? *format++-'0' : 1;
-            loopi(n) putint(p, va_arg(args, int));
-            break;
-        }
-        case 'f':
-        {
-            int n = isdigit(*format) ? *format++-'0' : 1;
-            loopi(n) putfloat(p, (float)va_arg(args, double));
-            break;
-        }
-        case 's': sendstring(va_arg(args, const char *), p); break;
-        case 'm':
-        {
-            int n = va_arg(args, int);
-            p.put(va_arg(args, uchar *), n);
-            break;
-        }
-    }
-    va_end(args);
-    ENetPacket *packet = p.finalize();
-    sendpacket(cn, chan, packet, exclude);
-    return packet->referenceCount > 0 ? packet : NULL;
 }
 
 const char *disconnectreason(int reason)
@@ -222,20 +149,6 @@ void kicknonlocalclients(int reason)
 {
 }
 
-void process(ENetPacket *packet, int sender, int chan)   // sender may be -1
-{
-    packetbuf p(packet);
-    server::parsepacket(sender, chan, p);
-    if(p.overread()) { disconnect_client(sender, DISC_EOP); return; }
-}
-
-void localclienttoserver(int chan, ENetPacket *packet)
-{
-    client *c = NULL;
-    loopv(clients) if(clients[i]->type==ST_LOCAL) { c = clients[i]; break; }
-    if(c) process(packet, c->num, chan);
-}
-
 void updatetime()
 {
 }
@@ -260,7 +173,6 @@ void localconnect()
     client &c = addclient(ST_LOCAL);
     copystring(c.hostname, "local");
     game::gameconnect(false);
-    server::localconnect(c.num);
 }
 
 void logoutfv(const char *fmt, va_list args)
