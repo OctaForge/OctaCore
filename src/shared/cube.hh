@@ -38,8 +38,6 @@
 
 #include "gl.hh"
 
-#include <enet/enet.h>
-
 #include <zlib.h>
 
 #include "tools.hh"

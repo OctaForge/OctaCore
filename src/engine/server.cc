@@ -73,7 +73,6 @@ struct client                   // server side version of "dynent" type
 {
     int type;
     int num;
-    ENetPeer *peer;
     string hostname;
     void *info;
 };
@@ -119,7 +118,6 @@ void delclient(client *c)
         case ST_EMPTY: return;
     }
     c->type = ST_EMPTY;
-    c->peer = NULL;
     if(c->info)
     {
         server::deleteclientinfo(c->info);
@@ -132,13 +130,8 @@ void cleanupserver()
 }
 
 void process(ENetPacket *packet, int sender, int chan);
-//void disconnect_client(int n, int reason);
 
-int getservermtu() { return -1; }
 void *getclientinfo(int i) { return !clients.inrange(i) || clients[i]->type==ST_EMPTY ? NULL : clients[i]->info; }
-ENetPeer *getclientpeer(int i) { return NULL; }
-int getnumclients()        { return clients.length(); }
-uint getclientip(int n)    { return 0; }
 
 void sendpacket(int n, int chan, ENetPacket *packet, int exclude)
 {

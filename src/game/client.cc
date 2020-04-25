@@ -164,10 +164,6 @@ namespace game
         return true;
     }
 
-    void connectattempt(const char *name, const char *password, const ENetAddress &address)
-    {
-    }
-
     void connectfail()
     {
     }
@@ -288,6 +284,7 @@ namespace game
             }
 
             default:
+                neterr("type", cn < 0);
                 return;
         }
     }

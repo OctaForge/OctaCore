@@ -50,12 +50,12 @@ sdl2_dep = dependency('sdl2')
 sdl2_image_dep = dependency('SDL2_image')
 zlib_dep = dependency('zlib')
 gl_dep = dependency('gl')
-rt_dep = cc.find_library('rt', required: false)
+rt_dep = cxx.find_library('rt', required: false)
 
 executable('native_client',
     client_src,
     dependencies: [
-        threads_dep, libenet, sdl2_dep, sdl2_image_dep,
+        threads_dep, sdl2_dep, sdl2_image_dep,
         zlib_dep, gl_dep, rt_dep
     ],
     include_directories: octacore_includes,

@@ -6,4 +6,6 @@ project('octacore', ['cpp'],
 
 bin_path = join_paths(meson.source_root(), 'bin_unix')
 
+cxx = meson.get_compiler('cpp')
+
 subdir('src')
