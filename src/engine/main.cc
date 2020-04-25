@@ -4,12 +4,37 @@
 
 #include "engine.hh"
 
+void clientkeepalive() {}
+
+bool multiplayer(bool msg)
+{
+    return false;
+}
+
+bool isconnected(bool attempt, bool local)
+{
+    return haslocalclients();
+}
+
+void localdisconnect(bool cleanup)
+{
+    game::gamedisconnect(cleanup);
+    mainmenu = 1;
+}
+
+void trydisconnect()
+{
+    if(haslocalclients()) localdisconnect();
+    else conoutf("not connected");
+}
+
+ICOMMAND(disconnect, "", (), trydisconnect());
+
 extern void cleargamma();
 
 void cleanup()
 {
     recorder::stop();
-    cleanupserver();
     SDL_ShowCursor(SDL_TRUE);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     if(screen) SDL_SetWindowGrab(screen, SDL_FALSE);
@@ -20,7 +45,6 @@ void cleanup()
     extern void clear_console(); clear_console();
     extern void clear_models();  clear_models();
     //extern void clear_sound();   clear_sound();
-    closelogfile();
     #ifdef __APPLE__
         if(screen) SDL_SetWindowFullscreen(screen, 0);
     #endif
@@ -46,7 +70,7 @@ void fatal(const char *s, ...)    // failure exit
     if(errors <= 2) // print up to one extra recursive error
     {
         defvformatstring(msg,s,s);
-        logoutf("%s", msg);
+        printf("%s\n", msg);
 
         if(errors <= 1) // avoid recursion
         {
@@ -1018,21 +1042,11 @@ int main(int argc, char **argv)
     #endif
     #endif
 
-    setlogfile(NULL);
-
-    char *load = NULL, *initscript = NULL;
+    char *initscript = NULL;
 
     initing = INIT_RESET;
     // set home dir first
     sethomedir("$HOME/.octacore");
-    // set log after home dir, but before anything else
-    for(int i = 1; i<argc; i++) if(argv[i][0]=='-' && argv[i][1] == 'g')
-    {
-        const char *file = argv[i][2] ? &argv[i][2] : "log.txt";
-        setlogfile(file);
-        logoutf("Setting log file: %s", file);
-        break;
-    }
     execfile("config/init.cfg", false);
     for(int i = 1; i<argc; i++)
     {
@@ -1041,21 +1055,13 @@ int main(int argc, char **argv)
             case 'k':
             {
                 const char *dir = addpackagedir(&argv[i][2]);
-                if(dir) logoutf("Adding package directory: %s", dir);
+                if(dir) printf("Adding package directory: %s\n", dir);
                 break;
             }
             case 'g': break;
             case 'w': scr_w = clamp(atoi(&argv[i][2]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-h")) scr_h = -1; break;
             case 'h': scr_h = clamp(atoi(&argv[i][2]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-w")) scr_w = -1; break;
             case 'f': fullscreen = atoi(&argv[i][2]); break;
-            case 'l':
-            {
-                char pkgdir[] = "media/";
-                load = strstr(path(&argv[i][2]), path(pkgdir));
-                if(load) load += sizeof(pkgdir)-1;
-                else load = &argv[i][2];
-                break;
-            }
             case 'x': initscript = &argv[i][2]; break;
             default: break;
         }
@@ -1063,15 +1069,14 @@ int main(int argc, char **argv)
 
     numcpus = clamp(SDL_GetCPUCount(), 1, 16);
 
-    logoutf("init: sdl");
+    printf("init: sdl\n");
 
     if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_AUDIO)<0) fatal("Unable to initialize SDL: %s", SDL_GetError());
 
-    logoutf("init: game");
-    initserver();
+    printf("init: game\n");
     game::initclient();
 
-    logoutf("init: video");
+    printf("init: video\n");
     SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "0");
     #if !defined(WIN32) && !defined(__APPLE__)
     SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
@@ -1080,13 +1085,13 @@ int main(int argc, char **argv)
     SDL_ShowCursor(SDL_FALSE);
     SDL_StopTextInput(); // workaround for spurious text-input events getting sent on first text input toggle?
 
-    logoutf("init: gl");
+    printf("init: gl\n");
     gl_checkextensions();
     gl_init();
     notexture = textureload("media/texture/game/notexture.png");
     if(!notexture) fatal("could not find core textures");
 
-    logoutf("init: console");
+    printf("init: console\n");
     if(!execfile("config/stdlib.cfg", false)) fatal("cannot find data files (you are running from the wrong folder, try .bat file in the main folder)");   // this is the first file we load.
     if(!execfile("config/font.cfg", false)) fatal("cannot find font definitions");
     if(!setfont("default")) fatal("no default font specified");
@@ -1096,14 +1101,14 @@ int main(int argc, char **argv)
     inbetweenframes = true;
     renderbackground("initializing...");
 
-    logoutf("init: world");
+    printf("init: world\n");
     camera1 = player = game::iterdynents(0);
     emptymap(0, true, NULL, false);
 
-    logoutf("init: sound");
+    printf("init: sound\n");
     //initsound();
 
-    logoutf("init: cfg");
+    printf("init: cfg\n");
     initing = INIT_LOAD;
     execfile("config/keymap.cfg");
     execfile("config/stdedit.cfg");
@@ -1128,7 +1133,7 @@ int main(int argc, char **argv)
 
     initing = NOT_INITING;
 
-    logoutf("init: render");
+    printf("init: render\n");
     restoregamma();
     restorevsync();
     initgbuffer();
@@ -1138,16 +1143,9 @@ int main(int argc, char **argv)
 
     identflags |= IDF_PERSIST;
 
-    logoutf("init: mainloop");
+    printf("init: mainloop\n");
 
     if(execfile("once.cfg", false)) remove(findfile("once.cfg", "rb"));
-
-    if(load)
-    {
-        logoutf("init: localconnect");
-        //localconnect();
-        game::changemap(load);
-    }
 
     if(initscript) execute(initscript);
 
@@ -1171,7 +1169,6 @@ int main(int argc, char **argv)
         if(game::ispaused()) curtime = 0;
         lastmillis += curtime;
         totalmillis = millis;
-        updatetime();
 
         checkinput();
         //UI::update();

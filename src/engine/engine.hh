@@ -525,12 +525,6 @@ extern void loadcaustics(bool force = false);
 extern void renderwaterfog(int mat, float blend);
 extern void preloadwatershaders(bool force = false);
 
-// server
-extern void initserver();
-extern void cleanupserver();
-extern void updatetime();
-extern void localconnect();
-
 // client
 extern void localdisconnect(bool cleanup = true);
 extern void clientkeepalive();

@@ -31,7 +31,7 @@ void conoutfv(int type, const char *fmt, va_list args)
     static char buf[CONSTRLEN];
     vformatstring(buf, fmt, args, sizeof(buf));
     conline(type, buf);
-    logoutf("%s", buf);
+    printf("%s\n", buf);
 }
 
 void conoutf(const char *fmt, ...)

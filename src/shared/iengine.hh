@@ -195,12 +195,6 @@ extern void conoutf(const char *s, ...) PRINTFARGS(1, 2);
 extern void conoutf(int type, const char *s, ...) PRINTFARGS(2, 3);
 extern void conoutfv(int type, const char *fmt, va_list args);
 
-extern FILE *getlogfile();
-extern void setlogfile(const char *fname);
-extern void closelogfile();
-extern void logoutfv(const char *fmt, va_list args);
-extern void logoutf(const char *fmt, ...) PRINTFARGS(1, 2);
-
 // octa
 extern int lookupmaterial(const vec &o);
 
@@ -449,11 +443,7 @@ extern bool matchanim(const char *name, const char *pattern);
 extern void moveragdoll(dynent *d);
 extern void cleanragdoll(dynent *d);
 
-// server
-
-extern void localconnect();
-extern bool haslocalclients();
-
 // client
+extern bool haslocalclients();
 extern bool isconnected(bool attempt = false, bool local = true);
 extern bool multiplayer(bool msg = true);

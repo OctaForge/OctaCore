@@ -80,7 +80,7 @@ static void showglslinfo(GLenum type, GLuint obj, const char *name, const char *
     if(length > 1)
     {
         conoutf(CON_ERROR, "GLSL ERROR (%s:%s)", type == GL_VERTEX_SHADER ? "VS" : (type == GL_FRAGMENT_SHADER ? "FS" : "PROG"), name);
-        FILE *l = getlogfile();
+        FILE *l = stdout;
         if(l)
         {
             GLchar *log = new GLchar[length];
@@ -1281,7 +1281,7 @@ bool shouldreuseparams(Slot &s, VSlot &p)
 ICOMMAND(dumpshader, "sbi", (const char *name, int *col, int *row),
 {
     Shader *s = lookupshaderbyname(name);
-    FILE *l = getlogfile();
+    FILE *l = stdout;
     if(!s || !l) return;
     if(*col >= 0)
     {

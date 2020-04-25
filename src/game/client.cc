@@ -37,7 +37,7 @@ namespace game
         settexture("media/interface/radar/radar.png", 3);
     }
 
-    bool connected = false, remote = false;
+    bool connected = false;
     int sessionid = 0;
     string servdesc = "", servauth = "";
 
@@ -78,9 +78,8 @@ namespace game
     void changemap(const char *name, int mode) // request map change, server may ignore
     {
         changemapserv(name, 0);
-        localconnect();
-        clearmainmenu(); /* XXX hack */
         connected = true;
+        clearmainmenu(); /* XXX hack */
     }
     void changemap(const char *name)
     {
@@ -97,7 +96,6 @@ namespace game
     {
         if(size>=0) emptymap(size, true, NULL);
         else enlargemap(true);
-        localconnect();
         connected = true;
     }
 
@@ -118,14 +116,16 @@ namespace game
     {
     }
 
-    void gameconnect(bool _remote)
+    void gameconnect()
     {
-        remote = _remote;
     }
 
     void gamedisconnect(bool cleanup)
     {
-        connected = remote = false;
+        if (!connected) {
+            return;
+        }
+        connected = false;
         player1->clientnum = -1;
         if(editmode) toggleedit();
         sessionid = 0;
@@ -140,3 +140,4 @@ namespace game
     void toserver(char *text) { conoutf(CON_CHAT, "%s", text); }
 }
 
+bool haslocalclients() { return game::connected; }
