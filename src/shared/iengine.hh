@@ -4,7 +4,6 @@ extern int curtime;                     // current frame time
 extern int lastmillis;                  // last time
 extern int elapsedtime;                 // elapsed frame time
 extern int totalmillis;                 // total elapsed time
-extern uint totalsecs;
 extern int gamespeed, paused;
 
 enum
@@ -451,19 +450,14 @@ extern void moveragdoll(dynent *d);
 extern void cleanragdoll(dynent *d);
 
 // server
-#define MAXCLIENTS 128                 // DO NOT set this any higher
 #define MAXTRANS 5000                  // max amount of data to swallow in 1 go
-
-extern int maxclients;
 
 enum { DISC_NONE = 0, DISC_EOP, DISC_LOCAL, DISC_KICK, DISC_MSGERR, DISC_IPBAN, DISC_PRIVATE, DISC_MAXCLIENTS, DISC_TIMEOUT, DISC_OVERFLOW, DISC_PASSWORD, DISC_NUM };
 
 extern void *getclientinfo(int i);
 extern ENetPeer *getclientpeer(int i);
 extern ENetPacket *sendf(int cn, int chan, const char *format, ...);
-extern ENetPacket *sendfile(int cn, int chan, stream *file, const char *format = "", ...);
 extern void sendpacket(int cn, int chan, ENetPacket *packet, int exclude = -1);
-extern void flushserver(bool force);
 extern int getservermtu();
 extern int getnumclients();
 extern uint getclientip(int n);
@@ -473,8 +467,6 @@ extern void disconnect_client(int n, int reason);
 extern void kicknonlocalclients(int reason = DISC_NONE);
 extern bool hasnonlocalclients();
 extern bool haslocalclients();
-extern void sendserverinforeply(ucharbuf &p);
-extern bool isdedicatedserver();
 
 // serverbrowser
 
@@ -504,10 +496,7 @@ extern servinfo *getservinfo(int i);
 
 // client
 extern void sendclientpacket(ENetPacket *packet, int chan);
-extern void flushclient();
-extern void disconnect(bool async = false, bool cleanup = true);
 extern bool isconnected(bool attempt = false, bool local = true);
-extern const ENetAddress *connectedpeer();
 extern bool multiplayer(bool msg = true);
 extern void neterr(const char *s, bool disc = true);
 extern void gets2c();

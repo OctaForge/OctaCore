@@ -2,16 +2,6 @@
 
 namespace game
 {
-    void parseoptions(vector<const char *> &args)
-    {
-        loopv(args)
-#ifndef STANDALONE
-            if(!game::clientoption(args[i]))
-#endif
-            if(!server::serveroption(args[i]))
-                conoutf(CON_ERROR, "unknown command-line option: %s", args[i]);
-    }
-
     const char *gameident() { return "Tesseract"; }
 }
 
@@ -91,7 +81,6 @@ namespace server
     bool shouldstep = true;
 
     string smapname = "";
-    enet_uint32 lastsend = 0;
 
     vector<clientinfo *> connects, clients;
 
@@ -100,8 +89,7 @@ namespace server
 
     clientinfo *getinfo(int n)
     {
-        if(n < MAXCLIENTS) return (clientinfo *)getclientinfo(n);
-        return NULL;
+        return (clientinfo *)getclientinfo(n);
     }
 
     int msgsizelookup(int msg)
@@ -116,11 +104,6 @@ namespace server
     }
 
     void sendservmsg(const char *) {}
-
-    bool serveroption(const char *arg)
-    {
-        return false;
-    }
 
     void serverinit()
     {
@@ -177,112 +160,9 @@ namespace server
         return type;
     }
 
-    struct worldstate
-    {
-        int uses, len;
-        uchar *data;
-
-        worldstate() : uses(0), len(0), data(NULL) {}
-
-        void setup(int n) { len = n; data = new uchar[n]; }
-        void cleanup() { DELETEA(data); len = 0; }
-        bool contains(const uchar *p) const { return p >= data && p < &data[len]; }
-    };
-    vector<worldstate> worldstates;
-    bool reliablemessages = false;
-
-    void cleanworldstate(ENetPacket *packet)
-    {
-        loopv(worldstates)
-        {
-            worldstate &ws = worldstates[i];
-            if(!ws.contains(packet->data)) continue;
-            ws.uses--;
-            if(ws.uses <= 0)
-            {
-                ws.cleanup();
-                worldstates.removeunordered(i);
-            }
-            break;
-        }
-    }
-
-    static void sendmessages(worldstate &ws, ucharbuf &wsbuf)
-    {
-        if(wsbuf.empty()) return;
-        int wslen = wsbuf.length();
-        wsbuf.put(wsbuf.buf, wslen);
-        loopv(clients)
-        {
-            clientinfo &ci = *clients[i];
-            uchar *data = wsbuf.buf;
-            int size = wslen;
-            if(ci.wsdata >= wsbuf.buf) { data = ci.wsdata + ci.wslen; size -= ci.wslen; }
-            if(size <= 0) continue;
-            ENetPacket *packet = enet_packet_create(data, size, (reliablemessages ? ENET_PACKET_FLAG_RELIABLE : 0) | ENET_PACKET_FLAG_NO_ALLOCATE);
-            sendpacket(ci.clientnum, 1, packet);
-            if(packet->referenceCount) { ws.uses++; packet->freeCallback = cleanworldstate; }
-            else enet_packet_destroy(packet);
-        }
-        wsbuf.offset(wsbuf.length());
-    }
-
-    static inline void addmessages(worldstate &ws, ucharbuf &wsbuf, int mtu, clientinfo &bi, clientinfo &ci)
-    {
-        if(bi.messages.empty()) return;
-        if(wsbuf.length() + 10 + bi.messages.length() > mtu) sendmessages(ws, wsbuf);
-        int offset = wsbuf.length();
-        putint(wsbuf, N_CLIENT);
-        putint(wsbuf, bi.clientnum);
-        putuint(wsbuf, bi.messages.length());
-        wsbuf.put(bi.messages.getbuf(), bi.messages.length());
-        bi.messages.setsize(0);
-        int len = wsbuf.length() - offset;
-        if(ci.wsdata < wsbuf.buf) { ci.wsdata = &wsbuf.buf[offset]; ci.wslen = len; }
-        else ci.wslen += len;
-    }
-
-    bool buildworldstate()
-    {
-        int wsmax = 0;
-        loopv(clients)
-        {
-            clientinfo &ci = *clients[i];
-            ci.overflow = 0;
-            ci.wsdata = NULL;
-            if(ci.messages.length()) wsmax += 10 + ci.messages.length();
-        }
-        if(wsmax <= 0)
-        {
-            reliablemessages = false;
-            return false;
-        }
-        worldstate &ws = worldstates.add();
-        ws.setup(2*wsmax);
-        int mtu = getservermtu() - 100;
-        if(mtu <= 0) mtu = ws.len;
-        ucharbuf wsbuf(ws.data, ws.len);
-        loopv(clients)
-        {
-            clientinfo &ci = *clients[i];
-            addmessages(ws, wsbuf, mtu, ci, ci);
-        }
-        sendmessages(ws, wsbuf);
-        reliablemessages = false;
-        if(ws.uses) return true;
-        ws.cleanup();
-        worldstates.drop();
-        return false;
-    }
-
     bool sendpackets(bool force)
     {
-        if(clients.empty() || !hasnonlocalclients()) return false;
-        enet_uint32 curtime = enet_time_get()-lastsend;
-        if(curtime<40 && !force) return false;
-        bool flush = buildworldstate();
-        lastsend += curtime - (curtime%40);
-        return flush;
+        return false;
     }
 
     template<class T>
@@ -355,7 +235,7 @@ namespace server
 
     void sendservinfo(clientinfo *ci)
     {
-        sendf(ci->clientnum, 1, "ri4", N_SERVINFO, ci->clientnum, PROTOCOL_VERSION, ci->sessionid);
+        sendf(ci->clientnum, 1, "ri3", N_SERVINFO, ci->clientnum, ci->sessionid);
     }
 
     void noclients()
@@ -395,7 +275,6 @@ namespace server
         clientinfo *ci = getinfo(n);
         if(ci->connected)
         {
-            sendf(-1, 1, "ri2", N_CDIS, n);
             clients.removeobj(ci);
             if(!numclients(-1, false, true)) noclients(); // bans clear when server empties
         }
@@ -460,7 +339,6 @@ namespace server
             return;
         }
 
-        if(p.packet->flags&ENET_PACKET_FLAG_RELIABLE) reliablemessages = true;
         #define QUEUE_AI clientinfo *cm = cq;
         #define QUEUE_MSG { if(cm && (!cm->local || hasnonlocalclients())) while(curmsg<p.length()) cm->messages.add(p.buf[curmsg++]); }
         #define QUEUE_BUF(body) { \
@@ -524,15 +402,6 @@ namespace server
     int serverport() { return TESSERACT_SERVER_PORT; }
     int numchannels() { return 3; }
 
-    void serverinforeply(ucharbuf &req, ucharbuf &p)
-    {
-        putint(p, PROTOCOL_VERSION);
-        putint(p, numclients(-1, false, true));
-        putint(p, maxclients);
-        sendstring(smapname, p);
-        sendserverinforeply(p);
-    }
-
-    int protocolversion() { return PROTOCOL_VERSION; }
+    int protocolversion() { return 0; }
 }
 

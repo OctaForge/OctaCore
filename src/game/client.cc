@@ -51,13 +51,7 @@ namespace game
 
     bool allowedittoggle()
     {
-        if(editmode) return true;
-        if(isconnected() && multiplayer(false) && !m_edit)
-        {
-            conoutf(CON_ERROR, "editing in multiplayer requires edit mode");
-            return false;
-        }
-        return execidentbool("allowedittoggle", true);
+        return true;
     }
 
     void edittoggled(bool on)
@@ -71,7 +65,7 @@ namespace game
     void changemapserv(const char *name, int mode)        // forced map change from the server
     {
         if(editmode) toggleedit();
-        if((m_edit && !name[0]) || !load_world(name))
+        if(!name[0] || !load_world(name))
         {
             emptymap(0, true, name);
         }
@@ -195,7 +189,6 @@ namespace game
         player1->respawn();
         player1->lifesequence = 0;
         player1->state = CS_ALIVE;
-        clearclients(false);
         if(cleanup)
         {
             clientmap[0] = '\0';
@@ -224,7 +217,6 @@ namespace game
         if(totalmillis - lastupdate < 40 && !force) return; // don't update faster than 30fps
         lastupdate = totalmillis;
         sendmessages();
-        flushclient();
     }
 
     void sendintro()
@@ -255,13 +247,7 @@ namespace game
         {
             case N_SERVINFO:                   // welcome messsage from the server
             {
-                int mycn = getint(p), prot = getint(p);
-                if(prot!=PROTOCOL_VERSION)
-                {
-                    conoutf(CON_ERROR, "you are using a different game protocol (you: %d, server: %d)", PROTOCOL_VERSION, prot);
-                    disconnect();
-                    return;
-                }
+                int mycn = getint(p);
                 sessionid = getint(p);
                 player1->clientnum = mycn;      // we are now connected
                 sendintro();
@@ -275,25 +261,14 @@ namespace game
                 break;
             }
 
-            case N_CLIENT:
-            {
-                int cn = getint(p), len = getuint(p);
-                ucharbuf q = p.subbuf(len);
-                parsemessages(cn, getclient(cn), q);
-                break;
-            }
-
             case N_MAPCHANGE:
                 getstring(text, p);
                 changemapserv(text, 0);
                 break;
 
-            case N_CDIS:
-                clientdisconnected(getint(p));
-                break;
-
             case N_SPAWN:
             {
+                printf("spawn\n");
                 if(d)
                 {
                     d->respawn();
@@ -313,7 +288,6 @@ namespace game
             }
 
             default:
-                neterr("type", cn < 0);
                 return;
         }
     }

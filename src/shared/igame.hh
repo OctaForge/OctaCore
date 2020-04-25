@@ -107,7 +107,6 @@ namespace server
     extern void parsepacket(int sender, int chan, packetbuf &p);
     extern void sendservmsg(const char *s);
     extern bool sendpackets(bool force = false);
-    extern void serverinforeply(ucharbuf &req, ucharbuf &p);
     extern void serverupdate();
     extern int protocolversion();
     extern int laninfoport();

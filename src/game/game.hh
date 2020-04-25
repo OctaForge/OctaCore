@@ -82,44 +82,28 @@ enum
     M_EDIT       = 1<<0
 };
 
-#define m_edit         true
-
-// hardcoded sounds, defined in sounds.cfg
-enum
-{
-    S_JUMP = 0, S_LAND,
-    S_SPLASHIN, S_SPLASHOUT, S_BURN,
-    S_ITEMSPAWN, S_TELEPORT, S_JUMPPAD,
-    S_MELEE, S_PULSE1, S_PULSE2, S_PULSEEXPLODE, S_RAIL1, S_RAIL2,
-    S_WEAPLOAD, S_NOAMMO, S_HIT,
-    S_PAIN1, S_PAIN2, S_DIE1, S_DIE2
-};
-
 // network messages codes, c2s, c2c, s2c
 
 enum
 {
-    N_CONNECT = 0, N_SERVINFO, N_WELCOME, N_CDIS,
+    N_CONNECT = 0, N_SERVINFO, N_WELCOME,
     N_SPAWN,
     N_MAPCHANGE,
     N_NEWMAP,
-    N_CLIENT,
     NUMMSG
 };
 
 static const int msgsizes[] =               // size inclusive message token, 0 for variable or not-checked sizes
 {
-    N_CONNECT, 0, N_SERVINFO, 0, N_WELCOME, 1, N_CDIS, 2,
+    N_CONNECT, 0, N_SERVINFO, 0, N_WELCOME, 1,
     N_SPAWN, 2,
     N_MAPCHANGE, 0,
     N_NEWMAP, 2,
-    N_CLIENT, 0,
     -1
 };
 
 #define TESSERACT_SERVER_PORT 42000
 #define TESSERACT_LANINFO_PORT 41998
-#define PROTOCOL_VERSION 2              // bump when protocol changes
 
 #define MAXNAMELEN 15
 
@@ -228,15 +212,11 @@ namespace game
     extern string clientmap;
 
     extern gameent *player1;
-    extern vector<gameent *> clients;
 
-    extern bool clientoption(const char *arg);
     extern gameent *getclient(int cn);
     extern gameent *newclient(int cn);
     extern gameent *pointatplayer();
     extern gameent *hudplayer();
-    extern void clientdisconnected(int cn, bool notify = true);
-    extern void clearclients(bool notify = true);
     extern void startgame();
     extern void spawnplayer(gameent *);
     extern void msgsound(int n, physent *d = NULL);
@@ -269,7 +249,6 @@ namespace server
     extern void forcepaused(bool paused);
     extern void forcegamespeed(int speed);
     extern int msgsizelookup(int msg);
-    extern bool serveroption(const char *arg);
     extern bool delayspawn(int type);
 }
 

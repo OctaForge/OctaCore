@@ -526,22 +526,16 @@ extern void renderwaterfog(int mat, float blend);
 extern void preloadwatershaders(bool force = false);
 
 // server
-extern vector<const char *> gameargs;
-
-extern void initserver(bool listen, bool dedicated);
+extern void initserver();
 extern void cleanupserver();
-extern void serverslice(bool dedicated, uint timeout);
 extern void updatetime();
 
 extern void localclienttoserver(int chan, ENetPacket *);
 extern void localconnect();
-extern bool serveroption(char *opt);
 
 // client
 extern void localdisconnect(bool cleanup = true);
 extern void localservertoclient(int chan, ENetPacket *packet);
-extern void connectserv(const char *servername, int port, const char *serverpassword);
-extern void abortconnect();
 extern void clientkeepalive();
 
 // command

@@ -116,30 +116,10 @@ namespace game
         return true;
     }
 
-    vector<gameent *> clients;
-
     gameent *getclient(int cn)   // ensure valid entity
     {
         if(cn == player1->clientnum) return player1;
-        return clients.inrange(cn) ? clients[cn] : NULL;
-    }
-
-    void clientdisconnected(int cn, bool notify)
-    {
-        if(!clients.inrange(cn)) return;
-        gameent *d = clients[cn];
-        if(d)
-        {
-            removetrackedparticles(d);
-            removetrackeddynlights(d);
-            DELETEP(clients[cn]);
-            cleardynentcache();
-        }
-    }
-
-    void clearclients(bool notify)
-    {
-        loopv(clients) if(clients[i]) clientdisconnected(i, notify);
+        return NULL;
     }
 
     void initclient()
@@ -185,10 +165,6 @@ namespace game
 
     void physicstrigger(physent *d, bool local, int floorlevel, int waterlevel, int material)
     {
-        if     (waterlevel>0) { if(material!=MAT_LAVA) playsound(S_SPLASHOUT, d==player1 ? NULL : &d->o); }
-        else if(waterlevel<0) playsound(material==MAT_LAVA ? S_BURN : S_SPLASHIN, d==player1 ? NULL : &d->o);
-        if     (floorlevel>0) { if(d==player1 || d->type!=ENT_PLAYER) msgsound(S_JUMP, d); }
-        else if(floorlevel<0) { if(d==player1 || d->type!=ENT_PLAYER) msgsound(S_LAND, d); }
     }
 
     void dynentcollide(physent *d, physent *o, const vec &dir)
@@ -266,7 +242,5 @@ namespace game
     {
         execfile("config/auth.cfg", false);
     }
-
-    bool clientoption(const char *arg) { return false; }
 }
 

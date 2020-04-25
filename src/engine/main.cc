@@ -32,8 +32,6 @@ extern void writeinitcfg();
 void quit()                     // normal exit
 {
     writeinitcfg();
-    abortconnect();
-    disconnect();
     localdisconnect();
     writecfg();
     cleanup();
@@ -1022,7 +1020,6 @@ int main(int argc, char **argv)
 
     setlogfile(NULL);
 
-    int dedicated = 0;
     char *load = NULL, *initscript = NULL;
 
     initing = INIT_RESET;
@@ -1048,7 +1045,6 @@ int main(int argc, char **argv)
                 break;
             }
             case 'g': break;
-            case 'd': dedicated = atoi(&argv[i][2]); if(dedicated<=0) dedicated = 2; break;
             case 'w': scr_w = clamp(atoi(&argv[i][2]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-h")) scr_h = -1; break;
             case 'h': scr_h = clamp(atoi(&argv[i][2]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-w")) scr_w = -1; break;
             case 'f': fullscreen = atoi(&argv[i][2]); break;
@@ -1061,29 +1057,18 @@ int main(int argc, char **argv)
                 break;
             }
             case 'x': initscript = &argv[i][2]; break;
-            default: if(!serveroption(argv[i])) gameargs.add(argv[i]); break;
+            default: break;
         }
-        else gameargs.add(argv[i]);
     }
 
     numcpus = clamp(SDL_GetCPUCount(), 1, 16);
 
-    if(dedicated <= 1)
-    {
-        logoutf("init: sdl");
+    logoutf("init: sdl");
 
-        if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_AUDIO)<0) fatal("Unable to initialize SDL: %s", SDL_GetError());
-    }
-
-    logoutf("init: net");
-    if(enet_initialize()<0) fatal("Unable to initialise network module");
-    atexit(enet_deinitialize);
-    enet_time_set(0);
+    if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_AUDIO)<0) fatal("Unable to initialize SDL: %s", SDL_GetError());
 
     logoutf("init: game");
-    game::parseoptions(gameargs);
-    initserver(dedicated>0, dedicated>1);  // never returns if dedicated
-    ASSERT(dedicated <= 1);
+    initserver();
     game::initclient();
 
     logoutf("init: video");
@@ -1197,7 +1182,8 @@ int main(int argc, char **argv)
 
         checksleep(lastmillis);
 
-        serverslice(false, 0);
+        server::serverupdate();
+        server::sendpackets();
 
         if(frames) updatefpshistory(elapsedtime);
         frames++;
