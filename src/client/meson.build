@@ -36,7 +36,6 @@ client_src = [
     '../engine/water.cc',
     '../engine/world.cc',
     '../engine/worldio.cc',
-    '../game/entities.cc',
     '../game/game.cc',
 ]
 
