@@ -34,8 +34,8 @@ namespace entities
     {
     }
 
-    extentity *newentity() { return new gameentity(); }
-    void deleteentity(extentity *e) { delete (gameentity *)e; }
+    extentity *newentity() { return new extentity(); }
+    void deleteentity(extentity *e) { delete e; }
 
     void clearents()
     {

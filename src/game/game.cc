@@ -1,40 +1,56 @@
 #include "game.hh"
 
+extern void clearmainmenu();
+
 namespace game
 {
-    static int maptime = 0, maprealtime = 0;
-
-    gameent *player1 = NULL;         // our client
+    dynent *player1 = NULL;         // our client
 
     const char *getclientmap() { return clientmap; }
 
     const char *gameident() { return "OctaForge"; }
 
+    void saveragdoll(dynent *d)
+    {
+    }
+
+    void clearragdolls()
+    {
+    }
+
+    void moveragdolls()
+    {
+    }
+
+    void rendergame()
+    {
+    }
+
+    void renderavatar()
+    {
+    }
+
+    void preloadweapons()
+    {
+    }
+
+    void preloadsounds()
+    {
+    }
+
+    void preload()
+    {
+        entities::preloadentities();
+    }
+
     void resetgamestate()
     {
     }
 
-    gameent *spawnstate(gameent *d)              // reset player state not persistent accross spawns
+    dynent *spawnstate(dynent *d)              // reset player state not persistent accross spawns
     {
-        d->respawn();
-        d->spawnstate(0);
+        d->reset();
         return d;
-    }
-
-    void respawnself()
-    {
-        if(ispaused()) return;
-        spawnplayer(player1);
-    }
-
-    gameent *pointatplayer()
-    {
-        return NULL;
-    }
-
-    gameent *hudplayer()
-    {
-        return player1;
     }
 
     void setupcamera()
@@ -58,7 +74,6 @@ namespace game
 
     void updateworld()        // main game update loop
     {
-        if(!maptime) { maptime = lastmillis; maprealtime = totalmillis; return; }
         if(!curtime) { return; }
 
         physicsframe();
@@ -70,9 +85,11 @@ namespace game
         }
     }
 
-    void spawnplayer(gameent *d)   // place at random spawn
+    void spawnplayer(dynent *d)   // place at random spawn
     {
-        findplayerspawn(d, -1, 0);
+        d->o.x = d->o.y = d->o.z = 0.5f*getworldsize();
+        d->o.z += 1;
+        entinmap(d);
         spawnstate(d);
         if(d==player1)
         {
@@ -82,62 +99,33 @@ namespace game
         else d->state = CS_ALIVE;
     }
 
-    VARP(spawnwait, 0, 0, 1000);
-
-    void respawn()
-    {
-        if(player1->state==CS_DEAD)
-        {
-            respawnself();
-        }
-    }
-    COMMAND(respawn, "");
-
     // inputs
-
-    VARP(jumpspawn, 0, 1, 1);
 
     bool canjump()
     {
-        if(!connected) return false;
-        if(jumpspawn) respawn();
-        return player1->state!=CS_DEAD;
+        return connected;
     }
 
     bool cancrouch()
     {
-        if(!connected) return false;
-        return player1->state!=CS_DEAD;
+        return connected;
     }
 
     bool allowmove(physent *d)
     {
-        return true;
-    }
-
-    gameent *getclient(int cn)   // ensure valid entity
-    {
-        if(cn == player1->clientnum) return player1;
-        return NULL;
+        return connected;
     }
 
     void initclient()
     {
-        player1 = spawnstate(new gameent);
-        filtertext(player1->name, "unnamed", false, false, MAXNAMELEN);
+        player1 = spawnstate(new dynent);
+        player1->reset();
     }
 
     VARP(showmodeinfo, 0, 1, 1);
 
     void startgame()
     {
-        // reset perma-state
-        player1->startgame();
-
-        maptime = maprealtime = 0;
-
-        syncplayer();
-
         disablezoom();
 
         execident("mapstart");
@@ -147,8 +135,6 @@ namespace game
     {
         spawnplayer(player1);
         copystring(clientmap, name ? name : "");
-
-        sendmapinfo();
     }
 
     const char *getmapinfo()
@@ -167,11 +153,6 @@ namespace game
 
     void dynentcollide(physent *d, physent *o, const vec &dir)
     {
-    }
-
-    void msgsound(int n, physent *d)
-    {
-        playsound(n);
     }
 
     int numdynents() { return 1; }
@@ -193,19 +174,13 @@ namespace game
         return 1;
     }
 
-    void drawhudicons(gameent *d)
+    void drawhudicons(dynent *d)
     {
     }
 
     void gameplayhud(int w, int h)
     {
         pushhudscale(h/1800.0f);
-
-        gameent *d = hudplayer();
-        if(d->state!=CS_EDITING)
-        {
-            if(d->state!=CS_SPECTATOR) drawhudicons(d);
-        }
 
         pophudmatrix();
     }
@@ -240,5 +215,95 @@ namespace game
     {
         execfile("config/auth.cfg", false);
     }
+
+    void drawminimap(dynent *d, float x, float y, float s)
+    {
+    }
+
+    void setradartex()
+    {
+    }
+
+    bool connected = false;
+
+    void writeclientinfo(stream *f)
+    {
+    }
+
+    bool allowedittoggle()
+    {
+        return true;
+    }
+
+    void edittoggled(bool on)
+    {
+        disablezoom();
+    }
+
+    string clientmap = "";
+
+    void changemap(const char *name)
+    {
+        if(editmode) toggleedit();
+        if(!name[0] || !load_world(name))
+        {
+            emptymap(0, true, name);
+        }
+        startgame();
+        connected = true;
+        clearmainmenu(); /* XXX hack */
+    }
+    ICOMMAND(map, "s", (char *name), changemap(name));
+
+    void forceedit(const char *name)
+    {
+        changemap(name);
+    }
+
+    void newmap(int size)
+    {
+        if(size>=0) emptymap(size, true, NULL);
+        else enlargemap(true);
+        connected = true;
+    }
+
+    void edittrigger(const selinfo &sel, int op, int arg1, int arg2, int arg3, const VSlot *vs)
+    {
+    }
+
+    void vartrigger(ident *id)
+    {
+    }
+
+    bool ispaused() { return false; }
+    bool allowmouselook() { return true; }
+
+    int scaletime(int t) { return t*100; }
+
+    void connectfail()
+    {
+    }
+
+    void gameconnect()
+    {
+    }
+
+    void gamedisconnect(bool cleanup)
+    {
+        if (!connected) {
+            return;
+        }
+        connected = false;
+        if(editmode) toggleedit();
+        player1->reset();
+        player1->state = CS_ALIVE;
+        if(cleanup)
+        {
+            clientmap[0] = '\0';
+        }
+    }
+
+    void toserver(char *text) { conoutf(CON_CHAT, "%s", text); }
 }
 
+bool haslocalclients() { return game::connected; }

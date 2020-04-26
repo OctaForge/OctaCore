@@ -1291,78 +1291,6 @@ void entattr(int *attr, int *val, int *numargs)
 COMMAND(enttype, "sN");
 COMMAND(entattr, "iiN");
 
-int findentity(int type, int index, int attr1, int attr2)
-{
-    const vector<extentity *> &ents = entities::getents();
-    if(index > ents.length()) index = ents.length();
-    else for(int i = index; i<ents.length(); i++)
-    {
-        extentity &e = *ents[i];
-        if(e.type==type && (attr1<0 || e.attr1==attr1) && (attr2<0 || e.attr2==attr2))
-            return i;
-    }
-    loopj(index)
-    {
-        extentity &e = *ents[j];
-        if(e.type==type && (attr1<0 || e.attr1==attr1) && (attr2<0 || e.attr2==attr2))
-            return j;
-    }
-    return -1;
-}
-
-int spawncycle = -1;
-
-void findplayerspawn(dynent *d, int forceent, int tag) // place at random spawn
-{
-    int pick = forceent;
-    if(pick<0)
-    {
-        int r = rnd(10)+1;
-        pick = spawncycle;
-        loopi(r)
-        {
-            pick = findentity(ET_PLAYERSTART, pick+1, -1, tag);
-            if(pick < 0) break;
-        }
-        if(pick < 0 && tag)
-        {
-            pick = spawncycle;
-            loopi(r)
-            {
-                pick = findentity(ET_PLAYERSTART, pick+1, -1, 0);
-                if(pick < 0) break;
-            }
-        }
-        if(pick >= 0) spawncycle = pick;
-    }
-    if(pick>=0)
-    {
-        const vector<extentity *> &ents = entities::getents();
-        d->pitch = 0;
-        d->roll = 0;
-        for(int attempt = pick;;)
-        {
-            d->o = ents[attempt]->o;
-            d->yaw = ents[attempt]->attr1;
-            if(entinmap(d, true)) break;
-            attempt = findentity(ET_PLAYERSTART, attempt+1, -1, tag);
-            if(attempt<0 || attempt==pick)
-            {
-                d->o = ents[pick]->o;
-                d->yaw = ents[pick]->attr1;
-                entinmap(d);
-                break;
-            }
-        }
-    }
-    else
-    {
-        d->o.x = d->o.y = d->o.z = 0.5f*worldsize;
-        d->o.z += 1;
-        entinmap(d);
-    }
-}
-
 void splitocta(cube *c, int size)
 {
     if(size <= 0x1000) return;
@@ -1511,13 +1439,6 @@ void mapenlarge() { if(enlargemap(false)) game::newmap(-1); }
 COMMAND(newmap, "i");
 COMMAND(mapenlarge, "");
 COMMAND(shrinkmap, "");
-
-void mapname()
-{
-    result(game::getclientmap());
-}
-
-COMMAND(mapname, "");
 
 void mpeditent(int i, const vec &o, int type, int attr1, int attr2, int attr3, int attr4, int attr5, bool local)
 {

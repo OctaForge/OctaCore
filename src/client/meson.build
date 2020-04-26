@@ -36,10 +36,8 @@ client_src = [
     '../engine/water.cc',
     '../engine/world.cc',
     '../engine/worldio.cc',
-    '../game/client.cc',
     '../game/entities.cc',
     '../game/game.cc',
-    '../game/render.cc',
 ]
 
 threads_dep = dependency('threads')
