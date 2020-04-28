@@ -1,5 +1,5 @@
-#ifndef AA_HH
-#define AA_HH
+#ifndef ENGINE_AA_HH
+#define ENGINE_AA_HH
 
 #include <shared/gl.hh>
 

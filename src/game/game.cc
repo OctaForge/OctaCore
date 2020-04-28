@@ -1,5 +1,7 @@
 #include "cube.hh"
 
+#include <engine/worldio.hh>
+
 extern void clearmainmenu();
 
 namespace game
@@ -208,10 +210,6 @@ namespace game
     {
     }
 
-    void setradartex()
-    {
-    }
-
     void writeclientinfo(stream *f)
     {
     }
@@ -263,14 +261,6 @@ namespace game
     bool allowmouselook() { return true; }
 
     int scaletime(int t) { return t*100; }
-
-    void connectfail()
-    {
-    }
-
-    void gameconnect()
-    {
-    }
 
     void gamedisconnect(bool cleanup)
     {

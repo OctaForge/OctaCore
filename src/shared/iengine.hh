@@ -361,14 +361,6 @@ static inline void addstain(int type, const vec &center, const vec &surface, flo
     addstain(type, center, surface, radius, bvec::hexcolor(color), info);
 }
 
-// worldio
-extern bool load_world(const char *mname, const char *cname = NULL);
-extern bool save_world(const char *mname, bool nolms = false);
-extern void fixmapname(char *name);
-extern uint getmapcrc();
-extern void clearmapcrc();
-extern bool loadents(const char *fname, vector<entity> &ents, uint *crc = NULL);
-
 // physics
 extern vec collidewall;
 extern int collideinside;

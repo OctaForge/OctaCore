@@ -1,5 +1,5 @@
-#ifndef BLEND_HH
-#define BLEND_HH
+#ifndef ENGINE_BLEND_HH
+#define ENGINE_BLEND_HH
 
 #include <shared/gl.hh>
 

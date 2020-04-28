@@ -1,12 +1,11 @@
 // worldio.cpp: loading & saving of maps and savegames
 
-#ifndef STANDALONE
 #include "blend.hh"
-#endif
+#include "worldio.hh"
 
 #include "engine.hh"
 
-void validmapname(char *dst, const char *src, const char *prefix = NULL, const char *alt = "untitled", size_t maxlen = 100)
+static void validmapname(char *dst, const char *src, const char *prefix = NULL, const char *alt = "untitled", size_t maxlen = 100)
 {
     if(prefix) while(*prefix) *dst++ = *prefix++;
     const char *start = dst;
@@ -18,11 +17,6 @@ void validmapname(char *dst, const char *src, const char *prefix = NULL, const c
     }
     if(dst > start) *dst = '\0';
     else if(dst != alt) copystring(dst, alt, maxlen);
-}
-
-void fixmapname(char *name)
-{
-    validmapname(name, name, NULL, "");
 }
 
 static void fixent(entity &e, int version)
@@ -66,126 +60,21 @@ static bool loadmapheader(stream *f, const char *ogzname, mapheader &hdr, octahe
     return true;
 }
 
-bool loadents(const char *fname, vector<entity> &ents, uint *crc)
-{
-    string name;
-    validmapname(name, fname);
-    defformatstring(ogzname, "media/map/%s.ogz", name);
-    path(ogzname);
-    stream *f = opengzfile(ogzname, "rb");
-    if(!f) return false;
+static string ogzname, cfgname, picname;
 
-    mapheader hdr;
-    octaheader ohdr;
-    if(!loadmapheader(f, ogzname, hdr, ohdr)) { delete f; return false; }
-
-    loopi(hdr.numvars)
-    {
-        int type = f->getchar(), ilen = f->getlil<ushort>();
-        f->seek(ilen, SEEK_CUR);
-        switch(type)
-        {
-            case ID_VAR: f->getlil<int>(); break;
-            case ID_FVAR: f->getlil<float>(); break;
-            case ID_SVAR: { int slen = f->getlil<ushort>(); f->seek(slen, SEEK_CUR); break; }
-        }
-    }
-
-    string gametype;
-    bool samegame = true;
-    int len = f->getchar();
-    if(len >= 0) f->read(gametype, len+1);
-    gametype[max(len, 0)] = '\0';
-    if(strcmp(gametype, game::gameident()))
-    {
-        samegame = false;
-        conoutf(CON_WARN, "WARNING: loading map from %s game, ignoring entities except for lights/mapmodels", gametype);
-    }
-    int eif = f->getlil<ushort>();
-    int extrasize = f->getlil<ushort>();
-    f->seek(extrasize, SEEK_CUR);
-
-    ushort nummru = f->getlil<ushort>();
-    f->seek(nummru*sizeof(ushort), SEEK_CUR);
-
-    loopi(min(hdr.numents, MAXENTS))
-    {
-        entity &e = ents.add();
-        f->read(&e, sizeof(entity));
-        lilswap(&e.o.x, 3);
-        lilswap(&e.attr1, 5);
-        fixent(e, hdr.version);
-        if(eif > 0) f->seek(eif, SEEK_CUR);
-        if(samegame)
-        {
-            entities::readent(e, NULL, hdr.version);
-        }
-        else if(e.type>=ET_GAMESPECIFIC)
-        {
-            ents.pop();
-            continue;
-        }
-    }
-
-    if(crc)
-    {
-        f->seek(0, SEEK_END);
-        *crc = f->getcrc();
-    }
-
-    delete f;
-
-    return true;
-}
-
-#ifndef STANDALONE
-string ogzname, bakname, cfgname, picname;
-
-VARP(savebak, 0, 2, 2);
-
-void setmapfilenames(const char *fname, const char *cname = NULL)
+static void setmapfilenames(const char *fname, const char *cname = NULL)
 {
     string name;
     validmapname(name, fname);
     formatstring(ogzname, "media/map/%s.ogz", name);
     formatstring(picname, "media/map/%s.png", name);
-    if(savebak==1) formatstring(bakname, "media/map/%s.BAK", name);
-    else
-    {
-        string baktime;
-        time_t t = time(NULL);
-        size_t len = strftime(baktime, sizeof(baktime), "%Y-%m-%d_%H.%M.%S", localtime(&t));
-        baktime[min(len, sizeof(baktime)-1)] = '\0';
-        formatstring(bakname, "media/map/%s_%s.BAK", name, baktime);
-    }
 
     validmapname(name, cname ? cname : fname);
     formatstring(cfgname, "media/map/%s.cfg", name);
 
     path(ogzname);
-    path(bakname);
     path(cfgname);
     path(picname);
-}
-
-void mapcfgname()
-{
-    const char *mname = game::getclientmap();
-    string name;
-    validmapname(name, mname);
-    defformatstring(cfgname, "media/map/%s.cfg", name);
-    path(cfgname);
-    result(cfgname);
-}
-
-COMMAND(mapcfgname, "");
-
-void backup(const char *name, const char *backupname)
-{
-    string backupfile;
-    copystring(backupfile, findfile(backupname, "wb"));
-    remove(backupfile);
-    rename(findfile(name, "wb"), backupfile);
 }
 
 enum { OCTSAV_CHILDREN = 0, OCTSAV_EMPTY, OCTSAV_SOLID, OCTSAV_NORMAL };
@@ -202,7 +91,7 @@ struct polysurfacecompat
 
 static int savemapprogress = 0;
 
-void savec(cube *c, const ivec &o, int size, stream *f, bool nolms)
+static void savec(cube *c, const ivec &o, int size, stream *f, bool nolms)
 {
     if((savemapprogress++&0xFFF)==0) renderprogress(float(savemapprogress)/allocnodes, "saving octree...");
 
@@ -321,9 +210,9 @@ void savec(cube *c, const ivec &o, int size, stream *f, bool nolms)
     }
 }
 
-cube *loadchildren(stream *f, const ivec &co, int size, bool &failed);
+static cube *loadchildren(stream *f, const ivec &co, int size, bool &failed);
 
-void loadc(stream *f, cube &c, const ivec &co, int size, bool &failed)
+static void loadc(stream *f, cube &c, const ivec &co, int size, bool &failed)
 {
     int octsav = f->getchar();
     switch(octsav&0x7)
@@ -431,7 +320,7 @@ void loadc(stream *f, cube &c, const ivec &co, int size, bool &failed)
     }
 }
 
-cube *loadchildren(stream *f, const ivec &co, int size, bool &failed)
+static cube *loadchildren(stream *f, const ivec &co, int size, bool &failed)
 {
     cube *c = newcubes();
     loopi(8)
@@ -444,7 +333,7 @@ cube *loadchildren(stream *f, const ivec &co, int size, bool &failed)
 
 VAR(dbgvars, 0, 0, 1);
 
-void savevslot(stream *f, VSlot &vs, int prev)
+static void savevslot(stream *f, VSlot &vs, int prev)
 {
     f->putlil<int>(vs.changed);
     f->putlil<int>(prev);
@@ -487,7 +376,7 @@ void savevslot(stream *f, VSlot &vs, int prev)
     if(vs.changed & (1<<VSLOT_DETAIL)) f->putlil<int>(vs.detail);
 }
 
-void savevslots(stream *f, int numvslots)
+static void savevslots(stream *f, int numvslots)
 {
     if(vslots.empty()) return;
     int *prev = new int[numvslots];
@@ -517,7 +406,7 @@ void savevslots(stream *f, int numvslots)
     delete[] prev;
 }
 
-void loadvslot(stream *f, VSlot &vs, int changed)
+static void loadvslot(stream *f, VSlot &vs, int changed)
 {
     vs.changed = changed;
     if(vs.changed & (1<<VSLOT_SHPARAM))
@@ -564,7 +453,7 @@ void loadvslot(stream *f, VSlot &vs, int changed)
     if(vs.changed & (1<<VSLOT_DETAIL)) vs.detail = f->getlil<int>();
 }
 
-void loadvslots(stream *f, int numvslots)
+static void loadvslots(stream *f, int numvslots)
 {
     int *prev = new (false) int[numvslots];
     if(!prev) return;
@@ -588,11 +477,10 @@ void loadvslots(stream *f, int numvslots)
     delete[] prev;
 }
 
-bool save_world(const char *mname, bool nolms)
+static bool save_world(const char *mname, bool nolms)
 {
     if(!*mname) mname = game::getclientmap();
     setmapfilenames(*mname ? mname : "untitled");
-    if(savebak) backup(ogzname, bakname);
     stream *f = opengzfile(ogzname, "wb");
     if(!f) { conoutf(CON_WARN, "could not write map to %s", ogzname); return false; }
 
@@ -910,13 +798,11 @@ bool load_world(const char *mname, const char *cname)        // still supports a
     return true;
 }
 
-void savecurrentmap() { save_world(game::getclientmap()); }
-void savemap(char *mname) { save_world(mname); }
+static void savemap(char *mname) { save_world(mname, false); }
 
 COMMAND(savemap, "s");
-COMMAND(savecurrentmap, "");
 
-void writeobj(char *name)
+static void writeobj(char *name)
 {
     defformatstring(fname, "%s.obj", name);
     stream *f = openfile(path(fname), "w");
@@ -1012,7 +898,7 @@ void writeobj(char *name)
 
 COMMAND(writeobj, "s");
 
-void writecollideobj(char *name)
+static void writecollideobj(char *name)
 {
     extern bool havesel;
     extern selinfo sel;
@@ -1122,6 +1008,3 @@ void writecollideobj(char *name)
 }
 
 COMMAND(writecollideobj, "s");
-
-#endif
-
