@@ -1,7 +1,6 @@
 #ifndef ENGINE_WORLD_HH
 #define ENGINE_WORLD_HH
 
-#include <shared/tools.hh>
 #include <shared/geom.hh>
 
 #include <shared/ents.hh>

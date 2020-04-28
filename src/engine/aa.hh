@@ -3,7 +3,6 @@
 
 #include <shared/gl.hh>
 
-#include <shared/tools.hh>
 #include <shared/geom.hh>
 
 extern matrix4 nojittermatrix;

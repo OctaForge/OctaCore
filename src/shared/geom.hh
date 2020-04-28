@@ -1,6 +1,8 @@
 #ifndef GEOM_HH
 #define GEOM_HH
 
+#include "tools.hh"
+
 struct vec;
 struct vec4;
 
