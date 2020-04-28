@@ -1,4 +1,5 @@
 #include "blend.hh"
+#include "world.hh"
 
 #include "engine.hh"
 
@@ -346,9 +347,6 @@ bool editmoveplane(const vec &o, const vec &ray, int d, float off, vec &handle, 
 }
 
 namespace hmap { inline bool isheightmap(int orient, int d, bool empty, cube *c); }
-extern void entdrag(const vec &ray);
-extern bool hoveringonent(int ent, int orient);
-extern void renderentselection(const vec &o, const vec &ray, bool entmoving);
 extern float rayent(const vec &o, const vec &ray, float radius, int mode, int size, int &orient, int &ent);
 
 VAR(gridlookup, 0, 0, 1);

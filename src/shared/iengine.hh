@@ -58,31 +58,7 @@ extern bool settexture(const char *name, int clamp = 0);
 
 enum { EDIT_FACE = 0, EDIT_TEX, EDIT_MAT, EDIT_FLIP, EDIT_COPY, EDIT_PASTE, EDIT_ROTATE, EDIT_REPLACE, EDIT_DELCUBE, EDIT_CALCLIGHT, EDIT_REMIP, EDIT_VSLOT, EDIT_UNDO, EDIT_REDO };
 
-struct selinfo
-{
-    int corner;
-    int cx, cxs, cy, cys;
-    ivec o, s;
-    int grid, orient;
-    selinfo() : corner(0), cx(0), cxs(0), cy(0), cys(0), o(0, 0, 0), s(0, 0, 0), grid(8), orient(0) {}
-    int size() const    { return s.x*s.y*s.z; }
-    int us(int d) const { return s[d]*grid; }
-    bool operator==(const selinfo &sel) const { return o==sel.o && s==sel.s && grid==sel.grid && orient==sel.orient; }
-    bool validate()
-    {
-        extern int worldsize;
-        if(grid <= 0 || grid >= worldsize) return false;
-        if(o.x >= worldsize || o.y >= worldsize || o.z >= worldsize) return false;
-        if(o.x < 0) { s.x -= (grid - 1 - o.x)/grid; o.x = 0; }
-        if(o.y < 0) { s.y -= (grid - 1 - o.y)/grid; o.y = 0; }
-        if(o.z < 0) { s.z -= (grid - 1 - o.z)/grid; o.z = 0; }
-        s.x = clamp(s.x, 0, (worldsize - o.x)/grid);
-        s.y = clamp(s.y, 0, (worldsize - o.y)/grid);
-        s.z = clamp(s.z, 0, (worldsize - o.z)/grid);
-        return s.x > 0 && s.y > 0 && s.z > 0;
-    }
-};
-
+struct selinfo;
 struct editinfo;
 extern editinfo *localedit;
 
@@ -209,21 +185,6 @@ static inline bool insideworld(const ivec &o)
     extern int worldsize;
     return uint(o.x)<uint(worldsize) && uint(o.y)<uint(worldsize) && uint(o.z)<uint(worldsize);
 }
-
-// world
-extern bool emptymap(int factor, bool force, const char *mname = "", bool usecfg = true);
-extern bool enlargemap(bool force);
-extern int findentity(int type, int index = 0, int attr1 = -1, int attr2 = -1);
-extern void findents(int low, int high, bool notspawned, const vec &pos, const vec &radius, vector<int> &found);
-extern void mpeditent(int i, const vec &o, int type, int attr1, int attr2, int attr3, int attr4, int attr5, bool local);
-extern vec getselpos();
-extern int getworldsize();
-extern int getmapversion();
-extern void renderentcone(const extentity &e, const vec &dir, float radius, float angle);
-extern void renderentarrow(const extentity &e, const vec &dir, float radius);
-extern void renderentattachment(const extentity &e);
-extern void renderentsphere(const extentity &e, float radius);
-extern void renderentring(const extentity &e, float radius, int axis = 0);
 
 // main
 extern void fatal(const char *s, ...) PRINTFARGS(1, 2);

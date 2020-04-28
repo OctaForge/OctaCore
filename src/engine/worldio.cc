@@ -1,9 +1,43 @@
 // worldio.cpp: loading & saving of maps and savegames
 
 #include "blend.hh"
+#include "world.hh"
 #include "worldio.hh"
 
 #include "engine.hh"
+
+#define OCTAVERSION 33
+
+struct octaheader
+{
+    char magic[4];              // "OCTA"
+    int version;                // any >8bit quantity is little endian
+    int headersize;             // sizeof(header)
+    int worldsize;
+    int numents;
+    int numpvs;
+    int lightmaps;
+    int blendmap;
+    int numvars;
+    int numvslots;
+};
+
+#define MAPVERSION 1            // bump if map format changes, see worldio.cpp
+
+struct mapheader
+{
+    char magic[4];              // "TMAP"
+    int version;                // any >8bit quantity is little endian
+    int headersize;             // sizeof(header)
+    int worldsize;
+    int numents;
+    int numpvs;
+    int blendmap;
+    int numvars;
+    int numvslots;
+};
+
+VARR(mapversion, 1, MAPVERSION, 0);
 
 static void validmapname(char *dst, const char *src, const char *prefix = NULL, const char *alt = "untitled", size_t maxlen = 100)
 {

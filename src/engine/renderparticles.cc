@@ -1,5 +1,7 @@
 // renderparticles.cpp
 
+#include "world.hh"
+
 #include "engine.hh"
 
 Shader *particleshader = NULL, *particlenotextureshader = NULL, *particlesoftshader = NULL, *particletextshader = NULL;
@@ -1429,13 +1431,13 @@ void updateparticles()
         loopv(entgroup)
         {
             entity &e = *ents[entgroup[i]];
-            particle_textcopy(e.o, entname(e), PART_TEXT, 1, 0xFF4B19, 2.0f);
+            particle_textcopy(e.o, entities::entname(e.type), PART_TEXT, 1, 0xFF4B19, 2.0f);
         }
         loopv(ents)
         {
             entity &e = *ents[i];
             if(e.type==ET_EMPTY) continue;
-            particle_textcopy(e.o, entname(e), PART_TEXT, 1, 0x1EC850, 2.0f);
+            particle_textcopy(e.o, entities::entname(e.type), PART_TEXT, 1, 0x1EC850, 2.0f);
             regular_particle_splash(PART_EDIT, 2, 40, e.o, 0x3232FF, 0.32f*particlesize/100.0f);
         }
     }

@@ -1,6 +1,7 @@
 #include "cube.hh"
 
 #include <engine/worldio.hh>
+#include <engine/world.hh>
 
 extern void clearmainmenu();
 

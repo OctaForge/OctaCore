@@ -1,6 +1,7 @@
 // main.cpp: initialisation & main loop
 
 #include "blend.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

@@ -3,6 +3,8 @@
 // they "felt right", and have no basis in reality. Collision detection is simplistic but
 // very robust (uses discrete steps at fixed fps).
 
+#include "world.hh"
+
 #include "engine.hh"
 #include "mpr.hh"
 
@@ -124,7 +126,6 @@ static inline bool raycubeintersect(const clipplanes &p, const cube &c, const ve
     return true;
 }
 
-extern void entselectionbox(const entity &e, vec &eo, vec &es);
 float hitentdist;
 int hitent, hitorient;
 

@@ -6,7 +6,6 @@
 
 #ifndef STANDALONE
 
-#include "octa.hh"
 #include "light.hh"
 #include "texture.hh"
 #include "bih.hh"
@@ -29,8 +28,6 @@ extern bool inbetweenframes, renderedframe;
 
 extern SDL_Window *screen;
 extern int screenw, screenh, renderw, renderh, hudw, hudh;
-
-extern vector<int> entgroup;
 
 // rendertext
 struct font
@@ -364,13 +361,6 @@ extern bool useavatarmask();
 extern void enableavatarmask();
 extern void disableavatarmask();
 
-// ents
-extern char *entname(entity &e);
-extern bool haveselent();
-extern undoblock *copyundoents(undoblock *u);
-extern void pasteundoent(int idx, const entity &ue);
-extern void pasteundoents(undoblock *u);
-
 // octaedit
 extern void cancelsel();
 extern void rendertexturepanel(int w, int h);
@@ -603,19 +593,6 @@ extern void mousemove(int dx, int dy);
 extern bool overlapsdynent(const vec &o, float radius);
 extern void rotatebb(vec &center, vec &radius, int yaw, int pitch, int roll = 0);
 extern float shadowray(const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
-
-// world
-
-extern vector<int> outsideents;
-
-extern void entcancel();
-extern void entitiesinoctanodes();
-extern void attachentities();
-extern void freeoctaentities(cube &c);
-extern bool pointinsel(const selinfo &sel, const vec &o);
-
-extern void resetmap();
-extern void startmap(const char *name);
 
 // rendermodel
 struct mapmodelinfo { string name; model *m, *collide; };

@@ -1,5 +1,7 @@
 // core world management routines
 
+#include "world.hh"
+
 #include "engine.hh"
 
 static struct emptycube : cube
