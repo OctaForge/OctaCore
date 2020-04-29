@@ -2,6 +2,8 @@
 
 #include "aa.hh"
 #include "blend.hh"
+#include "material.hh"
+#include "water.hh"
 
 #include "engine.hh"
 

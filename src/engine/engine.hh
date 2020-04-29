@@ -245,8 +245,7 @@ static inline cubeext &ext(cube &c)
 
 // renderlights
 
-#define LIGHTTILE_MAXW 16
-#define LIGHTTILE_MAXH 16
+#include "renderlights.hh"
 
 extern int lighttilealignw, lighttilealignh, lighttilevieww, lighttileviewh, lighttilew, lighttileh;
 
@@ -442,78 +441,11 @@ extern void updatedynlights();
 extern int finddynlights();
 extern bool getdynlight(int n, vec &o, float &radius, vec &color, vec &dir, int &spot, int &flags);
 
-// material
-
-extern float matliquidsx1, matliquidsy1, matliquidsx2, matliquidsy2;
-extern float matsolidsx1, matsolidsy1, matsolidsx2, matsolidsy2;
-extern float matrefractsx1, matrefractsy1, matrefractsx2, matrefractsy2;
-extern uint matliquidtiles[LIGHTTILE_MAXH], matsolidtiles[LIGHTTILE_MAXH];
-extern vector<materialsurface> editsurfs, glasssurfs[4], watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
-extern const vec matnormals[6];
-
-extern int showmat;
-
-extern int findmaterial(const char *name);
-extern const char *findmaterialname(int mat);
-extern const char *getmaterialdesc(int mat, const char *prefix = "");
-extern void genmatsurfs(const cube &c, const ivec &co, int size, vector<materialsurface> &matsurfs);
-extern void calcmatbb(vtxarray *va, const ivec &co, int size, vector<materialsurface> &matsurfs);
-extern int optimizematsurfs(materialsurface *matbuf, int matsurfs);
-extern void setupmaterials(int start = 0, int len = 0);
-extern int findmaterials();
-extern void rendermaterialmask();
-extern void renderliquidmaterials();
-extern void rendersolidmaterials();
-extern void rendereditmaterials();
-extern void renderminimapmaterials();
-extern int visiblematerial(const cube &c, int orient, const ivec &co, int size, ushort matmask = MATF_VOLUME);
-
 // water
-extern int vertwater, waterreflect, caustics;
-extern float watersx1, watersy1, watersx2, watersy2;
-
-#define GETMATIDXVAR(name, var, type) \
-    type get##name##var(int mat) \
-    { \
-        switch(mat&MATF_INDEX) \
-        { \
-            default: case 0: return name##var; \
-            case 1: return name##2##var; \
-            case 2: return name##3##var; \
-            case 3: return name##4##var; \
-        } \
-    }
-
-extern const bvec &getwatercolour(int mat);
-extern const bvec &getwaterdeepcolour(int mat);
-extern const bvec &getwaterdeepfade(int mat);
-extern const bvec &getwaterrefractcolour(int mat);
-extern const bvec &getwaterfallcolour(int mat);
-extern const bvec &getwaterfallrefractcolour(int mat);
-extern int getwaterfog(int mat);
-extern int getwaterdeep(int mat);
-extern int getwaterspec(int mat);
-extern float getwaterrefract(int mat);
-extern int getwaterfallspec(int mat);
-extern float getwaterfallrefract(int mat);
-
-extern const bvec &getlavacolour(int mat);
-extern int getlavafog(int mat);
-extern float getlavaglowmin(int mat);
-extern float getlavaglowmax(int mat);
-extern int getlavaspec(int mat);
 
 extern const bvec &getglasscolour(int mat);
 extern float getglassrefract(int mat);
 extern int getglassspec(int mat);
-
-extern void renderwater();
-extern void renderwaterfalls();
-extern void renderlava();
-extern void renderlava(const materialsurface &m, Texture *tex, float scale);
-extern void loadcaustics(bool force = false);
-extern void renderwaterfog(int mat, float blend);
-extern void preloadwatershaders(bool force = false);
 
 // client
 extern void localdisconnect(bool cleanup = true);

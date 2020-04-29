@@ -1,6 +1,9 @@
 #ifndef SHARED_ENTS_HH
 #define SHARED_ENTS_HH
 
+#include "tools.hh"
+#include "geom.hh"
+
 // this file defines static map entities ("entity") and dynamic entities (players/monsters, "dynent")
 // the gamecode extends these types to add game specific functionality
 

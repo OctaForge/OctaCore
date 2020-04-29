@@ -1,4 +1,9 @@
+#include "material.hh"
+#include "water.hh"
+
 #include "engine.hh"
+
+vector<materialsurface> editsurfs, glasssurfs[4], watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
 
 struct QuadNode
 {
@@ -142,7 +147,7 @@ const char *getmaterialdesc(int mat, const char *prefix)
     return desc;
 }
 
-int visiblematerial(const cube &c, int orient, const ivec &co, int size, ushort matmask)
+static int visiblematerial(const cube &c, int orient, const ivec &co, int size, ushort matmask = MATF_VOLUME)
 {
     ushort mat = c.material&matmask;
     switch(mat)
@@ -343,7 +348,7 @@ int optimizematsurfs(materialsurface *matbuf, int matsurfs)
     return matsurfs - (end-matbuf);
 }
 
-void preloadglassshaders(bool force = false)
+static void preloadglassshaders(bool force = false)
 {
     static bool needglass = false;
     if(force) needglass = true;
@@ -460,7 +465,7 @@ static inline bool editmatcmp(const materialsurface &x, const materialsurface &y
     return false;
 }
 
-void sorteditmaterials()
+static void sorteditmaterials()
 {
     sortorigin = ivec(camera1->o);
     vec dir = vec(camdir).abs();
@@ -471,7 +476,7 @@ void sorteditmaterials()
     editsurfs.sort(editmatcmp);
 }
 
-void rendermatgrid()
+static void rendermatgrid()
 {
     enablepolygonoffset(GL_POLYGON_OFFSET_LINE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -562,8 +567,6 @@ static void drawglass(const materialsurface &m, float offset, const vec *normal 
     #undef GENFACEVERTZ
     #define GENFACEVERTZ(o,n, x,y,z, xv,yv,zv) GENFACEVERT(o,n, x,y,z, xv,yv,zv)
 }
-
-vector<materialsurface> editsurfs, glasssurfs[4], watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
 
 float matliquidsx1 = -1, matliquidsy1 = -1, matliquidsx2 = 1, matliquidsy2 = 1;
 float matsolidsx1 = -1, matsolidsy1 = -1, matsolidsx2 = 1, matsolidsy2 = 1;
@@ -693,7 +696,7 @@ GETMATIDXVAR(glass, spec, int)
 
 VARFP(glassenv, 0, 1, 1, preloadglassshaders());
 
-void renderglass()
+static void renderglass()
 {
     loopk(4)
     {

@@ -1,3 +1,5 @@
+#include "material.hh"
+
 #include "engine.hh"
 
 struct stainvert

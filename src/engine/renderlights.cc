@@ -1,4 +1,7 @@
+#include "renderlights.hh"
+
 #include "aa.hh"
+#include "material.hh"
 #include "world.hh"
 
 #include "engine.hh"

@@ -1,5 +1,6 @@
 // renderparticles.cpp
 
+#include "water.hh"
 #include "world.hh"
 
 #include "engine.hh"

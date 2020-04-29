@@ -1,5 +1,7 @@
 // texture.cpp: texture slot management
 
+#include "material.hh"
+
 #include "engine.hh"
 
 #ifdef __APPLE__

@@ -1,6 +1,76 @@
+#include "material.hh"
+#include "water.hh"
+
 #include "engine.hh"
 
+extern const vec matnormals[6];
+
+extern vector<materialsurface> watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
+
 #define NUMCAUSTICS 32
+
+VARFR(causticscale, 0, 50, 10000, preloadwatershaders());
+VARFR(causticmillis, 0, 75, 1000, preloadwatershaders());
+FVARR(causticcontrast, 0, 0.6f, 2);
+FVARR(causticoffset, 0, 0.7f, 1);
+VARFP(caustics, 0, 1, 1, { loadcaustics(); preloadwatershaders(); });
+
+#define WATERVARS(name) \
+    CVAR0R(name##colour, 0x01212C); \
+    CVAR0R(name##deepcolour, 0x010A10); \
+    CVAR0R(name##deepfade, 0x60BFFF); \
+    CVAR0R(name##refractcolour, 0xFFFFFF); \
+    VARR(name##fog, 0, 30, 10000); \
+    VARR(name##deep, 0, 50, 10000); \
+    VARR(name##spec, 0, 150, 200); \
+    FVARR(name##refract, 0, 0.1f, 1e3f); \
+    CVARR(name##fallcolour, 0); \
+    CVARR(name##fallrefractcolour, 0); \
+    VARR(name##fallspec, 0, 150, 200); \
+    FVARR(name##fallrefract, 0, 0.1f, 1e3f);
+
+WATERVARS(water)
+WATERVARS(water2)
+WATERVARS(water3)
+WATERVARS(water4)
+
+GETMATIDXVAR(water, colour, const bvec &)
+GETMATIDXVAR(water, deepcolour, const bvec &)
+GETMATIDXVAR(water, deepfade, const bvec &)
+GETMATIDXVAR(water, refractcolour, const bvec &)
+GETMATIDXVAR(water, fallcolour, const bvec &)
+GETMATIDXVAR(water, fallrefractcolour, const bvec &)
+GETMATIDXVAR(water, fog, int)
+GETMATIDXVAR(water, deep, int)
+GETMATIDXVAR(water, spec, int)
+GETMATIDXVAR(water, refract, float)
+GETMATIDXVAR(water, fallspec, int)
+GETMATIDXVAR(water, fallrefract, float)
+
+#define LAVAVARS(name) \
+    CVAR0R(name##colour, 0xFF4000); \
+    VARR(name##fog, 0, 50, 10000); \
+    FVARR(name##glowmin, 0, 0.25f, 2); \
+    FVARR(name##glowmax, 0, 1.0f, 2); \
+    VARR(name##spec, 0, 25, 200);
+
+LAVAVARS(lava)
+LAVAVARS(lava2)
+LAVAVARS(lava3)
+LAVAVARS(lava4)
+
+GETMATIDXVAR(lava, colour, const bvec &)
+GETMATIDXVAR(lava, fog, int)
+GETMATIDXVAR(lava, glowmin, float)
+GETMATIDXVAR(lava, glowmax, float)
+GETMATIDXVAR(lava, spec, int)
+
+VARFP(waterreflect, 0, 1, 1, { preloadwatershaders(); });
+VARR(waterreflectstep, 1, 32, 10000);
+VARFP(waterenvmap, 0, 1, 1, { preloadwatershaders(); });
+VARFP(waterfallenv, 0, 1, 1, preloadwatershaders());
+
+VARFP(vertwater, 0, 1, 1, allchanged());
 
 static Texture *caustictex[NUMCAUSTICS] = { NULL };
 
@@ -18,18 +88,14 @@ void loadcaustics(bool force)
     }
 }
 
-void cleanupcaustics()
+#if 0
+static void cleanupcaustics()
 {
     loopi(NUMCAUSTICS) caustictex[i] = NULL;
 }
+#endif
 
-VARFR(causticscale, 0, 50, 10000, preloadwatershaders());
-VARFR(causticmillis, 0, 75, 1000, preloadwatershaders());
-FVARR(causticcontrast, 0, 0.6f, 2);
-FVARR(causticoffset, 0, 0.7f, 1);
-VARFP(caustics, 0, 1, 1, { loadcaustics(); preloadwatershaders(); });
-
-void setupcaustics(int tmu, float surface = -1e16f)
+static void setupcaustics(int tmu, float surface = -1e16f)
 {
     if(!caustictex[0]) loadcaustics(true);
 
@@ -63,7 +129,7 @@ void setupcaustics(int tmu, float surface = -1e16f)
     GLOBALPARAMF(causticsblend, blendscale*(1-frac), blendscale*frac, blendoffset - causticoffset*blendscale);
 }
 
-void rendercaustics(float surface, float syl, float syr)
+static void rendercaustics(float surface, float syl, float syr)
 {
     if(!caustics || !causticscale || !causticmillis) return;
     glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
@@ -225,7 +291,7 @@ VERTWN(vertln, {
     xtraverts += gle::end(); \
 }
 
-void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
+static void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
 {
     wx1 = xo;
     wy1 = yo;
@@ -255,7 +321,7 @@ void rendervertwater(int subdiv, int xo, int yo, int z, int size, int mat)
     }
 }
 
-int calcwatersubdiv(int x, int y, int z, int size)
+static int calcwatersubdiv(int x, int y, int z, int size)
 {
     float dist;
     if(camera1->o.x >= x && camera1->o.x < x + size &&
@@ -267,7 +333,7 @@ int calcwatersubdiv(int x, int y, int z, int size)
     return subdiv >= 31 ? INT_MAX : 1<<subdiv;
 }
 
-int renderwaterlod(int x, int y, int z, int size, int mat)
+static int renderwaterlod(int x, int y, int z, int size, int mat)
 {
     if(size <= (32 << waterlod))
     {
@@ -317,7 +383,7 @@ int renderwaterlod(int x, int y, int z, int size, int mat)
         xtraverts += 4; \
     }
 
-void renderflatwater(int x, int y, int z, int rsize, int csize, int mat)
+static void renderflatwater(int x, int y, int z, int rsize, int csize, int mat)
 {
     switch(mat)
     {
@@ -331,69 +397,12 @@ void renderflatwater(int x, int y, int z, int rsize, int csize, int mat)
     }
 }
 
-VARFP(vertwater, 0, 1, 1, allchanged());
-
 static inline void renderwater(const materialsurface &m, int mat = MAT_WATER)
 {
     if(!vertwater || drawtex == DRAWTEX_MINIMAP) renderflatwater(m.o.x, m.o.y, m.o.z, m.rsize, m.csize, mat);
     else if(renderwaterlod(m.o.x, m.o.y, m.o.z, m.csize, mat) >= int(m.csize) * 2)
         rendervertwater(m.csize, m.o.x, m.o.y, m.o.z, m.csize, mat);
 }
-
-#define WATERVARS(name) \
-    CVAR0R(name##colour, 0x01212C); \
-    CVAR0R(name##deepcolour, 0x010A10); \
-    CVAR0R(name##deepfade, 0x60BFFF); \
-    CVAR0R(name##refractcolour, 0xFFFFFF); \
-    VARR(name##fog, 0, 30, 10000); \
-    VARR(name##deep, 0, 50, 10000); \
-    VARR(name##spec, 0, 150, 200); \
-    FVARR(name##refract, 0, 0.1f, 1e3f); \
-    CVARR(name##fallcolour, 0); \
-    CVARR(name##fallrefractcolour, 0); \
-    VARR(name##fallspec, 0, 150, 200); \
-    FVARR(name##fallrefract, 0, 0.1f, 1e3f);
-
-WATERVARS(water)
-WATERVARS(water2)
-WATERVARS(water3)
-WATERVARS(water4)
-
-GETMATIDXVAR(water, colour, const bvec &)
-GETMATIDXVAR(water, deepcolour, const bvec &)
-GETMATIDXVAR(water, deepfade, const bvec &)
-GETMATIDXVAR(water, refractcolour, const bvec &)
-GETMATIDXVAR(water, fallcolour, const bvec &)
-GETMATIDXVAR(water, fallrefractcolour, const bvec &)
-GETMATIDXVAR(water, fog, int)
-GETMATIDXVAR(water, deep, int)
-GETMATIDXVAR(water, spec, int)
-GETMATIDXVAR(water, refract, float)
-GETMATIDXVAR(water, fallspec, int)
-GETMATIDXVAR(water, fallrefract, float)
-
-#define LAVAVARS(name) \
-    CVAR0R(name##colour, 0xFF4000); \
-    VARR(name##fog, 0, 50, 10000); \
-    FVARR(name##glowmin, 0, 0.25f, 2); \
-    FVARR(name##glowmax, 0, 1.0f, 2); \
-    VARR(name##spec, 0, 25, 200);
-
-LAVAVARS(lava)
-LAVAVARS(lava2)
-LAVAVARS(lava3)
-LAVAVARS(lava4)
-
-GETMATIDXVAR(lava, colour, const bvec &)
-GETMATIDXVAR(lava, fog, int)
-GETMATIDXVAR(lava, glowmin, float)
-GETMATIDXVAR(lava, glowmax, float)
-GETMATIDXVAR(lava, spec, int)
-
-VARFP(waterreflect, 0, 1, 1, { preloadwatershaders(); });
-VARR(waterreflectstep, 1, 32, 10000);
-VARFP(waterenvmap, 0, 1, 1, { preloadwatershaders(); });
-VARFP(waterfallenv, 0, 1, 1, preloadwatershaders());
 
 void preloadwatershaders(bool force)
 {
