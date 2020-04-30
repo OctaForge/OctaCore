@@ -1,6 +1,7 @@
 // worldio.cpp: loading & saving of maps and savegames
 
 #include "blend.hh"
+#include "texture.hh"
 #include "world.hh"
 #include "worldio.hh"
 

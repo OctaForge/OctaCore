@@ -7,6 +7,8 @@
 //   avidemux - ok - 3Apr09-RockKeyman:had to swap UV channels as it showed up blue
 //   kino - ok
 
+#include "texture.hh"
+
 #include "engine.hh"
 
 VAR(dbgmovie, 0, 0, 1);

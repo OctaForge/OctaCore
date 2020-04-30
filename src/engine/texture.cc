@@ -1,6 +1,8 @@
 // texture.cpp: texture slot management
 
 #include "material.hh"
+#include "shader.hh"
+#include "texture.hh"
 
 #include "engine.hh"
 
@@ -9,6 +11,8 @@
 #else
   #include "SDL_image.h"
 #endif
+
+static bool loaddds(const char *filename, ImageData &image, int force = 0);
 
 #ifndef SDL_IMAGE_VERSION_ATLEAST
 #define SDL_IMAGE_VERSION_ATLEAST(X, Y, Z) \
@@ -359,7 +363,7 @@ static void reorientrgtc(GLenum format, int blocksize, int w, int h, uchar *src,
         } \
     }
 
-void forcergbimage(ImageData &s)
+static void forcergbimage(ImageData &s)
 {
     if(s.bpp >= 3) return;
     ImageData d(s.w, s.h, 3);
@@ -379,7 +383,8 @@ void forcergbimage(ImageData &s)
         } \
     }
 
-void forcergbaimage(ImageData &s)
+#if 0
+static void forcergbaimage(ImageData &s)
 {
     if(s.bpp >= 4) return;
     ImageData d(s.w, s.h, 4);
@@ -387,8 +392,9 @@ void forcergbaimage(ImageData &s)
     else readwritetex(d, s, { dst[0] = dst[1] = dst[2] = src[0]; });
     s.replace(d);
 }
+#endif
 
-void swizzleimage(ImageData &s)
+static void swizzleimage(ImageData &s)
 {
     if(s.bpp==2)
     {
@@ -404,14 +410,14 @@ void swizzleimage(ImageData &s)
     }
 }
 
-void scaleimage(ImageData &s, int w, int h)
+static void scaleimage(ImageData &s, int w, int h)
 {
     ImageData d(w, h, s.bpp);
     scaletexture(s.data, s.w, s.h, s.bpp, s.pitch, d.data, w, h);
     s.replace(d);
 }
 
-void texreorient(ImageData &s, bool flipx, bool flipy, bool swapxy, int type = TEX_DIFFUSE)
+static void texreorient(ImageData &s, bool flipx, bool flipy, bool swapxy, int type = TEX_DIFFUSE)
 {
     ImageData d(swapxy ? s.h : s.w, swapxy ? s.w : s.h, s.bpp, s.levels, s.align, s.compressed);
     switch(s.compressed)
@@ -464,7 +470,7 @@ extern const texrotation texrotations[8] =
     {  true,  true,  true }, // 7: flipped transpose
 };
 
-void texrotate(ImageData &s, int numrots, int type = TEX_DIFFUSE)
+static void texrotate(ImageData &s, int numrots, int type = TEX_DIFFUSE)
 {
     if(numrots>=1 && numrots<=7)
     {
@@ -473,7 +479,7 @@ void texrotate(ImageData &s, int numrots, int type = TEX_DIFFUSE)
     }
 }
 
-void texoffset(ImageData &s, int xoffset, int yoffset)
+static void texoffset(ImageData &s, int xoffset, int yoffset)
 {
     xoffset = max(xoffset, 0);
     xoffset %= s.w;
@@ -492,7 +498,7 @@ void texoffset(ImageData &s, int xoffset, int yoffset)
     s.replace(d);
 }
 
-void texcrop(ImageData &s, int x, int y, int w, int h)
+static void texcrop(ImageData &s, int x, int y, int w, int h)
 {
     x = clamp(x, 0, s.w);
     y = clamp(y, 0, s.h);
@@ -510,7 +516,7 @@ void texcrop(ImageData &s, int x, int y, int w, int h)
     s.replace(d);
 }
 
-void texmad(ImageData &s, const vec &mul, const vec &add)
+static void texmad(ImageData &s, const vec &mul, const vec &add)
 {
     if(s.bpp < 3 && (mul.x != mul.y || mul.y != mul.z || add.x != add.y || add.y != add.z))
         swizzleimage(s);
@@ -520,7 +526,7 @@ void texmad(ImageData &s, const vec &mul, const vec &add)
     );
 }
 
-void texcolorify(ImageData &s, const vec &color, vec weights)
+static void texcolorify(ImageData &s, const vec &color, vec weights)
 {
     if(s.bpp < 3) return;
     if(weights.iszero()) weights = vec(0.21f, 0.72f, 0.07f);
@@ -530,7 +536,7 @@ void texcolorify(ImageData &s, const vec &color, vec weights)
     );
 }
 
-void texcolormask(ImageData &s, const vec &color1, const vec &color2)
+static void texcolormask(ImageData &s, const vec &color1, const vec &color2)
 {
     if(s.bpp < 4) return;
     ImageData d(s.w, s.h, 3);
@@ -542,13 +548,13 @@ void texcolormask(ImageData &s, const vec &color1, const vec &color2)
     s.replace(d);
 }
 
-void texdup(ImageData &s, int srcchan, int dstchan)
+static void texdup(ImageData &s, int srcchan, int dstchan)
 {
     if(srcchan==dstchan || max(srcchan, dstchan) >= s.bpp) return;
     writetex(s, dst[dstchan] = dst[srcchan]);
 }
 
-void texmix(ImageData &s, int c1, int c2, int c3, int c4)
+static void texmix(ImageData &s, int c1, int c2, int c3, int c4)
 {
     int numchans = c1 < 0 ? 0 : (c2 < 0 ? 1 : (c3 < 0 ? 2 : (c4 < 0 ? 3 : 4)));
     if(numchans <= 0) return;
@@ -565,7 +571,7 @@ void texmix(ImageData &s, int c1, int c2, int c3, int c4)
     s.replace(d);
 }
 
-void texgrey(ImageData &s)
+static void texgrey(ImageData &s)
 {
     if(s.bpp <= 2) return;
     ImageData d(s.w, s.h, s.bpp >= 4 ? 2 : 1);
@@ -583,7 +589,7 @@ void texgrey(ImageData &s)
     s.replace(d);
 }
 
-void texpremul(ImageData &s)
+static void texpremul(ImageData &s)
 {
     switch(s.bpp)
     {
@@ -603,7 +609,7 @@ void texpremul(ImageData &s)
     }
 }
 
-void texagrad(ImageData &s, float x2, float y2, float x1, float y1)
+static void texagrad(ImageData &s, float x2, float y2, float x1, float y1)
 {
     if(s.bpp != 2 && s.bpp != 4) return;
     y1 = 1 - y1;
@@ -634,7 +640,7 @@ void texagrad(ImageData &s, float x2, float y2, float x1, float y1)
     }
 }
 
-void texblend(ImageData &d, ImageData &s, ImageData &m)
+static void texblend(ImageData &d, ImageData &s, ImageData &m)
 {
     if(s.w != d.w || s.h != d.h) scaleimage(s, d.w, d.h);
     if(m.w != d.w || m.h != d.h) scaleimage(m, d.w, d.h);
@@ -713,7 +719,7 @@ void setuptexcompress()
     glHint(GL_TEXTURE_COMPRESSION_HINT, hint);
 }
 
-GLenum compressedformat(GLenum format, int w, int h, int force = 0)
+static GLenum compressedformat(GLenum format, int w, int h, int force = 0)
 {
     if(usetexcompress && texcompress && force >= 0 && (force || max(w, h) >= texcompress)) switch(format)
     {
@@ -734,7 +740,7 @@ GLenum compressedformat(GLenum format, int w, int h, int force = 0)
     return format;
 }
 
-int formatsize(GLenum format)
+static int formatsize(GLenum format)
 {
     switch(format)
     {
@@ -751,7 +757,7 @@ int formatsize(GLenum format)
 
 VARFP(usenp2, 0, 1, 1, initwarning("texture quality", INIT_LOAD));
 
-void resizetexture(int w, int h, bool mipmap, bool canreduce, GLenum target, int compress, int &tw, int &th)
+static void resizetexture(int w, int h, bool mipmap, bool canreduce, GLenum target, int compress, int &tw, int &th)
 {
     int hwlimit = target==GL_TEXTURE_CUBE_MAP ? hwcubetexsize : hwtexsize,
         sizelimit = mipmap && maxtexsize ? min(maxtexsize, hwlimit) : hwlimit;
@@ -782,7 +788,7 @@ void resizetexture(int w, int h, bool mipmap, bool canreduce, GLenum target, int
     }
 }
 
-void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum format, GLenum type, const void *pixels, int pw, int ph, int pitch, bool mipmap)
+static void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum format, GLenum type, const void *pixels, int pw, int ph, int pitch, bool mipmap)
 {
     int bpp = formatsize(format), row = 0, rowalign = 0;
     if(!pitch) pitch = pw*bpp;
@@ -827,7 +833,7 @@ void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum format
     if(buf) delete[] buf;
 }
 
-void uploadcompressedtexture(GLenum target, GLenum subtarget, GLenum format, int w, int h, const uchar *data, int align, int blocksize, int levels, bool mipmap)
+static void uploadcompressedtexture(GLenum target, GLenum subtarget, GLenum format, int w, int h, const uchar *data, int align, int blocksize, int levels, bool mipmap)
 {
     int hwlimit = target==GL_TEXTURE_CUBE_MAP ? hwcubetexsize : hwtexsize,
         sizelimit = levels > 1 && maxtexsize ? min(maxtexsize, hwlimit) : hwlimit;
@@ -849,7 +855,7 @@ void uploadcompressedtexture(GLenum target, GLenum subtarget, GLenum format, int
     }
 }
 
-GLenum textarget(GLenum subtarget)
+static GLenum textarget(GLenum subtarget)
 {
     switch(subtarget)
     {
@@ -864,7 +870,7 @@ GLenum textarget(GLenum subtarget)
     return subtarget;
 }
 
-GLenum uncompressedformat(GLenum format)
+static GLenum uncompressedformat(GLenum format)
 {
     switch(format)
     {
@@ -894,7 +900,7 @@ GLenum uncompressedformat(GLenum format)
     return GL_FALSE;
 }
 
-const GLint *swizzlemask(GLenum format)
+static const GLint *swizzlemask(GLenum format)
 {
     static const GLint luminance[4] = { GL_RED, GL_RED, GL_RED, GL_ONE };
     static const GLint luminancealpha[4] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
@@ -906,7 +912,7 @@ const GLint *swizzlemask(GLenum format)
     return NULL;
 }
 
-void setuptexparameters(int tnum, const void *pixels, int clamp, int filter, GLenum format, GLenum target, bool swizzle)
+static void setuptexparameters(int tnum, const void *pixels, int clamp, int filter, GLenum format, GLenum target, bool swizzle)
 {
     glBindTexture(target, tnum);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, clamp&1 ? GL_CLAMP_TO_EDGE : (clamp&0x100 ? GL_MIRRORED_REPEAT : GL_REPEAT));
@@ -1079,7 +1085,7 @@ void createtexture(int tnum, int w, int h, const void *pixels, int clamp, int fi
     uploadtexture(subtarget, component, tw, th, format, type, pixels, pw, ph, pitch, mipmap);
 }
 
-void createcompressedtexture(int tnum, int w, int h, const uchar *data, int align, int blocksize, int levels, int clamp, int filter, GLenum format, GLenum subtarget, bool swizzle = false)
+static void createcompressedtexture(int tnum, int w, int h, const uchar *data, int align, int blocksize, int levels, int clamp, int filter, GLenum format, GLenum subtarget, bool swizzle = false)
 {
     GLenum target = textarget(subtarget);
     if(tnum) setuptexparameters(tnum, data, clamp, filter, format, target, swizzle);
@@ -1094,7 +1100,7 @@ void create3dtexture(int tnum, int w, int h, int d, const void *pixels, int clam
 }
 
 
-hashnameset<Texture> textures;
+static hashnameset<Texture> textures;
 
 Texture *notexture = NULL; // used as default, ensured to be loaded
 
@@ -1235,7 +1241,7 @@ static Texture *newtexture(Texture *t, const char *rname, ImageData &s, int clam
 #define RGBMASKS  0x0000ff, 0x00ff00, 0xff0000, 0
 #endif
 
-SDL_Surface *wrapsurface(void *data, int width, int height, int bpp)
+static SDL_Surface *wrapsurface(void *data, int width, int height, int bpp)
 {
     switch(bpp)
     {
@@ -1245,7 +1251,7 @@ SDL_Surface *wrapsurface(void *data, int width, int height, int bpp)
     return NULL;
 }
 
-SDL_Surface *creatergbsurface(SDL_Surface *os)
+static SDL_Surface *creatergbsurface(SDL_Surface *os)
 {
     SDL_Surface *ns = SDL_CreateRGBSurface(SDL_SWSURFACE, os->w, os->h, 24, RGBMASKS);
     if(ns) SDL_BlitSurface(os, NULL, ns, NULL);
@@ -1253,7 +1259,7 @@ SDL_Surface *creatergbsurface(SDL_Surface *os)
     return ns;
 }
 
-SDL_Surface *creatergbasurface(SDL_Surface *os)
+static SDL_Surface *creatergbasurface(SDL_Surface *os)
 {
     SDL_Surface *ns = SDL_CreateRGBSurface(SDL_SWSURFACE, os->w, os->h, 32, RGBAMASKS);
     if(ns)
@@ -1265,7 +1271,7 @@ SDL_Surface *creatergbasurface(SDL_Surface *os)
     return ns;
 }
 
-bool checkgrayscale(SDL_Surface *s)
+static bool checkgrayscale(SDL_Surface *s)
 {
     // gray scale images have 256 levels, no colorkey, and the palette is a ramp
     if(s->format->palette)
@@ -1277,7 +1283,7 @@ bool checkgrayscale(SDL_Surface *s)
     return true;
 }
 
-SDL_Surface *fixsurfaceformat(SDL_Surface *s)
+static SDL_Surface *fixsurfaceformat(SDL_Surface *s)
 {
     if(!s) return NULL;
     if(!s->pixels || min(s->w, s->h) <= 0 || s->format->BytesPerPixel <= 0)
@@ -1303,7 +1309,7 @@ SDL_Surface *fixsurfaceformat(SDL_Surface *s)
     return s;
 }
 
-void texflip(ImageData &s)
+static void texflip(ImageData &s)
 {
     ImageData d(s.w, s.h, s.bpp);
     uchar *dst = d.data, *src = &s.data[s.pitch*s.h];
@@ -1316,7 +1322,7 @@ void texflip(ImageData &s)
     s.replace(d);
 }
 
-void texnormal(ImageData &s, int emphasis)
+static void texnormal(ImageData &s, int emphasis)
 {
     ImageData d(s.w, s.h, 3);
     uchar *src = s.data, *dst = d.data;
@@ -1411,7 +1417,7 @@ static void blurtexture(int w, int h, uchar *dst, const uchar *src, int margin)
     }
 }
 
-void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int margin)
+static void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int margin = 0)
 {
     switch((clamp(n, 1, 2)<<4) | bpp)
     {
@@ -1422,7 +1428,8 @@ void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int
     }
 }
 
-void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin)
+#if 0
+static void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin = 0)
 {
     switch(clamp(n, 1, 2))
     {
@@ -1430,8 +1437,9 @@ void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin)
         case 2: blurtexture<2, 3, true>(w, h, dst->v, src->v, margin); break;
     }
 }
+#endif
 
-void texblur(ImageData &s, int n, int r)
+static void texblur(ImageData &s, int n, int r)
 {
     if(s.bpp < 3) return;
     loopi(r)
@@ -1442,7 +1450,7 @@ void texblur(ImageData &s, int n, int r)
     }
 }
 
-bool canloadsurface(const char *name)
+static bool canloadsurface(const char *name)
 {
     stream *f = openfile(name, "rb");
     if(!f) return false;
@@ -1450,7 +1458,7 @@ bool canloadsurface(const char *name)
     return true;
 }
 
-SDL_Surface *loadsurface(const char *name)
+static SDL_Surface *loadsurface(const char *name)
 {
     SDL_Surface *s = NULL;
     stream *z = openzipfile(name, "rb");
@@ -1669,12 +1677,13 @@ bool settexture(const char *name, int clamp)
 
 vector<VSlot *> vslots;
 vector<Slot *> slots;
-MatSlot materialslots[(MATF_VOLUME|MATF_INDEX)+1];
 Slot dummyslot;
 VSlot dummyvslot(&dummyslot);
-vector<DecalSlot *> decalslots;
 DecalSlot dummydecalslot;
-Slot *defslot = NULL;
+
+static MatSlot materialslots[(MATF_VOLUME|MATF_INDEX)+1];
+static vector<DecalSlot *> decalslots;
+static Slot *defslot = NULL;
 
 const char *Slot::name() const { return tempformatstring("slot %d", index); }
 
@@ -1683,7 +1692,7 @@ const char *MatSlot::name() const { return tempformatstring("material slot %s", 
 
 const char *DecalSlot::name() const { return tempformatstring("decal slot %d", Slot::index); }
 
-void texturereset(int *n)
+static void texturereset(int *n)
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
     defslot = NULL;
@@ -1706,7 +1715,7 @@ void texturereset(int *n)
 
 COMMAND(texturereset, "i");
 
-void materialreset()
+static void materialreset()
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
     defslot = NULL;
@@ -1715,7 +1724,7 @@ void materialreset()
 
 COMMAND(materialreset, "");
 
-void decalreset(int *n)
+static void decalreset(int *n)
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
     defslot = NULL;
@@ -2265,7 +2274,7 @@ const struct slottex
     {"e", TEX_ENVMAP}
 };
 
-int findslottex(const char *name)
+static int findslottex(const char *name)
 {
     loopi(sizeof(slottexs)/sizeof(slottex))
     {
@@ -2274,7 +2283,7 @@ int findslottex(const char *name)
     return -1;
 }
 
-void texture(char *type, char *name, int *rot, int *xoffset, int *yoffset, float *scale)
+static void texture(char *type, char *name, int *rot, int *xoffset, int *yoffset, float *scale)
 {
     int tnum = findslottex(type), matslot;
     if(tnum==TEX_DIFFUSE)
@@ -2317,7 +2326,7 @@ void texture(char *type, char *name, int *rot, int *xoffset, int *yoffset, float
 
 COMMAND(texture, "ssiiif");
 
-void texgrass(char *name)
+static void texgrass(char *name)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2326,7 +2335,7 @@ void texgrass(char *name)
 }
 COMMAND(texgrass, "s");
 
-void texscroll(float *scrollS, float *scrollT)
+static void texscroll(float *scrollS, float *scrollT)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2335,7 +2344,7 @@ void texscroll(float *scrollS, float *scrollT)
 }
 COMMAND(texscroll, "ff");
 
-void texoffset_(int *xoffset, int *yoffset)
+static void texoffset_(int *xoffset, int *yoffset)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2344,7 +2353,7 @@ void texoffset_(int *xoffset, int *yoffset)
 }
 COMMANDN(texoffset, texoffset_, "ii");
 
-void texrotate_(int *rot)
+static void texrotate_(int *rot)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2353,7 +2362,7 @@ void texrotate_(int *rot)
 }
 COMMANDN(texrotate, texrotate_, "i");
 
-void texscale(float *scale)
+static void texscale(float *scale)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2362,7 +2371,7 @@ void texscale(float *scale)
 }
 COMMAND(texscale, "f");
 
-void texlayer(int *layer)
+static void texlayer(int *layer)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2371,7 +2380,7 @@ void texlayer(int *layer)
 }
 COMMAND(texlayer, "i");
 
-void texdetail(int *detail)
+static void texdetail(int *detail)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2380,7 +2389,7 @@ void texdetail(int *detail)
 }
 COMMAND(texdetail, "i");
 
-void texalpha(float *front, float *back)
+static void texalpha(float *front, float *back)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2390,7 +2399,7 @@ void texalpha(float *front, float *back)
 }
 COMMAND(texalpha, "ff");
 
-void texcolor(float *r, float *g, float *b)
+static void texcolor(float *r, float *g, float *b)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2399,7 +2408,7 @@ void texcolor(float *r, float *g, float *b)
 }
 COMMAND(texcolor, "fff");
 
-void texrefract(float *k, float *r, float *g, float *b)
+static void texrefract(float *k, float *r, float *g, float *b)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2412,7 +2421,7 @@ void texrefract(float *k, float *r, float *g, float *b)
 }
 COMMAND(texrefract, "ffff");
 
-void texsmooth(int *id, int *angle)
+static void texsmooth(int *id, int *angle)
 {
     if(!defslot) return;
     Slot &s = *defslot;
@@ -2420,7 +2429,7 @@ void texsmooth(int *id, int *angle)
 }
 COMMAND(texsmooth, "ib");
 
-void decaldepth(float *depth, float *fade)
+static void decaldepth(float *depth, float *fade)
 {
     if(!defslot || defslot->type() != Slot::DECAL) return;
     DecalSlot &s = *(DecalSlot *)defslot;
@@ -2787,7 +2796,7 @@ extern const cubemapside cubemapsides[6] =
 
 VARFP(envmapsize, 4, 7, 10, setupmaterials());
 
-Texture *cubemaploadwildcard(Texture *t, const char *name, bool mipit, bool msg, bool transient = false)
+static Texture *cubemaploadwildcard(Texture *t, const char *name, bool mipit, bool msg, bool transient = false)
 {
     string tname;
     if(!name) copystring(tname, t->name);
@@ -2938,7 +2947,7 @@ struct envmap
 
 static vector<envmap> envmaps;
 
-void clearenvmaps()
+static void clearenvmaps()
 {
     loopv(envmaps) envmaps[i].clear();
     envmaps.shrink(0);
@@ -2947,7 +2956,7 @@ void clearenvmaps()
 static GLuint emfbo[3] = { 0, 0, 0 }, emtex[2] = { 0, 0 };
 static int emtexsize = -1;
 
-GLuint genenvmap(const vec &o, int envmapsize, int blur, bool onlysky)
+static GLuint genenvmap(const vec &o, int envmapsize, int blur, bool onlysky)
 {
     int rendersize = 1<<(envmapsize+aaenvmap), sizelimit = min(hwcubetexsize, min(gw, gh));
     if(maxtexsize) sizelimit = min(sizelimit, maxtexsize);
@@ -3147,7 +3156,7 @@ GLuint lookupenvmap(ushort emid)
     return tex ? tex : lookupskyenvmap();
 }
 
-void cleanuptexture(Texture *t)
+static void cleanuptexture(Texture *t)
 {
     DELETEA(t->alphamask);
     if(t->id) { glDeleteTextures(1, &t->id); t->id = 0; }
@@ -3191,7 +3200,7 @@ bool reloadtexture(Texture &tex)
     return true;
 }
 
-void reloadtex(char *name)
+static void reloadtex(char *name)
 {
     Texture *t = textures.access(path(name, true));
     if(!t) { conoutf(CON_ERROR, "texture %s is not loaded", name); return; }
@@ -3424,7 +3433,7 @@ DECODEDDS(decodergtc2, 2,
     greenbits >>= 3;
 );
 
-bool loaddds(const char *filename, ImageData &image, int force)
+static bool loaddds(const char *filename, ImageData &image, int force)
 {
     stream *f = openfile(filename, "rb");
     if(!f) return false;
@@ -3504,7 +3513,7 @@ bool loaddds(const char *filename, ImageData &image, int force)
     return true;
 }
 
-void gendds(char *infile, char *outfile)
+static void gendds(char *infile, char *outfile)
 {
     if(!hasS3TC || usetexcompress <= 1) { conoutf(CON_ERROR, "OpenGL driver does not support S3TC texture compression"); return; }
 
@@ -3604,7 +3613,7 @@ void gendds(char *infile, char *outfile)
 }
 COMMAND(gendds, "ss");
 
-void writepngchunk(stream *f, const char *type, uchar *data = NULL, uint len = 0)
+static void writepngchunk(stream *f, const char *type, uchar *data = NULL, uint len = 0)
 {
     f->putbig<uint>(len);
     f->write(type, 4);
@@ -3813,9 +3822,9 @@ enum
 VARP(screenshotquality, 0, 97, 100);
 VARP(screenshotformat, 0, IMG_PNG, NUMIMG-1);
 
-const char *imageexts[NUMIMG] = { ".bmp", ".tga", ".png", ".jpg" };
+static const char *imageexts[NUMIMG] = { ".bmp", ".tga", ".png", ".jpg" };
 
-int guessimageformat(const char *filename, int format = IMG_BMP)
+static int guessimageformat(const char *filename, int format = IMG_BMP)
 {
     int len = strlen(filename);
     loopi(NUMIMG)
@@ -3826,7 +3835,7 @@ int guessimageformat(const char *filename, int format = IMG_BMP)
     return format;
 }
 
-void saveimage(const char *filename, int format, ImageData &image, bool flip = false)
+static void saveimage(const char *filename, int format, ImageData &image, bool flip = false)
 {
     switch(format)
     {
@@ -3869,7 +3878,7 @@ bool loadimage(const char *filename, ImageData &image)
 
 SVARP(screenshotdir, "screenshot");
 
-void screenshot(char *filename)
+static void screenshot(char *filename)
 {
     static string buf;
     int format = -1, dirlen = 0;
@@ -3922,7 +3931,7 @@ void screenshot(char *filename)
 
 COMMAND(screenshot, "s");
 
-void flipnormalmapy(char *destfile, char *normalfile) // jpg/png/tga-> tga
+static void flipnormalmapy(char *destfile, char *normalfile) // jpg/png/tga-> tga
 {
     ImageData ns;
     if(!loadimage(normalfile, ns)) return;
@@ -3935,7 +3944,7 @@ void flipnormalmapy(char *destfile, char *normalfile) // jpg/png/tga-> tga
     saveimage(destfile, guessimageformat(destfile, IMG_TGA), d);
 }
 
-void mergenormalmaps(char *heightfile, char *normalfile) // jpg/png/tga + tga -> tga
+static void mergenormalmaps(char *heightfile, char *normalfile) // jpg/png/tga + tga -> tga
 {
     ImageData hs, ns;
     if(!loadimage(heightfile, hs) || !loadimage(normalfile, ns) || hs.w != ns.w || hs.h != ns.h) return;
@@ -3946,7 +3955,7 @@ void mergenormalmaps(char *heightfile, char *normalfile) // jpg/png/tga + tga ->
     saveimage(normalfile, guessimageformat(normalfile, IMG_TGA), d);
 }
 
-void normalizenormalmap(char *destfile, char *normalfile) // jpg/png/tga-> tga
+static void normalizenormalmap(char *destfile, char *normalfile) // jpg/png/tga-> tga
 {
     ImageData ns;
     if(!loadimage(normalfile, ns)) return;
@@ -3957,7 +3966,7 @@ void normalizenormalmap(char *destfile, char *normalfile) // jpg/png/tga-> tga
     saveimage(destfile, guessimageformat(destfile, IMG_TGA), d);
 }
 
-void removealphachannel(char *destfile, char *rgbafile)
+static void removealphachannel(char *destfile, char *rgbafile)
 {
     ImageData ns;
     if(!loadimage(rgbafile, ns)) return;

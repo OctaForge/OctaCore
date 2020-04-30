@@ -1,3 +1,5 @@
+#include "texture.hh"
+
 #include "engine.hh"
 
 struct normalkey

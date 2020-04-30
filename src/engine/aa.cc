@@ -1,4 +1,5 @@
 #include "aa.hh"
+#include "texture.hh"
 
 #include "engine.hh"
 

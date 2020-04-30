@@ -1,3 +1,8 @@
+#ifndef SHARED_GLEMU_HH
+#define SHARED_GLEMU_HH
+
+#include "glexts.hh"
+
 namespace gle
 {
     enum
@@ -178,3 +183,4 @@ namespace gle
     extern void cleanup();
 }
 
+#endif /* SHARED_GLEMU_HH */

@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "material.hh"
+#include "texture.hh"
 #include "world.hh"
 
 #include "engine.hh"

@@ -1,3 +1,5 @@
+#include "texture.hh"
+
 #include "engine.hh"
 
 Texture *sky[6] = { 0, 0, 0, 0, 0, 0 }, *clouds[6] = { 0, 0, 0, 0, 0, 0 };

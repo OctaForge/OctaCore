@@ -1,3 +1,5 @@
+#include "texture.hh"
+
 #include "engine.hh"
 
 static hashnameset<font> fonts;

@@ -52,8 +52,6 @@ extern bool  raycubelos(const vec &o, const vec &dest, vec &hitpos);
 extern int thirdperson;
 extern bool isthirdperson();
 
-extern bool settexture(const char *name, int clamp = 0);
-
 // octaedit
 
 enum { EDIT_FACE = 0, EDIT_TEX, EDIT_MAT, EDIT_FLIP, EDIT_COPY, EDIT_PASTE, EDIT_ROTATE, EDIT_REPLACE, EDIT_DELCUBE, EDIT_CALCLIGHT, EDIT_REMIP, EDIT_VSLOT, EDIT_UNDO, EDIT_REDO };
@@ -225,9 +223,6 @@ static inline void text_pos(const char *str, int cursor, int &cx, int &cy, int m
 // texture
 
 struct VSlot;
-
-extern void packvslot(vector<uchar> &buf, int index);
-extern void packvslot(vector<uchar> &buf, const VSlot *vs);
 
 // renderlights
 

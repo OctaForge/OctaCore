@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "material.hh"
+#include "texture.hh"
 #include "world.hh"
 
 #include "engine.hh"

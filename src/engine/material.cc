@@ -1,4 +1,5 @@
 #include "material.hh"
+#include "texture.hh"
 #include "water.hh"
 
 #include "engine.hh"

@@ -1,5 +1,7 @@
 // renderparticles.cpp
 
+#include "shader.hh"
+#include "texture.hh"
 #include "water.hh"
 #include "world.hh"
 

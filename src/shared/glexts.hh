@@ -1,3 +1,8 @@
+#ifndef SHARED_GLEXTS_HH
+#define SHARED_GLEXTS_HH
+
+#include "gl.hh"
+
 #ifndef APIENTRY
 #define APIENTRY
 #endif
@@ -830,3 +835,4 @@ extern PFNGLGETDEBUGMESSAGELOGPROC glGetDebugMessageLog_;
 // GL_ARB_copy_image
 extern PFNGLCOPYIMAGESUBDATAPROC glCopyImageSubData_;
 
+#endif /* SHARED_GLEXTS_HH */

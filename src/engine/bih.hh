@@ -1,4 +1,10 @@
+#ifndef ENGINE_BIH_HH
+#define ENGINE_BIH_HH
+
+#include <shared/geom.hh>
+
 struct stainrenderer;
+struct Texture;
 
 struct BIH
 {
@@ -91,3 +97,4 @@ struct BIH
 
 extern bool mmintersect(const extentity &e, const vec &o, const vec &ray, float maxdist, int mode, float &dist);
 
+#endif

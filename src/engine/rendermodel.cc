@@ -1,4 +1,6 @@
 #include "aa.hh"
+#include "shader.hh"
+#include "texture.hh"
 
 #include "engine.hh"
 

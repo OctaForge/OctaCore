@@ -7,7 +7,6 @@
 #ifndef STANDALONE
 
 #include "light.hh"
-#include "texture.hh"
 #include "bih.hh"
 #include "model.hh"
 
@@ -53,6 +52,8 @@ struct font
 #define MINRESW 640
 #define MINRESH 480
 
+struct Shader;
+
 extern font *curfont;
 extern Shader *textshader;
 extern const matrix4x3 *textmatrix;
@@ -64,42 +65,11 @@ extern void reloadfonts();
 static inline void setfont(font *f) { if(f) curfont = f; }
 
 // texture
-extern int hwtexsize, hwcubetexsize, hwmaxaniso, maxtexsize, hwtexunits, hwvtexunits;
+struct cubemapside;
 
-extern Texture *textureload(const char *name, int clamp = 0, bool mipit = true, bool msg = true);
-extern int texalign(const void *data, int w, int bpp);
-extern bool floatformat(GLenum format);
-extern void cleanuptexture(Texture *t);
-extern uchar *loadalphamask(Texture *t);
-extern Texture *cubemapload(const char *name, bool mipit = true, bool msg = true, bool transient = false);
 extern void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
-extern void loadshaders();
-extern void setuptexparameters(int tnum, const void *pixels, int clamp, int filter, GLenum format = GL_RGB, GLenum target = GL_TEXTURE_2D, bool swizzle = false);
-extern void createtexture(int tnum, int w, int h, const void *pixels, int clamp, int filter, GLenum component = GL_RGB, GLenum target = GL_TEXTURE_2D, int pw = 0, int ph = 0, int pitch = 0, bool resize = true, GLenum format = GL_FALSE, bool swizzle = false);
-extern void create3dtexture(int tnum, int w, int h, int d, const void *pixels, int clamp, int filter, GLenum component = GL_RGB, GLenum target = GL_TEXTURE_3D, bool swizzle = false);
-extern void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int margin = 0);
-extern void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin = 0);
-extern GLuint setuppostfx(int w, int h, GLuint outfbo = 0);
-extern void cleanuppostfx(bool fullclean = false);
-extern void renderpostfx(GLuint outfbo = 0);
-extern void initenvmaps();
-extern void genenvmaps();
-extern ushort closestenvmap(const vec &o);
-extern ushort closestenvmap(int orient, const ivec &o, int size);
-extern GLuint lookupenvmap(ushort emid);
-extern GLuint lookupenvmap(Slot &slot);
-extern bool reloadtexture(Texture &tex);
-extern bool reloadtexture(const char *name);
-extern void setuptexcompress();
-extern void clearslots();
 extern void compacteditvslots();
 extern void compactmruvslots();
-extern void compactvslots(cube *c, int n = 8);
-extern void compactvslot(int &index);
-extern void compactvslot(VSlot &vs);
-extern int compactvslots(bool cull = false);
-extern void reloadtextures();
-extern void cleanuptextures();
 
 // pvs
 extern void clearpvs();
