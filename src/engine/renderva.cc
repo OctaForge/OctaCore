@@ -1,5 +1,7 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
 
+#include "renderva.hh"
+
 #include "blend.hh"
 #include "texture.hh"
 
@@ -23,9 +25,9 @@ static inline void drawvaskytris(vtxarray *va)
 
 ///////// view frustrum culling ///////////////////////
 
-plane vfcP[5];  // perpindictular vectors to view frustrum bounding planes
-float vfcDfog;  // far plane culling distance (fog limit).
-float vfcDnear[5], vfcDfar[5];
+static plane vfcP[5];  // perpindictular vectors to view frustrum bounding planes
+static float vfcDfog;  // far plane culling distance (fog limit).
+static float vfcDnear[5], vfcDfar[5];
 
 vtxarray *visibleva = NULL;
 
@@ -68,7 +70,7 @@ static inline int isfoggedcube(const ivec &o, int size)
     return dist < -vfcDfar[4]*size || dist > vfcDfog - vfcDnear[4]*size;
 }
 
-int isvisiblecube(const ivec &o, int size)
+static int isvisiblecube(const ivec &o, int size)
 {
     int v = VFC_FULL_VISIBLE;
     float dist;
@@ -136,7 +138,7 @@ static inline void addvisibleva(vtxarray *va)
     *prev = va;
 }
 
-void sortvisiblevas()
+static void sortvisiblevas()
 {
     visibleva = NULL;
     vtxarray **last = &visibleva;
@@ -185,14 +187,14 @@ static inline void findvisiblevas(vector<vtxarray *> &vas)
     }
 }
 
-void findvisiblevas()
+static void findvisiblevas()
 {
     memset(vasort, 0, sizeof(vasort));
     findvisiblevas<false, false>(varoot);
     sortvisiblevas();
 }
 
-void calcvfcD()
+static void calcvfcD()
 {
     loopi(5)
     {
@@ -203,7 +205,7 @@ void calcvfcD()
     }
 }
 
-void setvfcP(const vec &bbmin, const vec &bbmax)
+static void setvfcP(const vec &bbmin = vec(-1, -1, -1), const vec &bbmax = vec(1, 1, 1))
 {
     vec4 px = camprojmatrix.rowx(), py = camprojmatrix.rowy(), pz = camprojmatrix.rowz(), pw = camprojmatrix.roww();
     vfcP[0] = plane(vec4(pw).mul(-bbmin.x).add(px)).normalize(); // left plane
@@ -216,18 +218,20 @@ void setvfcP(const vec &bbmin, const vec &bbmax)
     calcvfcD();
 }
 
-plane oldvfcP[5];
+static plane oldvfcP[5];
 
-void savevfcP()
+#if 0
+static void savevfcP()
 {
     memcpy(oldvfcP, vfcP, sizeof(vfcP));
 }
 
-void restorevfcP()
+static void restorevfcP()
 {
     memcpy(vfcP, oldvfcP, sizeof(vfcP));
     calcvfcD();
 }
+#endif
 
 void visiblecubes(bool cull)
 {
@@ -337,7 +341,7 @@ void resetqueries()
     loopi(MAXQUERYFRAMES) queryframes[i].reset();
 }
 
-void clearqueries()
+static void clearqueries()
 {
     loopi(MAXQUERYFRAMES) queryframes[i].cleanup();
 }
@@ -460,7 +464,7 @@ extern int octaentsize;
 
 static octaentities *visiblemms, **lastvisiblemms;
 
-void findvisiblemms(const vector<extentity *> &ents, bool doquery)
+static void findvisiblemms(const vector<extentity *> &ents, bool doquery)
 {
     visiblemms = NULL;
     lastvisiblemms = &visiblemms;
@@ -714,7 +718,7 @@ void renderblendbrush(GLuint tex, float x, float y, float w, float h)
     gle::disablevertex();
 }
 
-int calcbbsidemask(const ivec &bbmin, const ivec &bbmax, const vec &lightpos, float lightradius, float bias)
+static int calcbbsidemask(const ivec &bbmin, const ivec &bbmax, const vec &lightpos, float lightradius, float bias)
 {
     vec pmin = vec(bbmin).sub(lightpos).div(lightradius), pmax = vec(bbmax).sub(lightpos).div(lightradius);
     int mask = 0x3F;
@@ -772,7 +776,7 @@ int calcspheresidemask(const vec &p, float radius, float bias)
     return mask;
 }
 
-int calctrisidemask(const vec &p1, const vec &p2, const vec &p3, float bias)
+static int calctrisidemask(const vec &p1, const vec &p2, const vec &p3, float bias)
 {
     // p1, p2, p3 are in the cubemap's local coordinate system
     // bias = border/(size - border)
@@ -889,7 +893,7 @@ vec shadoworigin(0, 0, 0), shadowdir(0, 0, 0);
 float shadowradius = 0, shadowbias = 0;
 int shadowside = 0, shadowspot = 0;
 
-vtxarray *shadowva = NULL;
+static vtxarray *shadowva = NULL;
 
 static inline void addshadowva(vtxarray *va, float dist)
 {
@@ -908,7 +912,7 @@ static inline void addshadowva(vtxarray *va, float dist)
     *prev = va;
 }
 
-void sortshadowvas()
+static void sortshadowvas()
 {
     shadowva = NULL;
     vtxarray **last = &shadowva;
@@ -921,7 +925,7 @@ void sortshadowvas()
     }
 }
 
-void findshadowvas(vector<vtxarray *> &vas)
+static void findshadowvas(vector<vtxarray *> &vas)
 {
     loopv(vas)
     {
@@ -938,7 +942,7 @@ void findshadowvas(vector<vtxarray *> &vas)
     }
 }
 
-void findcsmshadowvas(vector<vtxarray *> &vas)
+static void findcsmshadowvas(vector<vtxarray *> &vas)
 {
     loopv(vas)
     {
@@ -956,7 +960,7 @@ void findcsmshadowvas(vector<vtxarray *> &vas)
     }
 }
 
-void findrsmshadowvas(vector<vtxarray *> &vas)
+static void findrsmshadowvas(vector<vtxarray *> &vas)
 {
     loopv(vas)
     {
@@ -974,7 +978,7 @@ void findrsmshadowvas(vector<vtxarray *> &vas)
     }
 }
 
-void findspotshadowvas(vector<vtxarray *> &vas)
+static void findspotshadowvas(vector<vtxarray *> &vas)
 {
     loopv(vas)
     {
@@ -1611,7 +1615,7 @@ static void renderbatches(renderstate &cur, int pass)
     resetbatches();
 }
 
-void renderzpass(renderstate &cur, vtxarray *va)
+static void renderzpass(renderstate &cur, vtxarray *va)
 {
     if(!cur.vattribs)
     {
@@ -1656,7 +1660,7 @@ void renderzpass(renderstate &cur, vtxarray *va)
 
 VAR(batchgeom, 0, 1, 1);
 
-void renderva(renderstate &cur, vtxarray *va, int pass = RENDERPASS_GBUFFER, bool doquery = false)
+static void renderva(renderstate &cur, vtxarray *va, int pass = RENDERPASS_GBUFFER, bool doquery = false)
 {
     switch(pass)
     {
@@ -1708,14 +1712,14 @@ void cleanupva()
     cleanupgrass();
 }
 
-void setupgeom(renderstate &cur)
+static void setupgeom(renderstate &cur)
 {
     glActiveTexture_(GL_TEXTURE0);
     GLOBALPARAMF(colorparams, 1, 1, 1, 1);
     GLOBALPARAMF(blendlayer, 1.0f);
 }
 
-void cleanupgeom(renderstate &cur)
+static void cleanupgeom(renderstate &cur)
 {
     if(cur.vattribs) disablevattribs(cur);
     if(cur.vbuf) disablevbuf(cur);
@@ -2366,7 +2370,7 @@ static void renderdecalbatches(decalrenderer &cur, int pass)
     resetdecalbatches();
 }
 
-void setupdecals(decalrenderer &cur)
+static void setupdecals(decalrenderer &cur)
 {
     gle::enablevertex();
     gle::enablenormal();
@@ -2380,7 +2384,7 @@ void setupdecals(decalrenderer &cur)
     GLOBALPARAMF(colorparams, 1, 1, 1, 1);
 }
 
-void cleanupdecals(decalrenderer &cur)
+static void cleanupdecals(decalrenderer &cur)
 {
     disablepolygonoffset(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_BLEND);
@@ -2496,10 +2500,10 @@ struct shadowverts
         return table[h] = verts.length()-1;
     }
 } shadowverts;
-vector<ushort> shadowtris[6];
-vector<GLuint> shadowvbos;
-hashtable<int, shadowmesh> shadowmeshes;
-vector<shadowdraw> shadowdraws;
+static vector<ushort> shadowtris[6];
+static vector<GLuint> shadowvbos;
+static hashtable<int, shadowmesh> shadowmeshes;
+static vector<shadowdraw> shadowdraws;
 
 struct shadowdrawinfo
 {

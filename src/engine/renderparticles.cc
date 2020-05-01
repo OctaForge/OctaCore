@@ -1,5 +1,6 @@
 // renderparticles.cpp
 
+#include "renderva.hh"
 #include "shader.hh"
 #include "texture.hh"
 #include "water.hh"

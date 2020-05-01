@@ -243,9 +243,6 @@ enum { SM_NONE = 0, SM_REFLECT, SM_CUBEMAP, SM_CASCADE, SM_SPOT };
 
 extern int shadowmapping;
 
-extern vec shadoworigin, shadowdir;
-extern float shadowradius, shadowbias;
-extern int shadowside, shadowspot;
 extern matrix4 shadowmatrix;
 
 extern void loaddeferredlightshaders();
@@ -255,25 +252,14 @@ extern void clearshadowcache();
 extern void rendervolumetric();
 extern void cleanupvolumetric();
 
-extern void findshadowvas();
-extern void findshadowmms();
-
 extern int calcshadowinfo(const extentity &e, vec &origin, float &radius, vec &spotloc, int &spotangle, float &bias);
-extern int dynamicshadowvabounds(int mask, vec &bbmin, vec &bbmax);
-extern void rendershadowmapworld();
-extern void batchshadowmapmodels(bool skipmesh = false);
 extern void rendershadowatlas();
-extern void renderrsmgeom(bool dyntex = false);
 extern bool useradiancehints();
 extern void renderradiancehints();
 extern void clearradiancehintscache();
 extern void cleanuplights();
 extern void workinoq();
 
-extern int calcbbsidemask(const vec &bbmin, const vec &bbmax, const vec &lightpos, float lightradius, float bias);
-extern int calcspheresidemask(const vec &p, float radius, float bias);
-extern int calctrisidemask(const vec &p1, const vec &p2, const vec &p3, float bias);
-extern int cullfrustumsides(const vec &lightpos, float lightradius, float size, float border);
 extern int calcbbcsmsplits(const ivec &bbmin, const ivec &bbmax);
 extern int calcspherecsmsplits(const vec &center, float radius);
 extern int calcbbrsmsplits(const ivec &bbmin, const ivec &bbmax);
@@ -360,50 +346,6 @@ extern void clearvas(cube *c);
 extern void destroyva(vtxarray *va, bool reparent = true);
 extern void updatevabb(vtxarray *va, bool force = false);
 extern void updatevabbs(bool force = false);
-
-// renderva
-
-extern int oqfrags;
-extern float alphafrontsx1, alphafrontsx2, alphafrontsy1, alphafrontsy2, alphabacksx1, alphabacksx2, alphabacksy1, alphabacksy2, alpharefractsx1, alpharefractsx2, alpharefractsy1, alpharefractsy2;
-extern uint alphatiles[LIGHTTILE_MAXH];
-extern vtxarray *visibleva;
-
-extern void visiblecubes(bool cull = true);
-extern void setvfcP(const vec &bbmin = vec(-1, -1, -1), const vec &bbmax = vec(1, 1, 1));
-extern void savevfcP();
-extern void restorevfcP();
-extern void rendergeom();
-extern int findalphavas();
-extern void renderrefractmask();
-extern void renderalphageom(int side);
-extern void rendermapmodels();
-extern void renderoutline();
-extern void cleanupva();
-
-extern bool isfoggedsphere(float rad, const vec &cv);
-extern int isvisiblesphere(float rad, const vec &cv);
-extern int isvisiblebb(const ivec &bo, const ivec &br);
-extern bool bboccluded(const ivec &bo, const ivec &br);
-
-extern int deferquery;
-extern void flipqueries();
-extern occludequery *newquery(void *owner);
-extern void startquery(occludequery *query);
-extern void endquery(occludequery *query);
-extern bool checkquery(occludequery *query, bool nowait = false);
-extern void resetqueries();
-extern int getnumqueries();
-extern void startbb(bool mask = true);
-extern void endbb(bool mask = true);
-extern void drawbb(const ivec &bo, const ivec &br);
-
-extern void renderdecals();
-
-struct shadowmesh;
-extern void clearshadowmeshes();
-extern void genshadowmeshes();
-extern shadowmesh *findshadowmesh(int idx, extentity &e);
-extern void rendershadowmesh(shadowmesh *m);
 
 // dynlight
 
@@ -564,7 +506,6 @@ extern int skytexture, skyshadow, explicitsky;
 extern void drawskybox(bool clear = false);
 extern bool hasskybox();
 extern bool limitsky();
-extern bool renderexplicitsky(bool outline = false);
 extern void cleanupsky();
 
 // menus

@@ -25,7 +25,6 @@ extern int blendpaintmode;
 void stoppaintblendmap();
 void trypaintblendmap();
 
-void renderblendbrush(GLuint tex, float x, float y, float w, float h);
 void renderblendbrush();
 
 bool loadblendmap(stream *f, int info);

@@ -1,3 +1,5 @@
+#include "renderva.hh"
+
 #include "engine.hh"
 
 VARNP(dynlights, usedynlights, 0, 1, 1);

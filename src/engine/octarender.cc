@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "material.hh"
+#include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"
 
