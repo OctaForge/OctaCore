@@ -1,5 +1,6 @@
 // core world management routines
 
+#include "octa.hh"
 #include "world.hh"
 
 #include "engine.hh"
@@ -106,6 +107,8 @@ void freecubeext(cube &c)
         c.ext = NULL;
     }
 }
+
+static int getmippedtexture(const cube &p, int orient);
 
 void discardchildren(cube &c, bool fixtex, int depth)
 {
@@ -308,7 +311,7 @@ const cube &neighbourcube(const cube &c, int orient, const ivec &co, int size, i
 
 ////////// (re)mip //////////
 
-int getmippedtexture(const cube &p, int orient)
+static int getmippedtexture(const cube &p, int orient)
 {
     cube *c = p.children;
     int d = dimension(orient), dc = dimcoord(orient), texs[4] = { -1, -1, -1, -1 }, numtexs = 0;
@@ -457,6 +460,8 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
 
 bool crushededge(uchar e, int dc) { return dc ? e==0 : e==0x88; }
 
+static bool touchingface(const cube &c, int orient);
+
 int visibleorient(const cube &c, int orient)
 {
     loopi(2)
@@ -565,6 +570,8 @@ bool remip(cube &c, const ivec &co, int size)
     brightencube(c);
     return true;
 }
+
+static void calcmerges();
 
 void remip()
 {
@@ -679,7 +686,7 @@ bool flataxisface(const cube &c, int orient)
     return (face&0x0F0F0F0F) == 0x01010101*(face&0x0F);
 }
 
-bool collideface(const cube &c, int orient)
+static bool collideface(const cube &c, int orient)
 {
     if(flataxisface(c, orient))
     {
@@ -691,7 +698,7 @@ bool collideface(const cube &c, int orient)
     return true;
 }
 
-bool touchingface(const cube &c, int orient)
+static bool touchingface(const cube &c, int orient)
 {
     uint face = c.faces[dimension(orient)];
     return dimcoord(orient) ? (face&0xF0F0F0F0)==0x80808080 : (face&0x0F0F0F0F)==0;
@@ -759,7 +766,7 @@ static inline void faceedges(const cube &c, int orient, uchar edges[4])
     loopk(4) edges[k] = c.edges[faceedgesidx[orient][k]];
 }
 
-uint faceedges(const cube &c, int orient)
+static uint faceedges(const cube &c, int orient)
 {
     union { uchar edges[4]; uint face; } u;
     faceedges(c, orient, u.edges);
@@ -903,7 +910,7 @@ static inline int clipfacevecs(const ivec2 *o, int numo, int cx, int cy, int siz
     return r;
 }
 
-bool collapsedface(const cube &c, int orient)
+static bool collapsedface(const cube &c, int orient)
 {
     int e0 = c.edges[faceedgesidx[orient][0]], e1 = c.edges[faceedgesidx[orient][1]],
         e2 = c.edges[faceedgesidx[orient][2]], e3 = c.edges[faceedgesidx[orient][3]],
@@ -1178,7 +1185,8 @@ int visibletris(const cube &c, int orient, const ivec &co, int size, ushort vmat
     return 3;
 }
 
-void calcvert(const cube &c, const ivec &co, int size, ivec &v, int i, bool solid)
+#if 0
+static void calcvert(const cube &c, const ivec &co, int size, ivec &v, int i, bool solid = false)
 {
     if(solid) v = cubecoords[i]; else gencubevert(c, i, v);
     // avoid overflow
@@ -1186,8 +1194,9 @@ void calcvert(const cube &c, const ivec &co, int size, ivec &v, int i, bool soli
     else v.div(8/size);
     v.add(ivec(co).shl(3));
 }
+#endif
 
-void calcvert(const cube &c, const ivec &co, int size, vec &v, int i, bool solid)
+static void calcvert(const cube &c, const ivec &co, int size, vec &v, int i, bool solid = false)
 {
     if(solid) v = vec(cubecoords[i]); else gencubevert(c, i, v);
     v.mul(size/8.0f).add(vec(co));
@@ -1212,7 +1221,8 @@ void genclipbounds(const cube &c, const ivec &co, int size, clipplanes &p)
     p.visible = 0x80;
 }
 
-int genclipplane(const cube &c, int orient, vec *v, plane *clip)
+#if 0
+static int genclipplane(const cube &c, int orient, vec *v, plane *clip)
 {
     int planes = 0, convex = faceconvexity(c, orient), order = convex < 0 ? 1 : 0;
     const vec &v0 = v[fv[orient][order]], &v1 = v[fv[orient][order+1]], &v2 = v[fv[orient][order+2]], &v3 = v[fv[orient][(order+3)&3]];
@@ -1221,6 +1231,7 @@ int genclipplane(const cube &c, int orient, vec *v, plane *clip)
     if(v0!=v3 && v2!=v3 && (!planes || convex)) clip[planes++].toplane(v0, v2, v3);
     return planes;
 }
+#endif
 
 void genclipplanes(const cube &c, const ivec &co, int size, clipplanes &p, bool collide, bool noclip)
 {
@@ -1259,6 +1270,7 @@ void genclipplanes(const cube &c, const ivec &co, int size, clipplanes &p, bool 
     }
 }
 
+#if 0
 static inline bool mergefacecmp(const facebounds &x, const facebounds &y)
 {
     if(x.v2 < y.v2) return true;
@@ -1309,7 +1321,7 @@ static int mergeface(int orient, facebounds *m, int sz, facebounds &n)
     return sz;
 }
 
-int mergefaces(int orient, facebounds *m, int sz)
+static int mergefaces(int orient, facebounds *m, int sz)
 {
     quicksort(m, sz, mergefacecmp);
 
@@ -1317,6 +1329,7 @@ int mergefaces(int orient, facebounds *m, int sz)
     loopi(sz) nsz = mergeface(orient, m, nsz, m[i]);
     return nsz;
 }
+#endif
 
 struct cfkey
 {
@@ -1336,7 +1349,7 @@ static inline uint hthash(const cfkey &k)
     return hthash(k.n)^k.offset^k.tex^k.orient^k.material;
 }
 
-void mincubeface(const cube &cu, int orient, const ivec &o, int size, const facebounds &orig, facebounds &cf, ushort nmat, ushort matmask)
+static void mincubeface(const cube &cu, int orient, const ivec &o, int size, const facebounds &orig, facebounds &cf, ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME)
 {
     int dim = dimension(orient);
     if(cu.children)
@@ -1881,7 +1894,7 @@ void invalidatemerges(cube &c, const ivec &co, int size, bool msg)
     invalidatemerges(c);
 }
 
-void calcmerges()
+static void calcmerges()
 {
     genmergeprogress = 0;
     genmerges();

@@ -1,6 +1,7 @@
 // world.cpp: core map management stuff
 
 #include "blend.hh"
+#include "octa.hh"
 #include "texture.hh"
 #include "worldio.hh"
 #include "world.hh"

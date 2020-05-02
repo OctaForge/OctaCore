@@ -368,4 +368,111 @@ enum
     GENFACEVERTSXY(x0,x1, y0,y1, z0,z1, c0,c1, r0,r1, d0,d1) \
     GENFACEVERTSZ(x0,x1, y0,y1, z0,z1, c0,c1, r0,r1, d0,d1)
 
-#endif
+/* material flags and ids */
+
+enum
+{
+    MATF_INDEX_SHIFT  = 0,
+    MATF_VOLUME_SHIFT = 2,
+    MATF_CLIP_SHIFT   = 5,
+    MATF_FLAG_SHIFT   = 8,
+
+    MATF_INDEX  = 3 << MATF_INDEX_SHIFT,
+    MATF_VOLUME = 7 << MATF_VOLUME_SHIFT,
+    MATF_CLIP   = 7 << MATF_CLIP_SHIFT,
+    MATF_FLAGS  = 0xFF << MATF_FLAG_SHIFT
+};
+
+enum // cube empty-space materials
+{
+    MAT_AIR      = 0,                      // the default, fill the empty space with air
+    MAT_WATER    = 1 << MATF_VOLUME_SHIFT, // fill with water, showing waves at the surface
+    MAT_LAVA     = 2 << MATF_VOLUME_SHIFT, // fill with lava
+    MAT_GLASS    = 3 << MATF_VOLUME_SHIFT, // behaves like clip but is blended blueish
+
+    MAT_NOCLIP   = 1 << MATF_CLIP_SHIFT,  // collisions always treat cube as empty
+    MAT_CLIP     = 2 << MATF_CLIP_SHIFT,  // collisions always treat cube as solid
+    MAT_GAMECLIP = 3 << MATF_CLIP_SHIFT,  // game specific clip material
+
+    MAT_DEATH    = 1 << MATF_FLAG_SHIFT,  // force player suicide
+    MAT_NOGI     = 2 << MATF_FLAG_SHIFT,  // disable global illumination
+    MAT_ALPHA    = 4 << MATF_FLAG_SHIFT   // alpha blended
+};
+
+#define isliquid(mat) ((mat)==MAT_WATER || (mat)==MAT_LAVA)
+#define isclipped(mat) ((mat)==MAT_GLASS)
+#define isdeadly(mat) ((mat)==MAT_LAVA)
+
+/* API */
+
+void freeocta(cube *c);
+
+cube *newcubes(uint face = F_EMPTY, int mat = MAT_AIR);
+
+cubeext *growcubeext(cubeext *ext, int maxverts);
+void setcubeext(cube &c, cubeext *ext);
+cubeext *newcubeext(cube &c, int maxverts = 0, bool init = true);
+
+void getcubevector(cube &c, int d, int x, int y, int z, ivec &p);
+void setcubevector(cube &c, int d, int x, int y, int z, const ivec &p);
+
+int familysize(const cube &c);
+
+void discardchildren(cube &c, bool fixtex = false, int depth = 0);
+
+void optiface(uchar *p, cube &c);
+void validatec(cube *c, int size = 0);
+bool isvalidcube(const cube &c);
+
+extern ivec lu;
+extern int lusize;
+
+cube &lookupcube(const ivec &to, int tsize = 0, ivec &ro = lu, int &rsize = lusize);
+
+extern const cube *neighbourstack[32];
+extern int neighbourdepth;
+
+const cube &neighbourcube(const cube &c, int orient, const ivec &co, int size, ivec &ro = lu, int &rsize = lusize);
+
+void resetclipplanes();
+void forcemip(cube &c, bool fixtex = true);
+bool subdividecube(cube &c, bool fullcheck=true, bool brighten=true);
+int faceconvexity(const ivec v[4]);
+int faceconvexity(const ivec v[4], int &vis);
+int faceconvexity(const vertinfo *verts, int numverts, int size);
+int faceconvexity(const cube &c, int orient);
+
+bool flataxisface(const cube &c, int orient);
+
+void genclipbounds(const cube &c, const ivec &co, int size, clipplanes &p);
+void genclipplanes(const cube &c, const ivec &co, int size, clipplanes &p, bool collide = true, bool noclip = false);
+
+bool visibleface(const cube &c, int orient, const ivec &co, int size, ushort mat = MAT_AIR, ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME);
+int classifyface(const cube &c, int orient, const ivec &co, int size);
+int visibletris(const cube &c, int orient, const ivec &co, int size, ushort vmat = MAT_AIR, ushort nmat = MAT_ALPHA, ushort matmask = MAT_ALPHA);
+int visibleorient(const cube &c, int orient);
+void genfaceverts(const cube &c, int orient, ivec v[4]);
+int calcmergedsize(int orient, const ivec &co, int size, const vertinfo *verts, int numverts);
+void invalidatemerges(cube &c, const ivec &co, int size, bool msg);
+void remip();
+
+static inline cubeext &ext(cube &c)
+{
+    return *(c.ext ? c.ext : newcubeext(c));
+}
+
+int lookupmaterial(const vec &o);
+
+static inline bool insideworld(const vec &o)
+{
+    extern int worldsize;
+    return o.x>=0 && o.x<worldsize && o.y>=0 && o.y<worldsize && o.z>=0 && o.z<worldsize;
+}
+
+static inline bool insideworld(const ivec &o)
+{
+    extern int worldsize;
+    return uint(o.x)<uint(worldsize) && uint(o.y)<uint(worldsize) && uint(o.z)<uint(worldsize);
+}
+
+#endif /* ENGINE_OCTA_HH */
