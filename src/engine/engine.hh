@@ -263,12 +263,6 @@ extern void updatedynlights();
 extern int finddynlights();
 extern bool getdynlight(int n, vec &o, float &radius, vec &color, vec &dir, int &spot, int &flags);
 
-// water
-
-extern const bvec &getglasscolour(int mat);
-extern float getglassrefract(int mat);
-extern int getglassspec(int mat);
-
 // client
 extern void localdisconnect(bool cleanup = true);
 extern void clientkeepalive();
