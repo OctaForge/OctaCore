@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "octa.hh"
+#include "renderlights.hh"
 #include "texture.hh"
 #include "worldio.hh"
 #include "world.hh"

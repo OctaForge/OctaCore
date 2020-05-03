@@ -1,5 +1,7 @@
 // console.cpp: the console buffer, its display, and command line control
 
+#include "rendertext.hh"
+
 #include "engine.hh"
 
 #define MAXCONLINES 1000

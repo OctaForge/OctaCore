@@ -28,42 +28,6 @@ extern bool inbetweenframes, renderedframe;
 extern SDL_Window *screen;
 extern int screenw, screenh, renderw, renderh, hudw, hudh;
 
-// rendertext
-struct font
-{
-    struct charinfo
-    {
-        float x, y, w, h, offsetx, offsety, advance;
-        int tex;
-    };
-
-    char *name;
-    vector<Texture *> texs;
-    vector<charinfo> chars;
-    int charoffset, defaultw, defaulth, scale;
-    float bordermin, bordermax, outlinemin, outlinemax;
-
-    font() : name(NULL) {}
-    ~font() { DELETEA(name); }
-};
-
-#define FONTH (curfont->scale)
-#define FONTW (FONTH/2)
-#define MINRESW 640
-#define MINRESH 480
-
-struct Shader;
-
-extern font *curfont;
-extern Shader *textshader;
-extern const matrix4x3 *textmatrix;
-extern float textscale;
-
-extern font *findfont(const char *name);
-extern void reloadfonts();
-
-static inline void setfont(font *f) { if(f) curfont = f; }
-
 // texture
 struct cubemapside;
 

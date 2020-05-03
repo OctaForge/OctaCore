@@ -1,3 +1,4 @@
+#include "rendertext.hh"
 #include "texture.hh"
 
 #include "engine.hh"
@@ -7,9 +8,8 @@ static font *fontdef = NULL;
 static int fontdeftex = 0;
 
 font *curfont = NULL;
-int curfonttex = 0;
 
-void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *scale)
+static void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *scale)
 {
     font *f = &fonts[name];
     if(!f->name) f->name = newstring(name);
@@ -29,7 +29,7 @@ void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *scale)
     fontdeftex = 0;
 }
 
-void fontborder(float *bordermin, float *bordermax)
+static void fontborder(float *bordermin, float *bordermax)
 {
     if(!fontdef) return;
 
@@ -37,7 +37,7 @@ void fontborder(float *bordermin, float *bordermax)
     fontdef->bordermax = max(*bordermax, *bordermin+0.01f);
 }
 
-void fontoutline(float *outlinemin, float *outlinemax)
+static void fontoutline(float *outlinemin, float *outlinemax)
 {
     if(!fontdef) return;
 
@@ -45,21 +45,21 @@ void fontoutline(float *outlinemin, float *outlinemax)
     fontdef->outlinemax = *outlinemax;
 }
 
-void fontoffset(char *c)
+static void fontoffset(char *c)
 {
     if(!fontdef) return;
 
     fontdef->charoffset = c[0];
 }
 
-void fontscale(int *scale)
+static void fontscale(int *scale)
 {
     if(!fontdef) return;
 
     fontdef->scale = *scale > 0 ? *scale : fontdef->defaulth;
 }
 
-void fonttex(char *s)
+static void fonttex(char *s)
 {
     if(!fontdef) return;
 
@@ -69,7 +69,7 @@ void fonttex(char *s)
     fontdef->texs.add(t);
 }
 
-void fontchar(float *x, float *y, float *w, float *h, float *offsetx, float *offsety, float *advance)
+static void fontchar(float *x, float *y, float *w, float *h, float *offsetx, float *offsety, float *advance)
 {
     if(!fontdef) return;
 
@@ -84,7 +84,7 @@ void fontchar(float *x, float *y, float *w, float *h, float *offsetx, float *off
     c.tex = fontdeftex;
 }
 
-void fontskip(int *n)
+static void fontskip(int *n)
 {
     if(!fontdef) return;
     loopi(max(*n, 1))
@@ -104,7 +104,7 @@ COMMAND(fonttex, "s");
 COMMAND(fontchar, "fffffff");
 COMMAND(fontskip, "i");
 
-void fontalias(const char *dst, const char *src)
+static void fontalias(const char *dst, const char *src)
 {
     font *s = fonts.access(src);
     if(!s) return;
@@ -127,10 +127,12 @@ void fontalias(const char *dst, const char *src)
 
 COMMAND(fontalias, "ss");
 
-font *findfont(const char *name)
+# if 0
+static font *findfont(const char *name)
 {
     return fonts.access(name);
 }
+#endif
 
 bool setfont(const char *name)
 {
@@ -181,7 +183,7 @@ float text_widthf(const char *str)
 #define FONTTAB (4*FONTW)
 #define TEXTTAB(x) ((int((x)/FONTTAB)+1.0f)*FONTTAB)
 
-void tabify(const char *str, int *numtabs)
+static void tabify(const char *str, int *numtabs)
 {
     int tw = max(*numtabs, 0)*FONTTAB-1, tabs = 0;
     for(float w = text_widthf(str); w <= tw; w = TEXTTAB(w)) ++tabs;
@@ -326,7 +328,8 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 
 #define TEXTEND(cursor) if(cursor >= i) { do { TEXTINDEX(cursor); } while(0); }
 
-int text_visible(const char *str, float hitx, float hity, int maxwidth)
+#if 0
+static int text_visible(const char *str, float hitx, float hity, int maxwidth)
 {
     #define TEXTINDEX(idx)
     #define TEXTWHITE(idx) if(y+FONTH > hity && x >= hitx) return idx;
@@ -343,6 +346,7 @@ int text_visible(const char *str, float hitx, float hity, int maxwidth)
     #undef TEXTWORD
     return i;
 }
+#endif
 
 //inverse of text_visible
 void text_posf(const char *str, int cursor, float &cx, float &cy, int maxwidth)
