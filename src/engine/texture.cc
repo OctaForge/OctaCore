@@ -1,6 +1,7 @@
 // texture.cpp: texture slot management
 
 #include "material.hh"
+#include "rendergl.hh"
 #include "shader.hh"
 #include "texture.hh"
 

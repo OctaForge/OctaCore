@@ -1,5 +1,6 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
 
+#include "rendergl.hh"
 #include "renderva.hh"
 
 #include "blend.hh"

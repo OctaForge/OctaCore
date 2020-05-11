@@ -1,5 +1,6 @@
 // shader.cpp: OpenGL GLSL shader management
 
+#include "rendergl.hh"
 #include "shader.hh"
 #include "texture.hh"
 

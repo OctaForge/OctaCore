@@ -3,6 +3,7 @@
 #include "aa.hh"
 #include "blend.hh"
 #include "material.hh"
+#include "rendergl.hh"
 #include "rendertext.hh"
 #include "renderva.hh"
 #include "texture.hh"
@@ -253,7 +254,7 @@ PFNGLBINDFRAGDATALOCATIONINDEXEDPROC glBindFragDataLocationIndexed_ = NULL;
 // GL_ARB_copy_image
 PFNGLCOPYIMAGESUBDATAPROC glCopyImageSubData_ = NULL;
 
-void *getprocaddress(const char *name)
+static inline void *getprocaddress(const char *name)
 {
     return SDL_GL_GetProcAddress(name);
 }
@@ -314,7 +315,7 @@ VAR(dbgexts, 0, 0, 1);
 
 hashset<const char *> glexts;
 
-void parseglexts()
+static void parseglexts()
 {
     if(glversion >= 300)
     {
@@ -340,12 +341,12 @@ void parseglexts()
     }
 }
 
-bool hasext(const char *ext)
+static inline bool hasext(const char *ext)
 {
     return glexts.access(ext)!=NULL;
 }
 
-bool checkdepthtexstencilrb()
+static bool checkdepthtexstencilrb()
 {
     int w = 256, h = 256;
     GLuint fbo = 0;
@@ -1084,7 +1085,7 @@ static int timercycle = 0;
 
 extern int usetimers;
 
-timer *findtimer(const char *name, bool gpu)
+static timer *findtimer(const char *name, bool gpu)
 {
     loopv(timers) if(!strcmp(timers[i].name, name) && timers[i].gpu == gpu)
     {
@@ -1130,7 +1131,7 @@ void endtimer(timer *t)
     else t->result = max(float(getclockmillis() - t->starttime), 0.0f);
 }
 
-void synctimers()
+static void synctimers()
 {
     timercycle = (timercycle + 1) % timer::MAXQUERY;
 
@@ -1151,7 +1152,7 @@ void synctimers()
     }
 }
 
-void cleanuptimers()
+static void cleanuptimers()
 {
     loopv(timers)
     {
@@ -1164,9 +1165,9 @@ void cleanuptimers()
 
 VARFN(timer, usetimers, 0, 0, 1, cleanuptimers());
 VAR(frametimer, 0, 0, 1);
-int framemillis = 0; // frame time (ie does not take into account the swap)
+static int framemillis = 0; // frame time (ie does not take into account the swap)
 
-void printtimers(int conw, int conh)
+static void printtimers(int conw, int conh)
 {
     if(!frametimer && !usetimers) return;
 
@@ -1238,7 +1239,7 @@ ICOMMAND(getcampos, "", (),
 
 vec worldpos, camdir, camright, camup;
 
-void setcammatrix()
+static void setcammatrix()
 {
     // move from RH to Z-up LH quake style worldspace
     cammatrix = viewmatrix;
@@ -1258,7 +1259,7 @@ void setcammatrix()
     }
 }
 
-void setcamprojmatrix(bool init = true, bool flush = false)
+static void setcamprojmatrix(bool init = true, bool flush = false)
 {
     if(init)
     {
@@ -1283,7 +1284,7 @@ void setcamprojmatrix(bool init = true, bool flush = false)
 }
 
 matrix4 hudmatrix, hudmatrixstack[64];
-int hudmatrixpos = 0;
+static int hudmatrixpos = 0;
 
 void resethudmatrix()
 {
@@ -1351,7 +1352,7 @@ void disablezoom()
     zoomprogress = 0;
 }
 
-void computezoom()
+static void computezoom()
 {
     if(!zoom) { zoomprogress = 0; curfov = fov; curavatarfov = avatarfov; return; }
     if(zoom > 0) zoomprogress = zoominvel ? min(zoomprogress + float(elapsedtime) / zoominvel, 1.0f) : 1;
@@ -1377,10 +1378,10 @@ FVAR(thirdpersondistance, 0, 30, 50);
 FVAR(thirdpersonup, -25, 0, 25);
 FVAR(thirdpersonside, -25, 0, 25);
 physent *camera1 = NULL;
-bool detachedcamera = false;
+static bool detachedcamera = false;
 bool isthirdperson() { return player!=camera1 || detachedcamera; }
 
-void fixcamerarange()
+static void fixcamerarange()
 {
     const float MAXPITCH = 90.0f;
     if(camera1->pitch>MAXPITCH) camera1->pitch = MAXPITCH;
@@ -1389,7 +1390,7 @@ void fixcamerarange()
     while(camera1->yaw>=360.0f) camera1->yaw -= 360.0f;
 }
 
-void modifyorient(float yaw, float pitch)
+static void modifyorient(float yaw, float pitch)
 {
     camera1->yaw += yaw;
     camera1->pitch += pitch;
@@ -1554,7 +1555,7 @@ FVAR(polygonoffsetfactor, -1e4f, -3.0f, 1e4f);
 FVAR(polygonoffsetunits, -1e4f, -3.0f, 1e4f);
 FVAR(depthoffset, -1e4f, 0.01f, 1e4f);
 
-matrix4 nooffsetmatrix;
+static matrix4 nooffsetmatrix;
 
 void enablepolygonoffset(GLenum type)
 {
@@ -1989,7 +1990,7 @@ static void blendfogoverlay(int fogmat, float below, float blend, vec &overlay)
     }
 }
 
-void drawfogoverlay(int fogmat, float fogbelow, float fogblend, int abovemat)
+static void drawfogoverlay(int fogmat, float fogbelow, float fogblend, int abovemat)
 {
     SETSHADER(fogoverlay);
 
@@ -2007,10 +2008,10 @@ void drawfogoverlay(int fogmat, float fogbelow, float fogblend, int abovemat)
 
 int drawtex = 0;
 
-GLuint minimaptex = 0;
+static GLuint minimaptex = 0;
 vec minimapcenter(0, 0, 0), minimapradius(0, 0, 0), minimapscale(0, 0, 0);
 
-void clearminimap()
+static void clearminimap()
 {
     if(minimaptex) { glDeleteTextures(1, &minimaptex); minimaptex = 0; }
 }
@@ -2027,7 +2028,7 @@ void bindminimap()
     glBindTexture(GL_TEXTURE_2D, minimaptex);
 }
 
-void clipminimap(ivec &bbmin, ivec &bbmax, cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size = worldsize>>1)
+static void clipminimap(ivec &bbmin, ivec &bbmax, cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size = worldsize>>1)
 {
     loopi(8)
     {
@@ -2487,162 +2488,21 @@ void gl_drawmainmenu()
     renderbackground(NULL, NULL, NULL, NULL, true);
 }
 
-VARNP(damagecompass, usedamagecompass, 0, 1, 1);
-VARP(damagecompassfade, 1, 1000, 10000);
-VARP(damagecompasssize, 1, 30, 100);
-VARP(damagecompassalpha, 1, 25, 100);
-VARP(damagecompassmin, 1, 25, 1000);
-VARP(damagecompassmax, 1, 200, 1000);
-
-float damagedirs[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-void damagecompass(int n, const vec &loc)
-{
-    if(!usedamagecompass || minimized) return;
-    vec delta(loc);
-    delta.sub(camera1->o);
-    float yaw = 0, pitch;
-    if(delta.magnitude() > 4)
-    {
-        vectoyawpitch(delta, yaw, pitch);
-        yaw -= camera1->yaw;
-    }
-    if(yaw >= 360) yaw = fmod(yaw, 360);
-    else if(yaw < 0) yaw = 360 - fmod(-yaw, 360);
-    int dir = (int(yaw+22.5f)%360)/45;
-    damagedirs[dir] += max(n, damagecompassmin)/float(damagecompassmax);
-    if(damagedirs[dir]>1) damagedirs[dir] = 1;
-
-}
-void drawdamagecompass(int w, int h)
-{
-    hudnotextureshader->set();
-
-    int dirs = 0;
-    float size = damagecompasssize/100.0f*min(h, w)/2.0f;
-    loopi(8) if(damagedirs[i]>0)
-    {
-        if(!dirs)
-        {
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            gle::colorf(1, 0, 0, damagecompassalpha/100.0f);
-            gle::defvertex();
-            gle::begin(GL_TRIANGLES);
-        }
-        dirs++;
-
-        float logscale = 32,
-              scale = log(1 + (logscale - 1)*damagedirs[i]) / log(logscale),
-              offset = -size/2.0f-min(h, w)/4.0f;
-        matrix4x3 m;
-        m.identity();
-        m.settranslation(w/2, h/2, 0);
-        m.rotate_around_z(i*45*RAD);
-        m.translate(0, offset, 0);
-        m.scale(size*scale);
-
-        gle::attrib(m.transform(vec2(1, 1)));
-        gle::attrib(m.transform(vec2(-1, 1)));
-        gle::attrib(m.transform(vec2(0, 0)));
-
-        // fade in log space so short blips don't disappear too quickly
-        scale -= float(curtime)/damagecompassfade;
-        damagedirs[i] = scale > 0 ? (pow(logscale, scale) - 1) / (logscale - 1) : 0;
-    }
-    if(dirs) gle::end();
-}
-
-int damageblendmillis = 0;
-
-VARFP(damagescreen, 0, 1, 1, { if(!damagescreen) damageblendmillis = 0; });
-VARP(damagescreenfactor, 1, 75, 100);
-VARP(damagescreenalpha, 1, 45, 100);
-VARP(damagescreenfade, 0, 1000, 1000);
-VARP(damagescreenmin, 1, 10, 1000);
-VARP(damagescreenmax, 1, 100, 1000);
-
-void damageblend(int n)
-{
-    if(!damagescreen || minimized) return;
-    if(lastmillis > damageblendmillis) damageblendmillis = lastmillis;
-    damageblendmillis += clamp(n, damagescreenmin, damagescreenmax)*damagescreenfactor;
-}
-
-void drawdamagescreen(int w, int h)
-{
-    if(lastmillis >= damageblendmillis) return;
-
-    hudshader->set();
-
-    static Texture *damagetex = NULL;
-    if(!damagetex) damagetex = textureload("media/interface/hud/damage.png", 3);
-
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glBindTexture(GL_TEXTURE_2D, damagetex->id);
-    float fade = damagescreenalpha/100.0f;
-    if(damageblendmillis - lastmillis < damagescreenfade)
-        fade *= float(damageblendmillis - lastmillis)/damagescreenfade;
-    gle::colorf(fade, fade, fade, fade);
-
-    hudquad(0, 0, w, h);
-}
-
 VAR(hidestats, 0, 0, 1);
 VAR(hidehud, 0, 0, 1);
 
 VARP(crosshairsize, 0, 15, 50);
 VARP(cursorsize, 0, 15, 30);
-VARP(crosshairfx, 0, 1, 1);
-VARP(crosshaircolors, 0, 1, 1);
 
-#define MAXCROSSHAIRS 4
-static Texture *crosshairs[MAXCROSSHAIRS] = { NULL, NULL, NULL, NULL };
+static Texture *crosshair = NULL;
 
-void loadcrosshair(const char *name, int i)
-{
-    if(i < 0 || i >= MAXCROSSHAIRS) return;
-    crosshairs[i] = name ? textureload(name, 3, true) : notexture;
-    if(crosshairs[i] == notexture)
-    {
-        name = game::defaultcrosshair(i);
-        if(!name) name = "media/interface/crosshair/default.png";
-        crosshairs[i] = textureload(name, 3, true);
-    }
-}
-
-void loadcrosshair_(const char *name, int *i)
-{
-    loadcrosshair(name, *i);
-}
-
-COMMANDN(loadcrosshair, loadcrosshair_, "si");
-
-ICOMMAND(getcrosshair, "i", (int *i),
-{
-    const char *name = "";
-    if(*i >= 0 && *i < MAXCROSSHAIRS)
-    {
-        name = crosshairs[*i] ? crosshairs[*i]->name : game::defaultcrosshair(*i);
-        if(!name) name = "media/interface/crosshair/default.png";
-    }
-    result(name);
-});
-
-void writecrosshairs(stream *f)
-{
-    loopi(MAXCROSSHAIRS) if(crosshairs[i] && crosshairs[i]!=notexture)
-        f->printf("loadcrosshair %s %d\n", escapestring(crosshairs[i]->name), i);
-    f->printf("\n");
-}
-
-void drawcrosshair(int w, int h)
+static void drawcrosshair(int w, int h)
 {
     bool windowhit = /*UI::hascursor()*/ false;
     if(!windowhit && (hidehud || mainmenu)) return; //(hidehud || player->state==CS_SPECTATOR || player->state==CS_DEAD)) return;
 
     vec color(1, 1, 1);
     float cx = 0.5f, cy = 0.5f, chsize;
-    Texture *crosshair;
     if(windowhit)
     {
         static Texture *cursor = NULL;
@@ -2653,15 +2513,10 @@ void drawcrosshair(int w, int h)
     }
     else
     {
-        int index = game::selectcrosshair(color);
-        if(index < 0) return;
-        if(!crosshairfx) index = 0;
-        if(!crosshairfx || !crosshaircolors) color = vec(1, 1, 1);
-        crosshair = crosshairs[index];
+        color = vec(1, 1, 1);
         if(!crosshair)
         {
-            loadcrosshair(NULL, index);
-            crosshair = crosshairs[index];
+            crosshair = textureload("media/interface/crosshair/default.png", 3, true);
         }
         chsize = crosshairsize*w/900.0f;
     }
@@ -2713,12 +2568,6 @@ void gl_drawhud()
     glEnable(GL_BLEND);
 
     debugparticles();
-
-    if(!mainmenu)
-    {
-        drawdamagescreen(w, h);
-        drawdamagecompass(w, h);
-    }
 
     float conw = w/conscale, conh = h/conscale, abovehud = conh - FONTH;
     if(!hidehud && !mainmenu)

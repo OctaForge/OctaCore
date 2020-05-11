@@ -26,7 +26,7 @@ extern const uchar faceedgesidx[6][4];
 extern bool inbetweenframes, renderedframe;
 
 extern SDL_Window *screen;
-extern int screenw, screenh, renderw, renderh, hudw, hudh;
+extern int screenw, screenh;
 
 // texture
 struct cubemapside;
@@ -50,84 +50,13 @@ static inline bool pvsoccluded(const ivec &bborigin, int size)
     return pvsoccluded(bborigin, ivec(bborigin).add(size));
 }
 
-// rendergl
-extern bool hasVAO, hasTR, hasTSW, hasPBO, hasFBO, hasAFBO, hasDS, hasTF, hasCBF, hasS3TC, hasFXT1, hasLATC, hasRGTC, hasAF, hasFBB, hasFBMS, hasTMS, hasMSS, hasFBMSBS, hasUBO, hasMBR, hasDB2, hasDBB, hasTG, hasTQ, hasPF, hasTRG, hasTI, hasHFV, hasHFP, hasDBT, hasDC, hasDBGO, hasEGPU4, hasGPU4, hasGPU5, hasBFE, hasEAL, hasCR, hasOQ2, hasES3, hasCB, hasCI;
-extern int glversion, glslversion, glcompat;
-extern int maxdrawbufs, maxdualdrawbufs;
-
-enum { DRAWTEX_NONE = 0, DRAWTEX_ENVMAP, DRAWTEX_MINIMAP, DRAWTEX_MODELPREVIEW };
-
-extern int vieww, viewh;
-extern int fov;
-extern float curfov, fovy, aspect, forceaspect;
-extern float nearplane;
-extern int farplane;
-extern bool hdrfloat;
-extern float ldrscale, ldrscaleb;
-extern int drawtex;
-extern const matrix4 viewmatrix, invviewmatrix;
-extern matrix4 cammatrix, projmatrix, camprojmatrix, invcammatrix, invcamprojmatrix, invprojmatrix;
-extern int fog;
-extern bvec fogcolour;
-extern vec curfogcolor;
-extern int wireframe;
-
-extern int glerr;
-extern void glerror(const char *file, int line, GLenum error);
-
-#define GLERROR do { if(glerr) { GLenum error = glGetError(); if(error != GL_NO_ERROR) glerror(__FILE__, __LINE__, error); } } while(0)
-
-extern void gl_checkextensions();
-extern void gl_init();
-extern void gl_resize();
-extern void gl_drawview();
-extern void gl_drawmainmenu();
-extern void gl_drawhud();
-extern void gl_setupframe(bool force = false);
-extern void gl_drawframe();
-extern void cleanupgl();
-extern void drawminimap();
-extern void enablepolygonoffset(GLenum type);
-extern void disablepolygonoffset(GLenum type);
-extern bool calcspherescissor(const vec &center, float size, float &sx1, float &sy1, float &sx2, float &sy2, float &sz1, float &sz2);
-extern bool calcbbscissor(const ivec &bbmin, const ivec &bbmax, float &sx1, float &sy1, float &sx2, float &sy2);
-extern bool calcspotscissor(const vec &origin, float radius, const vec &dir, int spot, const vec &spotx, const vec &spoty, float &sx1, float &sy1, float &sx2, float &sy2, float &sz1, float &sz2);
-extern void screenquad();
-extern void screenquad(float sw, float sh);
-extern void screenquadflipped(float sw, float sh);
-extern void screenquad(float sw, float sh, float sw2, float sh2);
-extern void screenquadoffset(float x, float y, float w, float h);
-extern void screenquadoffset(float x, float y, float w, float h, float x2, float y2, float w2, float h2);
-extern void hudquad(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1);
-extern void debugquad(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1);
-extern void recomputecamera();
-extern float calcfrustumboundsphere(float nearplane, float farplane,  const vec &pos, const vec &view, vec &center);
-extern void setfogcolor(const vec &v);
-extern void zerofogcolor();
-extern void resetfogcolor();
-extern float calcfogdensity(float dist);
-extern float calcfogcull();
-extern void writecrosshairs(stream *f);
-extern void renderavatar();
-
-namespace modelpreview
-{
-    extern void start(int x, int y, int w, int h, bool background = true, bool scissor = false);
-    extern void end();
-}
-
-struct timer;
-extern timer *begintimer(const char *name, bool gpu = true);
-extern void endtimer(timer *t);
-
-// renderextras
-extern void render3dbox(vec &o, float tofloor, float toceil, float xradius, float yradius = 0);
-
 // renderlights
 
 #include "renderlights.hh"
 
 extern int lighttilealignw, lighttilealignh, lighttilevieww, lighttileviewh, lighttilew, lighttileh;
+
+extern int vieww, viewh; /* rendergl */
 
 template<class T>
 static inline void calctilebounds(float sx1, float sy1, float sx2, float sy2, T &bx1, T &by1, T &bx2, T &by2)
@@ -336,7 +265,6 @@ enum { TI_CONSOLE = 1<<0, TI_GUI = 1<<1 };
 extern void textinput(bool on, int mask = ~0);
 
 // physics
-extern void modifyorient(float yaw, float pitch);
 extern void mousemove(int dx, int dy);
 extern bool overlapsdynent(const vec &o, float radius);
 extern void rotatebb(vec &center, vec &radius, int yaw, int pitch, int roll = 0);

@@ -1,4 +1,5 @@
 #include "blend.hh"
+#include "rendergl.hh" /* has* */
 #include "renderva.hh"
 #include "texture.hh"
 

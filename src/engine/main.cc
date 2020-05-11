@@ -1,6 +1,7 @@
 // main.cpp: initialisation & main loop
 
 #include "blend.hh"
+#include "rendergl.hh"
 #include "rendertext.hh"
 #include "renderva.hh"
 #include "shader.hh"

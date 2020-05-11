@@ -3113,7 +3113,6 @@ void writecfg(const char *name)
     f->printf("// automatically written on exit, DO NOT MODIFY\n// delete this file to have %s overwrite these settings\n// modify settings in game, or put settings in %s to override anything\n\n", game::defaultconfig(), game::autoexec());
     game::writeclientinfo(f);
     f->printf("\n");
-    writecrosshairs(f);
     vector<ident *> ids;
     enumerate(idents, ident, id, ids.add(&id));
     ids.sortname();

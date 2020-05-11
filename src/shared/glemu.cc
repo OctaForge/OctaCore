@@ -1,6 +1,7 @@
 #include "cube.hh"
 
-extern int glversion;
+#include <engine/rendergl.hh>
+
 extern int intel_mapbufferrange_bug;
 
 namespace gle
