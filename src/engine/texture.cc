@@ -2,6 +2,7 @@
 
 #include "material.hh"
 #include "rendergl.hh"
+#include "rendersky.hh"
 #include "shader.hh"
 #include "texture.hh"
 

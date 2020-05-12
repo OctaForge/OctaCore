@@ -4,9 +4,9 @@
 
 #include "engine.hh"
 
-Texture *sky[6] = { 0, 0, 0, 0, 0, 0 }, *clouds[6] = { 0, 0, 0, 0, 0, 0 };
+static Texture *sky[6] = { 0, 0, 0, 0, 0, 0 }, *clouds[6] = { 0, 0, 0, 0, 0, 0 };
 
-void loadsky(const char *basename, Texture *texs[6])
+static void loadsky(const char *basename, Texture *texs[6])
 {
     const char *wildcard = strchr(basename, '*');
     loopi(6)
@@ -34,9 +34,9 @@ void loadsky(const char *basename, Texture *texs[6])
     }
 }
 
-Texture *cloudoverlay = NULL;
+static Texture *cloudoverlay = NULL;
 
-Texture *loadskyoverlay(const char *basename)
+static Texture *loadskyoverlay(const char *basename)
 {
     const char *ext = strrchr(basename, '.');
     string name;
@@ -83,7 +83,7 @@ FVARR(cloudalpha, 0, 1, 1);
 VARR(cloudsubdiv, 4, 16, 64);
 CVARR(cloudcolour, 0xFFFFFF);
 
-void drawenvboxface(float s0, float t0, int x0, int y0, int z0,
+static void drawenvboxface(float s0, float t0, int x0, int y0, int z0,
                     float s1, float t1, int x1, int y1, int z1,
                     float s2, float t2, int x2, int y2, int z2,
                     float s3, float t3, int x3, int y3, int z3,
@@ -98,7 +98,7 @@ void drawenvboxface(float s0, float t0, int x0, int y0, int z0,
     xtraverts += gle::end();
 }
 
-void drawenvbox(Texture **sky = NULL, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F)
+static void drawenvbox(Texture **sky = NULL, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F)
 {
     if(z1clip >= z2clip) return;
 
@@ -145,7 +145,7 @@ void drawenvbox(Texture **sky = NULL, float z1clip = 0.0f, float z2clip = 1.0f, 
                        0.0f, 1.0f,  w, -w, w, sky[5]);
 }
 
-void drawenvoverlay(Texture *overlay = NULL, float tx = 0, float ty = 0)
+static void drawenvoverlay(Texture *overlay = NULL, float tx = 0, float ty = 0)
 {
     int w = farplane/2;
     float z = w*cloudheight, tsz = 0.5f*(1-cloudfade)/cloudscale, psz = w*(1-cloudfade);
@@ -192,7 +192,7 @@ VARR(fogdomeclouds, 0, 1, 1);
 
 namespace fogdome
 {
-    struct vert
+    static struct vert
     {
         vec pos;
         bvec4 color;
@@ -206,15 +206,15 @@ namespace fogdome
             if(v0.pos.z != v1.pos.z) color.a += uchar((v1.color.a - v0.color.a) * (pos.z - v0.pos.z) / (v1.pos.z - v0.pos.z));
         }
     } *verts = NULL;
-    GLushort *indices = NULL;
-    int numverts = 0, numindices = 0, capindices = 0;
-    GLuint vbuf = 0, ebuf = 0;
-    bvec lastcolor(0, 0, 0);
-    float lastminalpha = 0, lastmaxalpha = 0, lastcapsize = -1, lastclipz = 1;
+    static GLushort *indices = NULL;
+    static int numverts = 0, numindices = 0, capindices = 0;
+    static GLuint vbuf = 0, ebuf = 0;
+    static bvec lastcolor(0, 0, 0);
+    static float lastminalpha = 0, lastmaxalpha = 0, lastcapsize = -1, lastclipz = 1;
 
-    void subdivide(int depth, int face);
+    static void subdivide(int depth, int face);
 
-    void genface(int depth, int i1, int i2, int i3)
+    static void genface(int depth, int i1, int i2, int i3)
     {
         int face = numindices; numindices += 3;
         indices[face]   = i3;
@@ -223,7 +223,7 @@ namespace fogdome
         subdivide(depth, face);
     }
 
-    void subdivide(int depth, int face)
+    static void subdivide(int depth, int face)
     {
         if(depth-- <= 0) return;
         int idx[6];
@@ -308,14 +308,14 @@ namespace fogdome
         DELETEA(indices);
     }
 
-    void cleanup()
+    static void cleanup()
     {
         numverts = numindices = 0;
         if(vbuf) { glDeleteBuffers_(1, &vbuf); vbuf = 0; }
         if(ebuf) { glDeleteBuffers_(1, &ebuf); ebuf = 0; }
     }
 
-    void draw()
+    static void draw()
     {
         float capsize = fogdomecap && fogdomeheight < 1 ? (1 + fogdomeheight) / (1 - fogdomeheight) : -1;
         bvec color = !fogdomecolour.iszero() ? fogdomecolour : fogcolour;

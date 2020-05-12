@@ -1,10 +1,10 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
 
-#include "rendergl.hh"
 #include "renderva.hh"
-
 #include "blend.hh"
 #include "grass.hh"
+#include "rendergl.hh"
+#include "rendersky.hh"
 #include "texture.hh"
 
 #include "engine.hh"

@@ -3,6 +3,7 @@
 #include "aa.hh"
 #include "material.hh"
 #include "rendergl.hh"
+#include "rendersky.hh"
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"

@@ -331,14 +331,6 @@ extern bool renderstains(int sbuf, bool gbuf, int layer = 0);
 extern void cleanupstains();
 extern void genstainmmtri(stainrenderer *s, const vec v[3]);
 
-// rendersky
-extern int skytexture, skyshadow, explicitsky;
-
-extern void drawskybox(bool clear = false);
-extern bool hasskybox();
-extern bool limitsky();
-extern void cleanupsky();
-
 #endif
 
 #endif
