@@ -1,5 +1,6 @@
 #include "material.hh"
 #include "rendergl.hh"
+#include "stain.hh"
 #include "texture.hh"
 
 #include "engine.hh"
@@ -748,7 +749,7 @@ struct stainrenderer
     }
 };
 
-stainrenderer stains[] =
+static stainrenderer stains[] =
 {
     stainrenderer("<grey>media/particle/blood.png", SF_RND4|SF_ROTATE|SF_INVMOD),
     stainrenderer("<grey>media/particle/pulse_scorch.png", SF_ROTATE, 500),

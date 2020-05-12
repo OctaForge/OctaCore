@@ -1,3 +1,4 @@
+#include "stain.hh"
 #include "texture.hh"
 
 #include "engine.hh"

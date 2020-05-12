@@ -4,6 +4,7 @@
 #include "octa.hh"
 #include "rendergl.hh" /* fovy */
 #include "renderlights.hh"
+#include "stain.hh"
 #include "texture.hh"
 #include "worldio.hh"
 #include "world.hh"

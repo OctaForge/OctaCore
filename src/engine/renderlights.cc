@@ -5,6 +5,7 @@
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "renderva.hh"
+#include "stain.hh"
 #include "texture.hh"
 #include "world.hh"
 

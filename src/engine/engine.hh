@@ -320,17 +320,6 @@ extern void renderparticles(int layer = PL_ALL);
 extern bool printparticles(extentity &e, char *buf, int len);
 extern void cleanupparticles();
 
-// stain
-enum { STAINBUF_OPAQUE = 0, STAINBUF_TRANSPARENT, STAINBUF_MAPMODEL, NUMSTAINBUFS };
-
-struct stainrenderer;
-
-extern void initstains();
-extern void clearstains();
-extern bool renderstains(int sbuf, bool gbuf, int layer = 0);
-extern void cleanupstains();
-extern void genstainmmtri(stainrenderer *s, const vec v[3]);
-
 #endif
 
 #endif
