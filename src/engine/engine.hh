@@ -339,21 +339,6 @@ extern bool hasskybox();
 extern bool limitsky();
 extern void cleanupsky();
 
-// grass
-extern void loadgrassshaders();
-extern void generategrass();
-extern void rendergrass();
-extern void cleanupgrass();
-
-// recorder
-
-namespace recorder
-{
-    extern void stop();
-    extern void capture(bool overlay = true);
-    extern void cleanup();
-}
-
 #endif
 
 #endif

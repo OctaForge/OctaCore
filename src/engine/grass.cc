@@ -254,7 +254,7 @@ void generategrass()
 
 static Shader *grassshader = NULL;
 
-Shader *loadgrassshader()
+static Shader *loadgrassshader()
 {
     string opts;
     int optslen = 0;
@@ -271,7 +271,7 @@ void loadgrassshaders()
     grassshader = loadgrassshader();
 }
 
-void cleargrassshaders()
+static void cleargrassshaders()
 {
     grassshader = NULL;
 }

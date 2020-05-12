@@ -835,19 +835,19 @@ namespace recorder
     static SDL_mutex *videolock = NULL;
     static SDL_cond *shouldencode = NULL, *shouldread = NULL;
 
-    bool isrecording() { return file != NULL; }
+    static inline bool isrecording() { return file != NULL; }
 
-    float calcquality()
+    static inline float calcquality()
     {
         return 1.0f - float(dps)/float(dps+file->videofps); // strictly speaking should lock to read dps - 1.0=perfect, 0.5=half of frames are beingdropped
     }
 
-    int gettime()
+    static inline int gettime()
     {
         return inbetweenframes ? getclockmillis() : totalmillis;
     }
 
-    int videoencoder(void *data) // runs on a separate thread
+    static int videoencoder(void *data) // runs on a separate thread
     {
         for(int numvid = 0, numsound = 0;;)
         {
@@ -896,7 +896,8 @@ namespace recorder
         return 0;
     }
 
-    void soundencoder(void *udata, Uint8 *stream, int len) // callback occurs on a separate thread
+#if 0
+    static void soundencoder(void *udata, Uint8 *stream, int len) // callback occurs on a separate thread
     {
         SDL_LockMutex(soundlock);
         if(soundbuffers.full())
@@ -911,8 +912,9 @@ namespace recorder
         }
         SDL_UnlockMutex(soundlock);
     }
+#endif
 
-    void start(const char *filename, int videofps, int videow, int videoh, bool sound)
+    static void start(const char *filename, int videofps, int videow, int videoh, bool sound)
     {
         if(file) return;
 
@@ -1004,7 +1006,7 @@ namespace recorder
         state = REC_OK;
     }
 
-    void readbuffer(videobuffer &m, uint nextframe)
+    static void readbuffer(videobuffer &m, uint nextframe)
     {
         bool accelyuv = movieaccelyuv && !(m.w%8),
              usefbo = movieaccel && file->videow <= (uint)screenw && file->videoh <= (uint)screenh && (accelyuv || file->videow < (uint)screenw || file->videoh < (uint)screenh);
@@ -1101,7 +1103,7 @@ namespace recorder
         else glReadPixels(0, 0, m.w, m.h, GL_BGRA, GL_UNSIGNED_BYTE, m.video);
     }
 
-    bool readbuffer()
+    static bool readbuffer()
     {
         if(!file) return false;
         if(state != REC_OK)
@@ -1126,7 +1128,7 @@ namespace recorder
         return true;
     }
 
-    void drawhud()
+    static void drawhud()
     {
         int w = hudw, h = hudh;
         if(forceaspect) w = int(ceil(h*forceaspect));
@@ -1160,7 +1162,7 @@ VARP(movieh, 0, 240, 10000);
 VARP(moviefps, 1, 24, 1000);
 VARP(moviesound, 0, 1, 1);
 
-void movie(char *name)
+static void movie(char *name)
 {
     if(name[0] == '\0') recorder::stop();
     else if(!recorder::isrecording()) recorder::start(name, moviefps, moview ? moview : screenw, movieh ? movieh : screenh, moviesound!=0);

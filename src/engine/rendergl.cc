@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "blend.hh"
+#include "grass.hh"
 #include "material.hh"
 #include "rendergl.hh"
 #include "rendertext.hh"

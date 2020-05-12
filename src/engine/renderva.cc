@@ -4,6 +4,7 @@
 #include "renderva.hh"
 
 #include "blend.hh"
+#include "grass.hh"
 #include "texture.hh"
 
 #include "engine.hh"

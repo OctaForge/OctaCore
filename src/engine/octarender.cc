@@ -1,6 +1,7 @@
 // octarender.cpp: fill vertex arrays with different cube surfaces.
 
 #include "blend.hh"
+#include "grass.hh"
 #include "material.hh"
 #include "rendergl.hh"
 #include "renderva.hh"
