@@ -225,6 +225,11 @@ extern void writebinds(stream *f);
 extern void writecompletions(stream *f);
 
 // main
+
+extern int mainmenu;
+
+extern void clearmainmenu();
+
 enum
 {
     NOT_INITING = 0,
@@ -234,13 +239,7 @@ enum
 };
 extern int initing, numcpus;
 
-enum
-{
-    CHANGE_GFX     = 1<<0,
-    CHANGE_SOUND   = 1<<1,
-    CHANGE_SHADERS = 1<<2
-};
-extern bool initwarning(const char *desc, int level = INIT_RESET, int type = CHANGE_GFX);
+extern bool initwarning(const char *desc, int level = INIT_RESET, int type = 0);
 
 extern bool grabinput, minimized;
 
@@ -339,15 +338,6 @@ extern void drawskybox(bool clear = false);
 extern bool hasskybox();
 extern bool limitsky();
 extern void cleanupsky();
-
-// menus
-
-extern int mainmenu;
-
-extern void addchange(const char *desc, int type);
-extern void clearchanges(int type);
-extern void menuprocess();
-extern void clearmainmenu();
 
 // grass
 extern void loadgrassshaders();

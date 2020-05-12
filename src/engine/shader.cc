@@ -1559,7 +1559,7 @@ void reloadshaders()
 
 void resetshaders()
 {
-    clearchanges(CHANGE_SHADERS);
+    //clearchanges(CHANGE_SHADERS);
 
     cleanuplights();
     cleanupmodels();

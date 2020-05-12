@@ -10,6 +10,8 @@
 
 #include "engine.hh"
 
+VAR(mainmenu, 1, 1, 0);
+
 void clientkeepalive() {}
 
 bool multiplayer(bool msg)
@@ -20,6 +22,15 @@ bool multiplayer(bool msg)
 bool isconnected(bool attempt, bool local)
 {
     return haslocalclients();
+}
+
+void clearmainmenu()
+{
+    if(mainmenu && isconnected())
+    {
+        mainmenu = 0;
+        //UI::hideui(NULL);
+    }
 }
 
 void localdisconnect(bool cleanup)
@@ -114,7 +125,7 @@ bool initwarning(const char *desc, int level, int type)
 {
     if(initing < level)
     {
-        addchange(desc, type);
+        //addchange(desc, type);
         return true;
     }
     return false;
@@ -606,7 +617,7 @@ void setupscreen()
 
 void resetgl()
 {
-    clearchanges(CHANGE_GFX|CHANGE_SHADERS);
+    //clearchanges(CHANGE_GFX|CHANGE_SHADERS);
 
     renderbackground("resetting OpenGL");
 
@@ -1178,7 +1189,7 @@ int main(int argc, char **argv)
 
         checkinput();
         //UI::update();
-        menuprocess();
+        //menuprocess();
         tryedit();
 
         if(lastmillis) game::updateworld();

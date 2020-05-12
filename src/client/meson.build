@@ -15,7 +15,6 @@ client_src = [
     '../engine/light.cc',
     '../engine/main.cc',
     '../engine/material.cc',
-    '../engine/menus.cc',
     '../engine/movie.cc',
     '../engine/normal.cc',
     '../engine/octa.cc',
