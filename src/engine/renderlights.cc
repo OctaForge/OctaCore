@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "material.hh"
+#include "pvs.hh"
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "renderva.hh"

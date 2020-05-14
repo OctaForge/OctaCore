@@ -4,6 +4,7 @@
 #include "blend.hh"
 #include "grass.hh"
 #include "material.hh"
+#include "pvs.hh"
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "rendertext.hh"

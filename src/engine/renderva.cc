@@ -3,6 +3,7 @@
 #include "renderva.hh"
 #include "blend.hh"
 #include "grass.hh"
+#include "pvs.hh"
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "texture.hh"

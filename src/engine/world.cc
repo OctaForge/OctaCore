@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "octa.hh"
+#include "pvs.hh"
 #include "rendergl.hh" /* fovy */
 #include "renderlights.hh"
 #include "stain.hh"

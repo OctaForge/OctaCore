@@ -35,21 +35,6 @@ extern void drawcubemap(int size, const vec &o, float yaw, float pitch, const cu
 extern void compacteditvslots();
 extern void compactmruvslots();
 
-// pvs
-extern void clearpvs();
-extern bool pvsoccluded(const ivec &bbmin, const ivec &bbmax);
-extern bool pvsoccludedsphere(const vec &center, float radius);
-extern bool waterpvsoccluded(int height);
-extern void setviewcell(const vec &p);
-extern void savepvs(stream *f);
-extern void loadpvs(stream *f, int numpvs);
-extern int getnumviewcells();
-
-static inline bool pvsoccluded(const ivec &bborigin, int size)
-{
-    return pvsoccluded(bborigin, ivec(bborigin).add(size));
-}
-
 // renderlights
 
 #include "renderlights.hh"

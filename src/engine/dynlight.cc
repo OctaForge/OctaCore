@@ -1,3 +1,4 @@
+#include "pvs.hh"
 #include "renderva.hh"
 
 #include "engine.hh"

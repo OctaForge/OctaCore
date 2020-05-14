@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "octa.hh"
+#include "pvs.hh"
 #include "texture.hh"
 #include "world.hh"
 #include "worldio.hh"

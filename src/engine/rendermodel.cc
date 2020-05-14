@@ -1,4 +1,5 @@
 #include "aa.hh"
+#include "pvs.hh"
 #include "rendergl.hh"
 #include "renderva.hh"
 #include "shader.hh"

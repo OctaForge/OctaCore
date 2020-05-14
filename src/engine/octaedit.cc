@@ -1,6 +1,7 @@
 #include "blend.hh"
 #include "material.hh"
 #include "octa.hh"
+#include "pvs.hh"
 #include "rendergl.hh"
 #include "renderva.hh"
 #include "texture.hh"

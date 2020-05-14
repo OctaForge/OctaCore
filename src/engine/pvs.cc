@@ -1,3 +1,4 @@
+#include "pvs.hh"
 #include "octa.hh"
 
 #include "engine.hh"
@@ -286,7 +287,7 @@ static struct
     vector<materialsurface *> matsurfs;
 } waterplanes[MAXWATERPVS];
 static vector<materialsurface *> waterfalls;
-uint numwaterplanes = 0;
+static uint numwaterplanes = 0;
 
 struct pvsworker
 {
@@ -1061,7 +1062,7 @@ static void findwaterplanes()
     if(waterfalls.length() > 0 && numwaterplanes < MAXWATERPVS) numwaterplanes++;
 }
 
-void testpvs(int *vcsize)
+static void testpvs(int *vcsize)
 {
     lockpvs_(false);
 
@@ -1098,7 +1099,7 @@ void testpvs(int *vcsize)
 
 COMMAND(testpvs, "i");
 
-void genpvs(int *viewcellsize)
+static void genpvs(int *viewcellsize)
 {
     if(worldsize > 1<<15)
     {
@@ -1181,7 +1182,7 @@ void genpvs(int *viewcellsize)
 
 COMMAND(genpvs, "i");
 
-void pvsstats()
+static void pvsstats()
 {
     conoutf("%d unique view cells totaling %.1f kB and averaging %d B",
         pvs.length(), pvsbuf.length()/1024.0f, pvsbuf.length()/max(pvs.length(), 1));
@@ -1252,7 +1253,7 @@ bool waterpvsoccluded(int height)
     return false;
 }
 
-void saveviewcells(stream *f, viewcellnode &p)
+static void saveviewcells(stream *f, viewcellnode &p)
 {
     f->putchar(p.leafmask);
     loopi(8)
@@ -1280,7 +1281,7 @@ void savepvs(stream *f)
     saveviewcells(f, *viewcells);
 }
 
-viewcellnode *loadviewcells(stream *f)
+static viewcellnode *loadviewcells(stream *f)
 {
     viewcellnode *p = new viewcellnode;
     p->leafmask = f->getchar();
