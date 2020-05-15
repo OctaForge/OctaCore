@@ -1,5 +1,4 @@
 client_src = [
-    '../shared/crypto.cc',
     '../shared/geom.cc',
     '../shared/glemu.cc',
     '../shared/stream.cc',
