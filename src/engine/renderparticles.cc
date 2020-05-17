@@ -1,5 +1,6 @@
 // renderparticles.cpp
 
+#include "renderparticles.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "rendertext.hh"
@@ -10,6 +11,39 @@
 #include "world.hh"
 
 #include "engine.hh"
+
+#if 0
+void regular_particle_flame(int type, const vec &p, float radius, float height, int color, int density = 3, float scale = 2.0f, float speed = 200.0f, float fade = 600.0f, int gravity = -15);
+void particle_splash(int type, int num, int fade, const vec &p, int color = 0xFFFFFF, float size = 1.0f, int radius = 150, int gravity = 2);
+void particle_trail(int type, int fade, const vec &from, const vec &to, int color = 0xFFFFFF, float size = 1.0f, int gravity = 20);
+void particle_text(const vec &s, const char *t, int type, int fade = 2000, int color = 0xFFFFFF, float size = 2.0f, int gravity = 0);
+void particle_icon(const vec &s, int ix, int iy, int type, int fade = 2000, int color = 0xFFFFFF, float size = 2.0f, int gravity = 0);
+void particle_meter(const vec &s, float val, int type, int fade = 1, int color = 0xFFFFFF, int color2 = 0xFFFFF, float size = 2.0f);
+void particle_flare(const vec &p, const vec &dest, int fade, int type, int color = 0xFFFFFF, float size = 0.28f, physent *owner = NULL);
+void particle_fireball(const vec &dest, float max, int type, int fade = -1, int color = 0xFFFFFF, float size = 4.0f);
+void removetrackedparticles(physent *owner = NULL);
+#endif
+
+enum
+{
+    PART_BLOOD = 0,
+    PART_WATER,
+    PART_SMOKE,
+    PART_STEAM,
+    PART_FLAME,
+    PART_STREAK,
+    PART_RAIL_TRAIL, PART_PULSE_SIDE, PART_PULSE_FRONT,
+    PART_LIGHTNING,
+    PART_EXPLOSION, PART_PULSE_BURST,
+    PART_SPARK, PART_EDIT,
+    PART_SNOW,
+    PART_RAIL_MUZZLE_FLASH, PART_PULSE_MUZZLE_FLASH,
+    PART_HUD_ICON,
+    PART_HUD_ICON_GREY,
+    PART_TEXT,
+    PART_METER, PART_METER_VS,
+    PART_LENS_FLARE
+};
 
 Shader *particleshader = NULL, *particlenotextureshader = NULL, *particlesoftshader = NULL, *particletextshader = NULL;
 
@@ -86,7 +120,7 @@ void clearparticleemitters()
     regenemitters = true;
 }
 
-void addparticleemitters()
+static void addparticleemitters()
 {
     emitters.setsize(0);
     const vector<extentity *> &ents = entities::getents();
@@ -903,10 +937,12 @@ void cleanupparticles()
     loopi(sizeof(parts)/sizeof(parts[0])) parts[i]->cleanup();
 }
 
-void removetrackedparticles(physent *owner)
+#if 0
+static void removetrackedparticles(physent *owner)
 {
     loopi(sizeof(parts)/sizeof(parts[0])) parts[i]->resettracked(owner);
 }
+#endif
 
 VARN(debugparticles, dbgparts, 0, 0, 1);
 
@@ -1039,17 +1075,47 @@ static void regularsplash(int type, int color, int radius, int num, int fade, co
     splash(type, color, radius, num, fade, p, size, gravity);
 }
 
-bool canaddparticles()
+static void regular_particle_splash(int type, int num, int fade, const vec &p, int color = 0xFFFFFF, float size = 1.0f, int radius = 150, int gravity = 2, int delay = 0);
+static void particle_textcopy(const vec &s, const char *t, int type, int fade = 2000, int color = 0xFFFFFF, float size = 2.0f, int gravity = 0);
+
+static bool canaddparticles()
 {
     return !minimized;
 }
 
-void regular_particle_splash(int type, int num, int fade, const vec &p, int color, float size, int radius, int gravity, int delay)
+static void regular_particle_splash(int type, int num, int fade, const vec &p, int color, float size, int radius, int gravity, int delay)
 {
     if(!canaddparticles()) return;
     regularsplash(type, color, radius, num, fade, p, size, gravity, delay);
 }
 
+VARP(particletext, 0, 1, 1);
+VARP(maxparticletextdistance, 0, 128, 10000);
+
+static void particle_textcopy(const vec &s, const char *t, int type, int fade, int color, float size, int gravity)
+{
+    if(!canaddparticles()) return;
+    if(!particletext || camera1->o.dist(s) > maxparticletextdistance) return;
+    particle *p = newparticle(s, vec(0, 0, 1), fade, type, color, size, gravity);
+    p->text = newstring(t);
+    p->flags = 1;
+}
+
+//dir = 0..6 where 0=up
+static inline vec offsetvec(vec o, int dir, int dist)
+{
+    vec v = vec(o);
+    v[(2+dir)%3] += (dir>2)?(-dist):dist;
+    return v;
+}
+
+//converts a 16bit color to 24bit
+static inline int colorfromattr(int attr)
+{
+    return (((attr&0xF)<<4) | ((attr&0xF0)<<8) | ((attr&0xF00)<<12)) + 0x0F0F0F;
+}
+
+#if 0
 void particle_splash(int type, int num, int fade, const vec &p, int color, float size, int radius, int gravity)
 {
     if(!canaddparticles()) return;
@@ -1074,24 +1140,12 @@ void particle_trail(int type, int fade, const vec &s, const vec &e, int color, f
     }
 }
 
-VARP(particletext, 0, 1, 1);
-VARP(maxparticletextdistance, 0, 128, 10000);
-
 void particle_text(const vec &s, const char *t, int type, int fade, int color, float size, int gravity)
 {
     if(!canaddparticles()) return;
     if(!particletext || camera1->o.dist(s) > maxparticletextdistance) return;
     particle *p = newparticle(s, vec(0, 0, 1), fade, type, color, size, gravity);
     p->text = t;
-}
-
-void particle_textcopy(const vec &s, const char *t, int type, int fade, int color, float size, int gravity)
-{
-    if(!canaddparticles()) return;
-    if(!particletext || camera1->o.dist(s) > maxparticletextdistance) return;
-    particle *p = newparticle(s, vec(0, 0, 1), fade, type, color, size, gravity);
-    p->text = newstring(t);
-    p->flags = 1;
 }
 
 void particle_icon(const vec &s, int ix, int iy, int type, int fade, int color, float size, int gravity)
@@ -1124,20 +1178,7 @@ void particle_fireball(const vec &dest, float maxsize, int type, int fade, int c
     if(fade < 0) fade = int(growth*20);
     newparticle(dest, vec(0, 0, 1), fade, type, color, size)->val = growth;
 }
-
-//dir = 0..6 where 0=up
-static inline vec offsetvec(vec o, int dir, int dist)
-{
-    vec v = vec(o);
-    v[(2+dir)%3] += (dir>2)?(-dist):dist;
-    return v;
-}
-
-//converts a 16bit color to 24bit
-static inline int colorfromattr(int attr)
-{
-    return (((attr&0xF)<<4) | ((attr&0xF0)<<8) | ((attr&0xF00)<<12)) + 0x0F0F0F;
-}
+#endif /* 0 */
 
 /* Experiments in shapes...
  * dir: (where dir%3 is similar to offsetvec with 0=up)
@@ -1263,11 +1304,13 @@ static void regularflame(int type, const vec &p, float radius, float height, int
     }
 }
 
+#if 0
 void regular_particle_flame(int type, const vec &p, float radius, float height, int color, int density, float scale, float speed, float fade, int gravity)
 {
     if(!canaddparticles()) return;
     regularflame(type, p, radius, height, color, density, scale, speed, fade, gravity);
 }
+#endif /* 0 */
 
 static void makeparticles(entity &e)
 {

@@ -4,6 +4,7 @@
 #include "material.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
+#include "renderparticles.hh"
 #include "rendersky.hh"
 #include "renderva.hh"
 #include "stain.hh"
