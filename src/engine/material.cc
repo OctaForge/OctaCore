@@ -1,5 +1,6 @@
 #include "material.hh"
 #include "rendergl.hh"
+#include "renderlights.hh"
 #include "renderva.hh"
 #include "texture.hh"
 #include "water.hh"

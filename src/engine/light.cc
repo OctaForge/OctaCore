@@ -1,5 +1,6 @@
 #include "blend.hh"
 #include "octa.hh"
+#include "renderlights.hh"
 #include "texture.hh"
 
 #include "engine.hh"

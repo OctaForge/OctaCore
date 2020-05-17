@@ -37,45 +37,6 @@ extern void compactmruvslots();
 
 // renderlights
 
-#include "renderlights.hh"
-
-extern int lighttilealignw, lighttilealignh, lighttilevieww, lighttileviewh, lighttilew, lighttileh;
-
-extern int vieww, viewh; /* rendergl */
-
-template<class T>
-static inline void calctilebounds(float sx1, float sy1, float sx2, float sy2, T &bx1, T &by1, T &bx2, T &by2)
-{
-    int tx1 = max(int(floor(((sx1 + 1)*0.5f*vieww)/lighttilealignw)), 0),
-        ty1 = max(int(floor(((sy1 + 1)*0.5f*viewh)/lighttilealignh)), 0),
-        tx2 = min(int(ceil(((sx2 + 1)*0.5f*vieww)/lighttilealignw)), lighttilevieww),
-        ty2 = min(int(ceil(((sy2 + 1)*0.5f*viewh)/lighttilealignh)), lighttileviewh);
-    bx1 = T((tx1 * lighttilew) / lighttilevieww);
-    by1 = T((ty1 * lighttileh) / lighttileviewh);
-    bx2 = T((tx2 * lighttilew + lighttilevieww - 1) / lighttilevieww);
-    by2 = T((ty2 * lighttileh + lighttileviewh - 1) / lighttileviewh);
-}
-
-static inline void masktiles(uint *tiles, float sx1, float sy1, float sx2, float sy2)
-{
-    int tx1, ty1, tx2, ty2;
-    calctilebounds(sx1, sy1, sx2, sy2, tx1, ty1, tx2, ty2);
-    for(int ty = ty1; ty < ty2; ty++) tiles[ty] |= ((1<<(tx2-tx1))-1)<<tx1;
-}
-
-enum { SM_NONE = 0, SM_REFLECT, SM_CUBEMAP, SM_CASCADE, SM_SPOT };
-
-extern int shadowmapping;
-
-extern matrix4 shadowmatrix;
-
-extern void loaddeferredlightshaders();
-extern void cleardeferredlightshaders();
-extern void clearshadowcache();
-
-extern void rendervolumetric();
-extern void cleanupvolumetric();
-
 extern int calcshadowinfo(const extentity &e, vec &origin, float &radius, vec &spotloc, int &spotangle, float &bias);
 extern void rendershadowatlas();
 extern bool useradiancehints();
@@ -88,20 +49,6 @@ extern int calcbbcsmsplits(const ivec &bbmin, const ivec &bbmax);
 extern int calcspherecsmsplits(const vec &center, float radius);
 extern int calcbbrsmsplits(const ivec &bbmin, const ivec &bbmax);
 extern int calcspherersmsplits(const vec &center, float radius);
-
-static inline bool sphereinsidespot(const vec &dir, int spot, const vec &center, float radius)
-{
-    const vec2 &sc = sincos360[spot];
-    float cdist = dir.dot(center), cradius = radius + sc.y*cdist;
-    return sc.x*sc.x*(center.dot(center) - cdist*cdist) <= cradius*cradius;
-}
-static inline bool bbinsidespot(const vec &origin, const vec &dir, int spot, const ivec &bbmin, const ivec &bbmax)
-{
-    vec radius = vec(ivec(bbmax).sub(bbmin)).mul(0.5f), center = vec(bbmin).add(radius);
-    return sphereinsidespot(dir, spot, center.sub(origin), radius.magnitude());
-}
-
-extern matrix4 worldmatrix, screenmatrix;
 
 extern int transparentlayer;
 
@@ -258,9 +205,6 @@ extern float shadowray(const vec &o, const vec &ray, float radius, int mode, ext
 struct mapmodelinfo { string name; model *m, *collide; };
 
 extern vector<mapmodelinfo> mapmodels;
-
-extern float transmdlsx1, transmdlsy1, transmdlsx2, transmdlsy2;
-extern uint transmdltiles[LIGHTTILE_MAXH];
 
 extern void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks);
 extern void resetmodelbatches();

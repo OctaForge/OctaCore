@@ -1,5 +1,6 @@
 #include "aa.hh"
 #include "rendergl.hh"
+#include "renderlights.hh"
 #include "texture.hh"
 
 #include "engine.hh"

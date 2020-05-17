@@ -3,6 +3,7 @@
 #include "octa.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
+#include "renderlights.hh"
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"

@@ -1,3 +1,5 @@
+#include "rendermodel.hh"
+
 #include "aa.hh"
 #include "pvs.hh"
 #include "rendergl.hh"

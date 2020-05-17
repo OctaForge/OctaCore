@@ -5,6 +5,7 @@
 #include "grass.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
+#include "renderlights.hh"
 #include "rendersky.hh"
 #include "texture.hh"
 
