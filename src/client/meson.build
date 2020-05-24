@@ -50,7 +50,5 @@ executable('native_client',
         threads_dep, sdl2_dep, sdl2_image_dep,
         zlib_dep, gl_dep, rt_dep
     ],
-    include_directories: octacore_includes,
-    install: true,
-    install_dir: join_paths(meson.source_root(), 'bin_unix')
+    include_directories: octacore_includes
 )
