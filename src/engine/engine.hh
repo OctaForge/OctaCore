@@ -8,7 +8,6 @@
 
 #include "light.hh"
 #include "bih.hh"
-#include "model.hh"
 
 extern dynent *player;
 extern physent *camera1;                // special ent that acts as camera, same object as player1 in FPS mode
@@ -200,39 +199,6 @@ extern void mousemove(int dx, int dy);
 extern bool overlapsdynent(const vec &o, float radius);
 extern void rotatebb(vec &center, vec &radius, int yaw, int pitch, int roll = 0);
 extern float shadowray(const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
-
-// rendermodel
-struct mapmodelinfo { string name; model *m, *collide; };
-
-extern vector<mapmodelinfo> mapmodels;
-
-extern void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks);
-extern void resetmodelbatches();
-extern void startmodelquery(occludequery *query);
-extern void endmodelquery();
-extern void rendershadowmodelbatches(bool dynmodel = true);
-extern void shadowmaskbatchedmodels(bool dynshadow = true);
-extern void rendermapmodelbatches();
-extern void rendermodelbatches();
-extern void rendertransparentmodelbatches(int stencil = 0);
-extern void rendermapmodel(int idx, int anim, const vec &o, float yaw = 0, float pitch = 0, float roll = 0, int flags = MDL_CULL_VFC | MDL_CULL_DIST, int basetime = 0, float size = 1);
-extern void clearbatchedmapmodels();
-extern void preloadusedmapmodels(bool msg = false, bool bih = false);
-extern int batcheddynamicmodels();
-extern int batcheddynamicmodelbounds(int mask, vec &bbmin, vec &bbmax);
-extern void cleanupmodels();
-
-static inline model *loadmapmodel(int n)
-{
-    if(mapmodels.inrange(n))
-    {
-        model *m = mapmodels[n].m;
-        return m ? m : loadmodel(NULL, n);
-    }
-    return NULL;
-}
-
-static inline mapmodelinfo *getmminfo(int n) { return mapmodels.inrange(n) ? &mapmodels[n] : NULL; }
 
 #endif
 

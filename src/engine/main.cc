@@ -3,6 +3,7 @@
 #include "blend.hh"
 #include "movie.hh"
 #include "rendergl.hh"
+#include "rendermodel.hh" // cleanupmodels
 #include "renderparticles.hh"
 #include "rendersky.hh"
 #include "rendertext.hh"

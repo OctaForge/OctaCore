@@ -35,6 +35,8 @@ static model *__loadmodel__##modelclass(const char *filename) \
 } \
 UNUSED static int __dummy__##modelclass = addmodeltype((modeltype), __loadmodel__##modelclass);
 
+static void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks);
+
 #include "md2.hh"
 #include "md3.hh"
 #include "md5.hh"
@@ -51,35 +53,35 @@ MODELTYPE(MDL_IQM, iqm);
 
 #define checkmdl if(!loadingmodel) { conoutf(CON_ERROR, "not loading a model"); return; }
 
-void mdlcullface(int *cullface)
+static void mdlcullface(int *cullface)
 {
     checkmdl;
     loadingmodel->setcullface(*cullface);
 }
 COMMAND(mdlcullface, "i");
 
-void mdlcolor(float *r, float *g, float *b)
+static void mdlcolor(float *r, float *g, float *b)
 {
     checkmdl;
     loadingmodel->setcolor(vec(*r, *g, *b));
 }
 COMMAND(mdlcolor, "fff");
 
-void mdlcollide(int *collide)
+static void mdlcollide(int *collide)
 {
     checkmdl;
     loadingmodel->collide = *collide!=0 ? (loadingmodel->collide ? loadingmodel->collide : COLLIDE_OBB) : COLLIDE_NONE;
 }
 COMMAND(mdlcollide, "i");
 
-void mdlellipsecollide(int *collide)
+static void mdlellipsecollide(int *collide)
 {
     checkmdl;
     loadingmodel->collide = *collide!=0 ? COLLIDE_ELLIPSE : COLLIDE_NONE;
 }
 COMMAND(mdlellipsecollide, "i");
 
-void mdltricollide(char *collide)
+static void mdltricollide(char *collide)
 {
     checkmdl;
     DELETEA(loadingmodel->collidemodel);
@@ -90,7 +92,7 @@ void mdltricollide(char *collide)
 }
 COMMAND(mdltricollide, "s");
 
-void mdlspec(float *percent)
+static void mdlspec(float *percent)
 {
     checkmdl;
     float spec = *percent > 0 ? *percent/100.0f : 0.0f;
@@ -98,28 +100,28 @@ void mdlspec(float *percent)
 }
 COMMAND(mdlspec, "f");
 
-void mdlgloss(int *gloss)
+static void mdlgloss(int *gloss)
 {
     checkmdl;
     loadingmodel->setgloss(clamp(*gloss, 0, 2));
 }
 COMMAND(mdlgloss, "i");
 
-void mdlalphatest(float *cutoff)
+static void mdlalphatest(float *cutoff)
 {
     checkmdl;
     loadingmodel->setalphatest(max(0.0f, min(1.0f, *cutoff)));
 }
 COMMAND(mdlalphatest, "f");
 
-void mdldepthoffset(int *offset)
+static void mdldepthoffset(int *offset)
 {
     checkmdl;
     loadingmodel->depthoffset = *offset!=0;
 }
 COMMAND(mdldepthoffset, "i");
 
-void mdlglow(float *percent, float *delta, float *pulse)
+static void mdlglow(float *percent, float *delta, float *pulse)
 {
     checkmdl;
     float glow = *percent > 0 ? *percent/100.0f : 0.0f, glowdelta = *delta/100.0f, glowpulse = *pulse > 0 ? *pulse/1000.0f : 0;
@@ -128,28 +130,28 @@ void mdlglow(float *percent, float *delta, float *pulse)
 }
 COMMAND(mdlglow, "fff");
 
-void mdlenvmap(float *envmapmax, float *envmapmin, char *envmap)
+static void mdlenvmap(float *envmapmax, float *envmapmin, char *envmap)
 {
     checkmdl;
     loadingmodel->setenvmap(*envmapmin, *envmapmax, envmap[0] ? cubemapload(envmap) : NULL);
 }
 COMMAND(mdlenvmap, "ffs");
 
-void mdlfullbright(float *fullbright)
+static void mdlfullbright(float *fullbright)
 {
     checkmdl;
     loadingmodel->setfullbright(*fullbright);
 }
 COMMAND(mdlfullbright, "f");
 
-void mdlshader(char *shader)
+static void mdlshader(char *shader)
 {
     checkmdl;
     loadingmodel->setshader(lookupshaderbyname(shader));
 }
 COMMAND(mdlshader, "s");
 
-void mdlspin(float *yaw, float *pitch, float *roll)
+static void mdlspin(float *yaw, float *pitch, float *roll)
 {
     checkmdl;
     loadingmodel->spinyaw = *yaw;
@@ -158,7 +160,7 @@ void mdlspin(float *yaw, float *pitch, float *roll)
 }
 COMMAND(mdlspin, "fff");
 
-void mdlscale(float *percent)
+static void mdlscale(float *percent)
 {
     checkmdl;
     float scale = *percent > 0 ? *percent/100.0f : 1.0f;
@@ -166,49 +168,49 @@ void mdlscale(float *percent)
 }
 COMMAND(mdlscale, "f");
 
-void mdltrans(float *x, float *y, float *z)
+static void mdltrans(float *x, float *y, float *z)
 {
     checkmdl;
     loadingmodel->translate = vec(*x, *y, *z);
 }
 COMMAND(mdltrans, "fff");
 
-void mdlyaw(float *angle)
+static void mdlyaw(float *angle)
 {
     checkmdl;
     loadingmodel->offsetyaw = *angle;
 }
 COMMAND(mdlyaw, "f");
 
-void mdlpitch(float *angle)
+static void mdlpitch(float *angle)
 {
     checkmdl;
     loadingmodel->offsetpitch = *angle;
 }
 COMMAND(mdlpitch, "f");
 
-void mdlroll(float *angle)
+static void mdlroll(float *angle)
 {
     checkmdl;
     loadingmodel->offsetroll = *angle;
 }
 COMMAND(mdlroll, "f");
 
-void mdlshadow(int *shadow)
+static void mdlshadow(int *shadow)
 {
     checkmdl;
     loadingmodel->shadow = *shadow!=0;
 }
 COMMAND(mdlshadow, "i");
 
-void mdlalphashadow(int *alphashadow)
+static void mdlalphashadow(int *alphashadow)
 {
     checkmdl;
     loadingmodel->alphashadow = *alphashadow!=0;
 }
 COMMAND(mdlalphashadow, "i");
 
-void mdlbb(float *rad, float *h, float *eyeheight)
+static void mdlbb(float *rad, float *h, float *eyeheight)
 {
     checkmdl;
     loadingmodel->collidexyradius = *rad;
@@ -217,14 +219,14 @@ void mdlbb(float *rad, float *h, float *eyeheight)
 }
 COMMAND(mdlbb, "fff");
 
-void mdlextendbb(float *x, float *y, float *z)
+static void mdlextendbb(float *x, float *y, float *z)
 {
     checkmdl;
     loadingmodel->bbextend = vec(*x, *y, *z);
 }
 COMMAND(mdlextendbb, "fff");
 
-void mdlname()
+static void mdlname()
 {
     checkmdl;
     result(loadingmodel->name);
@@ -244,7 +246,7 @@ COMMAND(mdlname, "");
     if(ragdoll->loaded) return;
 
 
-void rdvert(float *x, float *y, float *z, float *radius)
+static void rdvert(float *x, float *y, float *z, float *radius)
 {
     checkragdoll;
     ragdollskel::vert &v = ragdoll->verts.add();
@@ -253,14 +255,14 @@ void rdvert(float *x, float *y, float *z, float *radius)
 }
 COMMAND(rdvert, "ffff");
 
-void rdeye(int *v)
+static void rdeye(int *v)
 {
     checkragdoll;
     ragdoll->eye = *v;
 }
 COMMAND(rdeye, "i");
 
-void rdtri(int *v1, int *v2, int *v3)
+static void rdtri(int *v1, int *v2, int *v3)
 {
     checkragdoll;
     ragdollskel::tri &t = ragdoll->tris.add();
@@ -270,7 +272,7 @@ void rdtri(int *v1, int *v2, int *v3)
 }
 COMMAND(rdtri, "iii");
 
-void rdjoint(int *n, int *t, int *v1, int *v2, int *v3)
+static void rdjoint(int *n, int *t, int *v1, int *v2, int *v3)
 {
     checkragdoll;
     if(*n < 0 || *n >= skel->numbones) return;
@@ -283,7 +285,7 @@ void rdjoint(int *n, int *t, int *v1, int *v2, int *v3)
 }
 COMMAND(rdjoint, "iibbb");
 
-void rdlimitdist(int *v1, int *v2, float *mindist, float *maxdist)
+static void rdlimitdist(int *v1, int *v2, float *mindist, float *maxdist)
 {
     checkragdoll;
     ragdollskel::distlimit &d = ragdoll->distlimits.add();
@@ -294,7 +296,7 @@ void rdlimitdist(int *v1, int *v2, float *mindist, float *maxdist)
 }
 COMMAND(rdlimitdist, "iiff");
 
-void rdlimitrot(int *t1, int *t2, float *maxangle, float *qx, float *qy, float *qz, float *qw)
+static void rdlimitrot(int *t1, int *t2, float *maxangle, float *qx, float *qy, float *qz, float *qw)
 {
     checkragdoll;
     ragdollskel::rotlimit &r = ragdoll->rotlimits.add();
@@ -306,7 +308,7 @@ void rdlimitrot(int *t1, int *t2, float *maxangle, float *qx, float *qy, float *
 }
 COMMAND(rdlimitrot, "iifffff");
 
-void rdanimjoints(int *on)
+static void rdanimjoints(int *on)
 {
     checkragdoll;
     ragdoll->animjoints = *on!=0;
@@ -319,7 +321,7 @@ vector<mapmodelinfo> mapmodels;
 static const char * const mmprefix = "mapmodel/";
 static const int mmprefixlen = strlen(mmprefix);
 
-void mapmodel(char *name)
+static void mapmodel(char *name)
 {
     mapmodelinfo &mmi = mapmodels.add();
     if(name[0]) formatstring(mmi.name, "%s%s", mmprefix, name);
@@ -327,7 +329,7 @@ void mapmodel(char *name)
     mmi.m = mmi.collide = NULL;
 }
 
-void mapmodelreset(int *n)
+static void mapmodelreset(int *n)
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
     mapmodels.shrink(clamp(*n, 0, mapmodels.length()));
@@ -344,9 +346,9 @@ ICOMMAND(nummapmodels, "", (), { intret(mapmodels.length()); });
 
 // model registry
 
-hashnameset<model *> models;
-vector<const char *> preloadmodels;
-hashset<char *> failedmodels;
+static hashnameset<model *> models;
+static vector<const char *> preloadmodels;
+static hashset<char *> failedmodels;
 
 void preloadmodel(const char *name)
 {
@@ -462,7 +464,7 @@ void cleanupmodels()
     enumerate(models, model *, m, m->cleanup());
 }
 
-void clearmodel(char *name)
+static void clearmodel(char *name)
 {
     model *m = models.find(name, NULL);
     if(!m) { conoutf("model %s is not loaded", name); return; }
@@ -480,7 +482,7 @@ void clearmodel(char *name)
 
 COMMAND(clearmodel, "s");
 
-bool modeloccluded(const vec &center, float radius)
+static bool modeloccluded(const vec &center, float radius)
 {
     ivec bbmin(vec(center).sub(radius)), bbmax(vec(center).add(radius+1));
     return pvsoccluded(bbmin, bbmax) || bboccluded(bbmin, bbmax);
@@ -516,7 +518,7 @@ void resetmodelbatches()
     modelattached.setsize(0);
 }
 
-void addbatchedmodel(model *m, batchedmodel &bm, int idx)
+static void addbatchedmodel(model *m, batchedmodel &bm, int idx)
 {
     modelbatch *b = NULL;
     if(batches.inrange(m->batch))
@@ -1098,7 +1100,7 @@ ICOMMAND(findanims, "s", (char *name),
     result(buf.getbuf());
 });
 
-void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks) // model skin sharing
+static void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks) // model skin sharing
 {
 #define ifnoload(tex, path) if((tex = textureload(path, 0, true, false))==notexture)
 #define tryload(tex, prefix, cmd, name) \

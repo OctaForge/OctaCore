@@ -3,6 +3,7 @@
 // they "felt right", and have no basis in reality. Collision detection is simplistic but
 // very robust (uses discrete steps at fixed fps).
 
+#include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"
 

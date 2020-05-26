@@ -1,6 +1,7 @@
 // shader.cpp: OpenGL GLSL shader management
 
 #include "rendergl.hh"
+#include "rendermodel.hh" // cleanupmodels
 #include "shader.hh"
 #include "texture.hh"
 

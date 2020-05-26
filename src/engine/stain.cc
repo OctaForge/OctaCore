@@ -1,5 +1,6 @@
 #include "material.hh"
 #include "rendergl.hh"
+#include "rendermodel.hh" // loadmapmodel
 #include "stain.hh"
 #include "texture.hh"
 

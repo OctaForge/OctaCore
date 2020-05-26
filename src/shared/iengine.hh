@@ -223,54 +223,6 @@ extern void updatedynentcache(physent *d);
 extern bool entinmap(dynent *d, bool avoidplayers = false);
 extern void findplayerspawn(dynent *d, int forceent = -1, int tag = 0);
 
-// sound
-enum
-{
-    SND_MAP     = 1<<0,
-    SND_NO_ALT  = 1<<1,
-    SND_USE_ALT = 1<<2
-};
-
-inline int playsound(
-    int, const vec * = NULL, extentity * = NULL, int = 0, int = 0, int = 0,
-    int = -1, int = 0, int = -1
-) {
-    return -1;
-}
-
-// rendermodel
-enum { MDL_CULL_VFC = 1<<0, MDL_CULL_DIST = 1<<1, MDL_CULL_OCCLUDED = 1<<2, MDL_CULL_QUERY = 1<<3, MDL_FULLBRIGHT = 1<<4, MDL_NORENDER = 1<<5, MDL_MAPMODEL = 1<<6, MDL_NOBATCH = 1<<7, MDL_ONLYSHADOW = 1<<8, MDL_NOSHADOW = 1<<9, MDL_FORCESHADOW = 1<<10, MDL_FORCETRANSPARENT = 1<<11 };
-
-struct model;
-struct modelattach
-{
-    const char *tag, *name;
-    int anim, basetime;
-    vec *pos;
-    model *m;
-
-    modelattach() : tag(NULL), name(NULL), anim(-1), basetime(0), pos(NULL), m(NULL) {}
-    modelattach(const char *tag, const char *name, int anim = -1, int basetime = 0) : tag(tag), name(name), anim(anim), basetime(basetime), pos(NULL), m(NULL) {}
-    modelattach(const char *tag, vec *pos) : tag(tag), name(NULL), anim(-1), basetime(0), pos(pos), m(NULL) {}
-};
-
-extern void rendermodel(const char *mdl, int anim, const vec &o, float yaw = 0, float pitch = 0, float roll = 0, int cull = MDL_CULL_VFC | MDL_CULL_DIST | MDL_CULL_OCCLUDED, dynent *d = NULL, modelattach *a = NULL, int basetime = 0, int basetime2 = 0, float size = 1, const vec4 &color = vec4(1, 1, 1, 1));
-extern int intersectmodel(const char *mdl, int anim, const vec &pos, float yaw, float pitch, float roll, const vec &o, const vec &ray, float &dist, int mode = 0, dynent *d = NULL, modelattach *a = NULL, int basetime = 0, int basetime2 = 0, float size = 1);
-extern void abovemodel(vec &o, const char *mdl);
-extern void renderclient(dynent *d, const char *mdlname, modelattach *attachments, int hold, int attack, int attackdelay, int lastaction, int lastpain, float scale = 1, bool ragdoll = false, float trans = 1);
-extern void interpolateorientation(dynent *d, float &interpyaw, float &interppitch);
-extern void setbbfrommodel(dynent *d, const char *mdl);
-extern const char *mapmodelname(int i);
-extern model *loadmodel(const char *name, int i = -1, bool msg = false);
-extern void preloadmodel(const char *name);
-extern void flushpreloadedmodels(bool msg = true);
-extern bool matchanim(const char *name, const char *pattern);
-
-// ragdoll
-
-extern void moveragdoll(dynent *d);
-extern void cleanragdoll(dynent *d);
-
 // client
 extern bool haslocalclients();
 extern bool isconnected(bool attempt = false, bool local = true);

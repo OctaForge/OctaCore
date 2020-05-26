@@ -3,6 +3,7 @@
 #include "blend.hh"
 #include "octa.hh"
 #include "pvs.hh"
+#include "rendermodel.hh" // loadmapmodel, getmminfo, flushpreloadedmodels
 #include "texture.hh"
 #include "world.hh"
 #include "worldio.hh"

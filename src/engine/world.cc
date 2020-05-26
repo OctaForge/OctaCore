@@ -5,6 +5,7 @@
 #include "pvs.hh"
 #include "rendergl.hh" /* fovy */
 #include "renderlights.hh"
+#include "rendermodel.hh" // loadmapmodel
 #include "renderparticles.hh"
 #include "stain.hh"
 #include "texture.hh"

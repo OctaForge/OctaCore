@@ -6,6 +6,7 @@
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"
+#include "rendermodel.hh"
 #include "rendersky.hh"
 #include "texture.hh"
 

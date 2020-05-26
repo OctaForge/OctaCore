@@ -5,6 +5,8 @@
 
 struct stainrenderer;
 struct Texture;
+struct physent;
+struct extentity;
 
 struct BIH
 {
