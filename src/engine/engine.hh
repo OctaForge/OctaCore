@@ -15,7 +15,6 @@ extern physent *camera1;                // special ent that acts as camera, same
 extern int worldscale, worldsize;
 extern int mapversion;
 extern char *maptitle;
-extern vector<ushort> texmru;
 extern int xtraverts, xtravertsva;
 extern const ivec cubecoords[8];
 extern const ivec facecoords[6][4];
@@ -26,13 +25,6 @@ extern bool inbetweenframes, renderedframe;
 
 extern SDL_Window *screen;
 extern int screenw, screenh;
-
-// texture
-struct cubemapside;
-
-extern void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
-extern void compacteditvslots();
-extern void compactmruvslots();
 
 // renderlights
 
@@ -85,20 +77,6 @@ extern int avatarmask;
 extern bool useavatarmask();
 extern void enableavatarmask();
 extern void disableavatarmask();
-
-// octaedit
-extern void cancelsel();
-extern void rendertexturepanel(int w, int h);
-extern void addundo(undoblock *u);
-extern void commitchanges(bool force = false);
-extern void changed(const ivec &bbmin, const ivec &bbmax, bool commit = true);
-extern void changed(const block3 &sel, bool commit = true);
-extern void rendereditcursor();
-extern void tryedit();
-
-extern void renderprefab(const char *name, const vec &o, float yaw, float pitch, float roll, float size = 1, const vec &color = vec(1, 1, 1));
-extern void previewprefab(const char *name, const vec &color);
-extern void cleanupprefabs();
 
 // octarender
 extern ivec worldmin, worldmax, nogimin, nogimax;

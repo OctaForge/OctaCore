@@ -1,6 +1,7 @@
 // renderparticles.cpp
 
 #include "renderparticles.hh"
+#include "octaedit.hh" // editmode
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "rendertext.hh"

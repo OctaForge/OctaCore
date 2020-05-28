@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "movie.hh"
+#include "octaedit.hh"
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels
 #include "renderparticles.hh"

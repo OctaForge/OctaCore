@@ -5,6 +5,7 @@
 #include "grass.hh"
 #include "material.hh"
 #include "pvs.hh"
+#include "octaedit.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "rendermodel.hh"

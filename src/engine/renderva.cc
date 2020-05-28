@@ -3,6 +3,7 @@
 #include "renderva.hh"
 #include "blend.hh"
 #include "grass.hh"
+#include "octaedit.hh" // editmode
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

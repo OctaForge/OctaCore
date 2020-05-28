@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "material.hh"
+#include "octaedit.hh" // editmode
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "rendermodel.hh"

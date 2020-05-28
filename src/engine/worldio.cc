@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "octa.hh"
+#include "octaedit.hh" // texmru
 #include "pvs.hh"
 #include "rendermodel.hh" // loadmapmodel, getmminfo, flushpreloadedmodels
 #include "texture.hh"

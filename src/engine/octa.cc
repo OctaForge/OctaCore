@@ -1,6 +1,7 @@
 // core world management routines
 
 #include "octa.hh"
+#include "octaedit.hh"
 #include "world.hh"
 
 #include "engine.hh"

@@ -76,4 +76,8 @@ struct timer;
 timer *begintimer(const char *name, bool gpu = true);
 void endtimer(timer *t);
 
+struct cubemapside; /* texture.hh */
+
+void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
+
 #endif
