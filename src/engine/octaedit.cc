@@ -1,6 +1,7 @@
 #include "octaedit.hh"
 
 #include "blend.hh"
+#include "main.hh" // mainmenu, keyrepeat, renderedframe
 #include "material.hh"
 #include "octa.hh"
 #include "pvs.hh"

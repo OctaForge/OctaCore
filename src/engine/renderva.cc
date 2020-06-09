@@ -1,8 +1,10 @@
 // renderva.cpp: handles the occlusion and rendering of vertex arrays
 
 #include "renderva.hh"
+
 #include "blend.hh"
 #include "grass.hh"
+#include "main.hh" // renderprogress
 #include "octaedit.hh" // editmode
 #include "pvs.hh"
 #include "rendergl.hh"

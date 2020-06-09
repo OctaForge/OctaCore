@@ -1,6 +1,8 @@
 #include "blend.hh"
+#include "main.hh" // renderbackground
 #include "octa.hh"
 #include "octaedit.hh" // commitchanges
+#include "physics.hh"
 #include "renderlights.hh"
 #include "texture.hh"
 

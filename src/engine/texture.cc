@@ -1,5 +1,6 @@
 // texture.cpp: texture slot management
 
+#include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe
 #include "material.hh"
 #include "octaedit.hh"
 #include "rendergl.hh"
@@ -3059,6 +3060,7 @@ static GLuint genenvmap(const vec &o, int envmapsize, int blur, bool onlysky)
     }
     glBindFramebuffer_(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, hudw, hudh);
+    extern void clientkeepalive(); /* FIXME */
     clientkeepalive();
     return tex;
 }

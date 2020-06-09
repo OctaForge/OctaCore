@@ -1,3 +1,4 @@
+#include "main.hh" // renderprogress
 #include "texture.hh"
 
 #include "engine.hh"

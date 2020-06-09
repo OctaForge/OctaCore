@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "grass.hh"
+#include "main.hh" // mainmenu, laodprogress
 #include "material.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

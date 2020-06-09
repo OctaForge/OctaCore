@@ -80,4 +80,6 @@ struct cubemapside; /* texture.hh */
 
 void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
 
+void mousemove(int dx, int dy);
+
 #endif

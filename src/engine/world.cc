@@ -1,8 +1,10 @@
 // world.cpp: core map management stuff
 
 #include "blend.hh"
+#include "main.hh" // clearmainmenu
 #include "octa.hh"
 #include "octaedit.hh"
+#include "physics.hh"
 #include "pvs.hh"
 #include "rendergl.hh" /* fovy */
 #include "renderlights.hh"

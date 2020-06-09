@@ -1,5 +1,6 @@
 // shader.cpp: OpenGL GLSL shader management
 
+#include "main.hh" // loadprogress, renderprogress
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels
 #include "shader.hh"

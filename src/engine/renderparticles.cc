@@ -1,5 +1,6 @@
 // renderparticles.cpp
 
+#include "main.hh" // initing, minimized, loadprogress
 #include "renderparticles.hh"
 #include "octaedit.hh" // editmode
 #include "pvs.hh"

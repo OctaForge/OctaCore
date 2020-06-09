@@ -3,6 +3,8 @@
 // they "felt right", and have no basis in reality. Collision detection is simplistic but
 // very robust (uses discrete steps at fixed fps).
 
+#include "physics.hh"
+
 #include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"
@@ -111,7 +113,7 @@ void resetclipplanes()
          else if(v[i] < p.o[i]-p.r[i] || v[i] > p.o[i]+p.r[i]) exit; \
     }
 
-vec hitsurface;
+vec hitsurface; /* extern'd */
 
 static inline bool raycubeintersect(const clipplanes &p, const cube &c, const vec &v, const vec &ray, const vec &invray, float maxdist, float &dist)
 {
@@ -128,8 +130,8 @@ static inline bool raycubeintersect(const clipplanes &p, const cube &c, const ve
     return true;
 }
 
-float hitentdist;
-int hitent, hitorient;
+static float hitentdist;
+static int hitent, hitorient;
 
 static float disttoent(octaentities *oc, const vec &o, const vec &ray, float radius, int mode, extentity *t)
 {
@@ -434,7 +436,7 @@ const float WALLZ = 0.2f;
 extern const float JUMPVEL = 125.0f;
 extern const float GRAVITY = 200.0f;
 
-bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &center, float yaw, float xr, float yr, float hi, float lo)
+static bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &center, float yaw, float xr, float yr, float hi, float lo)
 {
     float below = (o.z+center.z-lo) - (d->o.z+d->aboveeye),
           above = (d->o.z-d->eyeheight) - (o.z+center.z+hi);
@@ -489,7 +491,7 @@ bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const vec &cent
     return false;
 }
 
-bool ellipsecollide(physent *d, const vec &dir, const vec &o, const vec &center, float yaw, float xr, float yr, float hi, float lo)
+static bool ellipsecollide(physent *d, const vec &dir, const vec &o, const vec &center, float yaw, float xr, float yr, float hi, float lo)
 {
     float below = (o.z+center.z-lo) - (d->o.z+d->aboveeye),
           above = (d->o.z-d->eyeheight) - (o.z+center.z+hi);
@@ -549,7 +551,7 @@ VARF(dynentsize, 4, 7, 12, cleardynentcache());
 
 #define DYNENTHASH(x, y) (((((x)^(y))<<5) + (((x)^(y))>>5)) & (DYNENTCACHESIZE - 1))
 
-const vector<physent *> &checkdynentcache(int x, int y)
+static const vector<physent *> &checkdynentcache(int x, int y)
 {
     dynentcacheentry &dec = dynentcache[DYNENTHASH(x, y)];
     if(dec.x == x && dec.y == y && dec.frame == dynentframe) return dec.dynents;
@@ -628,7 +630,7 @@ static inline bool plcollide(physent *d, const vec &dir, physent *o)
     }
 }
 
-bool plcollide(physent *d, const vec &dir, bool insideplayercol)    // collide with player
+static bool plcollide(physent *d, const vec &dir, bool insideplayercol)    // collide with player
 {
     if(d->type==ENT_CAMERA || d->state!=CS_ALIVE) return false;
     int lastinside = collideinside;
@@ -801,7 +803,7 @@ static bool fuzzycollideellipse(physent *d, const vec &dir, float cutoff, const 
 
 VAR(testtricol, 0, 0, 2);
 
-bool mmcollide(physent *d, const vec &dir, float cutoff, octaentities &oc) // collide with a mapmodel
+static bool mmcollide(physent *d, const vec &dir, float cutoff, octaentities &oc) // collide with a mapmodel
 {
     const vector<extentity *> &ents = entities::getents();
     loopv(oc.mapmodels)
@@ -1153,7 +1155,7 @@ bool collide(physent *d, const vec &dir, float cutoff, bool playercol, bool insi
     return octacollide(d, dir, cutoff, bo, bs) || (playercol && plcollide(d, dir, insideplayercol)); // collide with world
 }
 
-void recalcdir(physent *d, const vec &oldvel, vec &dir)
+static void recalcdir(physent *d, const vec &oldvel, vec &dir)
 {
     float speed = oldvel.magnitude();
     if(speed > 1e-6f)
@@ -1165,7 +1167,7 @@ void recalcdir(physent *d, const vec &oldvel, vec &dir)
     }
 }
 
-void slideagainst(physent *d, vec &dir, const vec &obstacle, bool foundfloor, bool slidecollide)
+static void slideagainst(physent *d, vec &dir, const vec &obstacle, bool foundfloor, bool slidecollide)
 {
     vec wall(obstacle);
     if(foundfloor ? wall.z > 0 : slidecollide)
@@ -1180,7 +1182,7 @@ void slideagainst(physent *d, vec &dir, const vec &obstacle, bool foundfloor, bo
     recalcdir(d, oldvel, dir);
 }
 
-void switchfloor(physent *d, vec &dir, const vec &floor)
+static void switchfloor(physent *d, vec &dir, const vec &floor)
 {
     if(floor.z >= FLOORZ) d->falling = vec(0, 0, 0);
 
@@ -1196,7 +1198,7 @@ void switchfloor(physent *d, vec &dir, const vec &floor)
     recalcdir(d, oldvel, dir);
 }
 
-bool trystepup(physent *d, vec &dir, const vec &obstacle, float maxstep, const vec &floor)
+static bool trystepup(physent *d, vec &dir, const vec &obstacle, float maxstep, const vec &floor)
 {
     vec old(d->o), stairdir = (obstacle.z >= 0 && obstacle.z < SLOPEZ ? vec(-obstacle.x, -obstacle.y, 0) : vec(dir.x, dir.y, 0)).rescale(1);
     bool cansmooth = true;
@@ -1287,7 +1289,7 @@ bool trystepup(physent *d, vec &dir, const vec &obstacle, float maxstep, const v
     return false;
 }
 
-bool trystepdown(physent *d, vec &dir, float step, float xy, float z, bool init = false)
+static bool trystepdown(physent *d, vec &dir, float step, float xy, float z, bool init = false)
 {
     vec stepdir(dir.x, dir.y, 0);
     stepdir.z = -stepdir.magnitude2()*z/xy;
@@ -1338,7 +1340,7 @@ bool trystepdown(physent *d, vec &dir, float step, float xy, float z, bool init 
     return false;
 }
 
-bool trystepdown(physent *d, vec &dir, bool init = false)
+static bool trystepdown(physent *d, vec &dir, bool init = false)
 {
     if((!d->move && !d->strafe) || !game::allowmove(d)) return false;
     vec old(d->o);
@@ -1364,7 +1366,7 @@ bool trystepdown(physent *d, vec &dir, bool init = false)
     return false;
 }
 
-void falling(physent *d, vec &dir, const vec &floor)
+static void falling(physent *d, vec &dir, const vec &floor)
 {
     if(floor.z > 0.0f && floor.z < SLOPEZ)
     {
@@ -1377,7 +1379,7 @@ void falling(physent *d, vec &dir, const vec &floor)
         d->physstate = PHYS_FALL;
 }
 
-void landing(physent *d, vec &dir, const vec &floor, bool collided)
+static void landing(physent *d, vec &dir, const vec &floor, bool collided)
 {
 #if 0
     if(d->physstate == PHYS_FALL)
@@ -1393,7 +1395,7 @@ void landing(physent *d, vec &dir, const vec &floor, bool collided)
     d->floor = floor;
 }
 
-bool findfloor(physent *d, const vec &dir, bool collided, const vec &obstacle, bool &slide, vec &floor)
+static bool findfloor(physent *d, const vec &dir, bool collided, const vec &obstacle, bool &slide, vec &floor)
 {
     bool found = false;
     vec moved(d->o);
@@ -1451,7 +1453,7 @@ foundfloor:
     return found;
 }
 
-bool move(physent *d, vec &dir)
+static bool move(physent *d, vec &dir)
 {
     vec old(d->o);
     bool collided = false, slidecollide = false;
@@ -1673,7 +1675,7 @@ bool droptofloor(vec &o, float radius, float height)
     return false;
 }
 
-float dropheight(entity &e)
+static float dropheight(entity &e)
 {
     switch(e.type)
     {
@@ -1690,7 +1692,7 @@ void dropenttofloor(entity *e)
     droptofloor(e->o, 1.0f, dropheight(*e));
 }
 
-void phystest()
+static void phystest()
 {
     static const char * const states[] = {"float", "fall", "slide", "slope", "floor", "step up", "step down", "bounce"};
     printf ("PHYS(pl): %s, air %d, floor: (%f, %f, %f), vel: (%f, %f, %f), g: (%f, %f, %f)\n", states[player->physstate], player->timeinair, player->floor.x, player->floor.y, player->floor.z, player->vel.x, player->vel.y, player->vel.z, player->falling.x, player->falling.y, player->falling.z);
@@ -1740,7 +1742,7 @@ FVAR(straferoll, 0, 0.033f, 90);
 FVAR(faderoll, 0, 0.95f, 1);
 VAR(floatspeed, 1, 100, 10000);
 
-void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curtime)
+static void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curtime)
 {
     bool allowmove = game::allowmove(pl);
     if(floating)
@@ -1801,7 +1803,7 @@ void modifyvelocity(physent *pl, bool local, bool water, bool floating, int curt
 //    pl->vel.lerp(pl->vel, d, fpsfric);
 }
 
-void modifygravity(physent *pl, bool water, int curtime)
+static void modifygravity(physent *pl, bool water, int curtime)
 {
     float secs = curtime/1000.0f;
     vec g(0, 0, 0);
@@ -1898,7 +1900,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
     return true;
 }
 
-int physsteps = 0, physframetime = PHYSFRAMETIME, lastphysframe = 0;
+static int physsteps = 0, physframetime = PHYSFRAMETIME, lastphysframe = 0;
 
 void physicsframe()          // optimally schedule physics frames inside the graphics frames
 {
@@ -1915,7 +1917,7 @@ void physicsframe()          // optimally schedule physics frames inside the gra
 
 VAR(physinterp, 0, 1, 1);
 
-void interppos(physent *pl)
+static void interppos(physent *pl)
 {
     pl->o = pl->newpos;
 

@@ -1,4 +1,6 @@
 #include "pvs.hh"
+
+#include "main.hh" // numcpus, interceptkey, renderbackground
 #include "octa.hh"
 
 #include "engine.hh"

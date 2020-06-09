@@ -4,8 +4,6 @@
 #include "cube.hh"
 #include "world.hh"
 
-#ifndef STANDALONE
-
 #include "light.hh"
 #include "bih.hh"
 
@@ -21,10 +19,6 @@ extern const ivec facecoords[6][4];
 extern const uchar fv[6][4];
 extern const uchar fvmasks[64];
 extern const uchar faceedgesidx[6][4];
-extern bool inbetweenframes, renderedframe;
-
-extern SDL_Window *screen;
-extern int screenw, screenh;
 
 // renderlights
 
@@ -101,10 +95,6 @@ extern void updatedynlights();
 extern int finddynlights();
 extern bool getdynlight(int n, vec &o, float &radius, vec &color, vec &dir, int &spot, int &flags);
 
-// client
-extern void localdisconnect(bool cleanup = true);
-extern void clientkeepalive();
-
 // command
 extern hashnameset<ident> idents;
 extern int identflags;
@@ -132,53 +122,6 @@ extern const char *addreleaseaction(char *s);
 extern tagval *addreleaseaction(ident *id, int numargs);
 extern void writebinds(stream *f);
 extern void writecompletions(stream *f);
-
-// main
-
-extern int mainmenu;
-
-extern void clearmainmenu();
-
-enum
-{
-    NOT_INITING = 0,
-    INIT_GAME,
-    INIT_LOAD,
-    INIT_RESET
-};
-extern int initing, numcpus;
-
-extern bool initwarning(const char *desc, int level = INIT_RESET, int type = 0);
-
-extern bool grabinput, minimized;
-
-extern void pushevent(const SDL_Event &e);
-extern bool interceptkey(int sym);
-
-extern float loadprogress;
-extern void renderbackground(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL, bool force = false);
-extern void renderprogress(float bar, const char *text, bool background = false);
-
-extern void getframemillis(float &avg, float &best, float &worst);
-extern void getfps(int &fps, int &bestdiff, int &worstdiff);
-extern void swapbuffers(bool overlay = true);
-extern int getclockmillis();
-
-enum { KR_CONSOLE = 1<<0, KR_GUI = 1<<1, KR_EDITMODE = 1<<2 };
-
-extern void keyrepeat(bool on, int mask = ~0);
-
-enum { TI_CONSOLE = 1<<0, TI_GUI = 1<<1 };
-
-extern void textinput(bool on, int mask = ~0);
-
-// physics
-extern void mousemove(int dx, int dy);
-extern bool overlapsdynent(const vec &o, float radius);
-extern void rotatebb(vec &center, vec &radius, int yaw, int pitch, int roll = 0);
-extern float shadowray(const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
-
-#endif
 
 #endif
 

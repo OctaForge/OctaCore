@@ -1,6 +1,8 @@
 // core world management routines
 
 #include "octa.hh"
+
+#include "main.hh" // renderprogress
 #include "octaedit.hh"
 #include "world.hh"
 

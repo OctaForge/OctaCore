@@ -1,5 +1,7 @@
 // main.cpp: initialisation & main loop
 
+#include "main.hh"
+
 #include "blend.hh"
 #include "movie.hh"
 #include "octaedit.hh"
@@ -15,6 +17,11 @@
 #include "world.hh"
 
 #include "engine.hh"
+
+static SDL_Window *screen = NULL;
+static int curvsync = -1;
+
+static void swapbuffers(bool overlay = true);
 
 VAR(mainmenu, 1, 1, 0);
 
@@ -39,13 +46,13 @@ void clearmainmenu()
     }
 }
 
-void localdisconnect(bool cleanup)
+static void localdisconnect()
 {
-    game::gamedisconnect(cleanup);
+    game::gamedisconnect(true);
     mainmenu = 1;
 }
 
-void trydisconnect()
+static void trydisconnect()
 {
     if(haslocalclients()) localdisconnect();
     else conoutf("not connected");
@@ -53,9 +60,9 @@ void trydisconnect()
 
 ICOMMAND(disconnect, "", (), trydisconnect());
 
-extern void cleargamma();
+static void cleargamma();
 
-void cleanup()
+static void cleanup()
 {
     recorder::stop();
     SDL_ShowCursor(SDL_TRUE);
@@ -74,9 +81,9 @@ void cleanup()
     SDL_Quit();
 }
 
-extern void writeinitcfg();
+static void writeinitcfg();
 
-void quit()                     // normal exit
+static void quit()                     // normal exit
 {
     writeinitcfg();
     localdisconnect();
@@ -118,8 +125,7 @@ void fatal(const char *s, ...)    // failure exit
 VAR(desktopw, 1, 0, 0);
 VAR(desktoph, 1, 0, 0);
 int screenw = 0, screenh = 0;
-SDL_Window *screen = NULL;
-SDL_GLContext glcontext = NULL;
+static SDL_GLContext glcontext = NULL;
 
 int curtime = 0, lastmillis = 1, elapsedtime = 0, totalmillis = 1;
 
@@ -146,7 +152,7 @@ bool initwarning(const char *desc, int level, int type)
 VARFN(screenw, scr_w, SCR_MINW, -1, SCR_MAXW, initwarning("screen resolution"));
 VARFN(screenh, scr_h, SCR_MINH, -1, SCR_MAXH, initwarning("screen resolution"));
 
-void writeinitcfg()
+static void writeinitcfg()
 {
     stream *f = openutf8file("config/init.cfg", "w");
     if(!f) return;
@@ -170,12 +176,12 @@ static void getbackgroundres(int &w, int &h)
     h = int(ceil(h*hk));
 }
 
-string backgroundcaption = "";
-Texture *backgroundmapshot = NULL;
-string backgroundmapname = "";
-char *backgroundmapinfo = NULL;
+static string backgroundcaption = "";
+static Texture *backgroundmapshot = NULL;
+static string backgroundmapname = "";
+static char *backgroundmapinfo = NULL;
 
-void bgquad(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1)
+static void bgquad(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1)
 {
     gle::begin(GL_TRIANGLE_STRIP);
     gle::attribf(x,   y);   gle::attribf(tx,      ty);
@@ -185,7 +191,7 @@ void bgquad(float x, float y, float w, float h, float tx = 0, float ty = 0, floa
     gle::end();
 }
 
-void renderbackgroundview(int w, int h, const char *caption, Texture *mapshot, const char *mapname, const char *mapinfo)
+static void renderbackgroundview(int w, int h, const char *caption, Texture *mapshot, const char *mapname, const char *mapinfo)
 {
     static int lastupdate = -1, lastw = -1, lasth = -1;
     static float backgroundu = 0, backgroundv = 0;
@@ -276,7 +282,7 @@ void renderbackgroundview(int w, int h, const char *caption, Texture *mapshot, c
 
 VAR(menumute, 0, 1, 1);
 
-void setbackgroundinfo(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL)
+static void setbackgroundinfo(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL)
 {
     renderedframe = false;
     copystring(backgroundcaption, caption ? caption : "");
@@ -315,7 +321,7 @@ void renderbackground(const char *caption, Texture *mapshot, const char *mapname
     setbackgroundinfo(caption, mapshot, mapname, mapinfo);
 }
 
-void restorebackground(int w, int h, bool force = false)
+static void restorebackground(int w, int h, bool force = false)
 {
     if(renderedframe)
     {
@@ -327,7 +333,7 @@ void restorebackground(int w, int h, bool force = false)
 
 float loadprogress = 0;
 
-void renderprogressview(int w, int h, float bar, const char *text)   // also used during loading
+static void renderprogressview(int w, int h, float bar, const char *text)   // also used during loading
 {
     hudmatrix.ortho(0, w, h, 0, -1, 1);
     resethudmatrix();
@@ -400,7 +406,7 @@ void renderprogress(float bar, const char *text, bool background)   // also used
     getbackgroundres(w, h);
     gettextres(w, h);
 
-    extern int mesa_swap_bug, curvsync;
+    extern int mesa_swap_bug;
     bool forcebackground = progressbackground || (mesa_swap_bug && (curvsync || totalmillis==1));
     if(background || forcebackground) restorebackground(w, h, forcebackground);
 
@@ -410,9 +416,11 @@ void renderprogress(float bar, const char *text, bool background)   // also used
 
 VARNP(relativemouse, userelativemouse, 0, 1, 1);
 
-bool shouldgrab = false, grabinput = false, minimized = false, canrelativemouse = true, relativemouse = false;
-int keyrepeatmask = 0, textinputmask = 0;
-Uint32 textinputtime = 0;
+static bool shouldgrab = false, grabinput = false;
+static bool canrelativemouse = true, relativemouse = false;
+bool minimized = false;
+static int keyrepeatmask = 0, textinputmask = 0;
+static Uint32 textinputtime = 0;
 VAR(textinputfilter, 0, 5, 1000);
 
 void keyrepeat(bool on, int mask)
@@ -439,7 +447,7 @@ void textinput(bool on, int mask)
     }
 }
 
-void inputgrab(bool on)
+static void inputgrab(bool on)
 {
     if(on)
     {
@@ -472,9 +480,9 @@ void inputgrab(bool on)
     shouldgrab = false;
 }
 
-bool initwindowpos = false;
+static bool initwindowpos = false;
 
-void setfullscreen(bool enable)
+static void setfullscreen(bool enable)
 {
     if(!screen) return;
     //initwarning(enable ? "fullscreen" : "windowed");
@@ -497,7 +505,7 @@ VARF(fullscreen, 0, 0, 1, setfullscreen(fullscreen!=0));
 VARF(fullscreen, 0, 1, 1, setfullscreen(fullscreen!=0));
 #endif
 
-void screenres(int w, int h)
+static void screenres(int w, int h)
 {
     scr_w = clamp(w, SCR_MINW, SCR_MAXW);
     scr_h = clamp(h, SCR_MINH, SCR_MAXH);
@@ -529,20 +537,19 @@ VARFNP(gamma, reqgamma, 30, 100, 300,
     setgamma(curgamma);
 });
 
-void restoregamma()
+static void restoregamma()
 {
     if(initing || reqgamma == 100) return;
     curgamma = reqgamma;
     setgamma(curgamma);
 }
 
-void cleargamma()
+static void cleargamma()
 {
     if(curgamma != 100 && screen) SDL_SetWindowBrightness(screen, 1.0f);
 }
 
-int curvsync = -1;
-void restorevsync()
+static void restorevsync()
 {
     if(initing || !glcontext) return;
     extern int vsync, vsynctear;
@@ -555,7 +562,7 @@ VARFP(vsynctear, 0, 0, 1, { if(vsync) restorevsync(); });
 
 VAR(dbgmodes, 0, 0, 1);
 
-void setupscreen()
+static void setupscreen()
 {
     if(glcontext)
     {
@@ -621,7 +628,7 @@ void setupscreen()
     hudh = screenh;
 }
 
-void resetgl()
+static void resetgl()
 {
     //clearchanges(CHANGE_GFX|CHANGE_SHADERS);
 
@@ -669,9 +676,9 @@ void resetgl()
 
 COMMAND(resetgl, "");
 
-vector<SDL_Event> events;
+static vector<SDL_Event> events;
 
-void pushevent(const SDL_Event &e)
+static void pushevent(const SDL_Event &e)
 {
     events.add(e);
 }
@@ -767,7 +774,7 @@ static void checkmousemotion(int &dx, int &dy)
     }
 }
 
-void checkinput()
+static void checkinput()
 {
     SDL_Event event;
     //int lasttype = 0, lastbut = 0;
@@ -875,7 +882,7 @@ void checkinput()
     if(mousemoved) resetmousemotion();
 }
 
-void swapbuffers(bool overlay)
+static void swapbuffers(bool overlay)
 {
     recorder::capture(overlay);
     gle::disable();
@@ -885,7 +892,7 @@ void swapbuffers(bool overlay)
 VAR(menufps, 0, 60, 1000);
 VARP(maxfps, 0, 125, 1000);
 
-void limitfps(int &millis, int curmillis)
+static void limitfps(int &millis, int curmillis)
 {
     int limit = (mainmenu || minimized) && menufps ? (maxfps ? min(maxfps, menufps) : menufps) : maxfps;
     if(!limit) return;
@@ -929,7 +936,7 @@ __declspec(dllexport)
 #endif
 
 #if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
-void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
+static void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
 {
     if(!ep) fatal("unknown type");
     EXCEPTION_RECORD *er = ep->ExceptionRecord;
@@ -972,21 +979,22 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
 
 #define MAXFPSHISTORY 60
 
-int fpspos = 0, fpshistory[MAXFPSHISTORY];
+static int fpspos = 0, fpshistory[MAXFPSHISTORY];
 
-void resetfpshistory()
+static void resetfpshistory()
 {
     loopi(MAXFPSHISTORY) fpshistory[i] = 1;
     fpspos = 0;
 }
 
-void updatefpshistory(int millis)
+static void updatefpshistory(int millis)
 {
     fpshistory[fpspos++] = max(1, min(1000, millis));
     if(fpspos>=MAXFPSHISTORY) fpspos = 0;
 }
 
-void getframemillis(float &avg, float &bestdiff, float &worstdiff)
+#if 0
+static void getframemillis(float &avg, float &bestdiff, float &worstdiff)
 {
     int total = fpshistory[MAXFPSHISTORY-1], best = total, worst = total;
     loopi(MAXFPSHISTORY-1)
@@ -1001,6 +1009,7 @@ void getframemillis(float &avg, float &bestdiff, float &worstdiff)
     best = best - avg;
     worstdiff = avg - worst;
 }
+#endif
 
 void getfps(int &fps, int &bestdiff, int &worstdiff)
 {
@@ -1018,7 +1027,7 @@ void getfps(int &fps, int &bestdiff, int &worstdiff)
     worstdiff = fps-1000/worst;
 }
 
-void getfps_(int *raw)
+static void getfps_(int *raw)
 {
     if(*raw) floatret(1000.0f/fpshistory[(fpspos+MAXFPSHISTORY-1)%MAXFPSHISTORY]);
     else

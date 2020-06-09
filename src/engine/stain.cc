@@ -1,3 +1,4 @@
+#include "main.hh" // initing, loadprogress
 #include "material.hh"
 #include "rendergl.hh"
 #include "rendermodel.hh" // loadmapmodel

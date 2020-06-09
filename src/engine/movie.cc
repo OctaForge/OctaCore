@@ -7,6 +7,9 @@
 //   avidemux - ok - 3Apr09-RockKeyman:had to swap UV channels as it showed up blue
 //   kino - ok
 
+#include "movie.hh"
+
+#include "main.hh" // getfps, getclockmillis, screenw/h, inbetweenframes, renderedframe
 #include "rendergl.hh"
 #include "rendertext.hh"
 #include "texture.hh"
