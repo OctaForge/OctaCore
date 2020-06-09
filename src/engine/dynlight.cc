@@ -1,3 +1,5 @@
+#include "dynlight.hh"
+
 #include "pvs.hh"
 #include "renderva.hh"
 
@@ -52,8 +54,8 @@ struct dynlight
     }
 };
 
-vector<dynlight> dynlights;
-vector<dynlight *> closedynlights;
+static vector<dynlight> dynlights;
+static vector<dynlight *> closedynlights;
 
 void adddynlight(const vec &o, float radius, const vec &color, int fade, int peak, int flags, float initradius, const vec &initcolor, physent *owner, const vec &dir, int spot)
 {
@@ -78,7 +80,7 @@ void adddynlight(const vec &o, float radius, const vec &color, int fade, int pea
     dynlights.insert(insert, d);
 }
 
-void cleardynlights()
+static void cleardynlights()
 {
     int faded = -1;
     loopv(dynlights) if(lastmillis<dynlights[i].expire) { faded = i; break; }

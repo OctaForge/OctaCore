@@ -87,12 +87,6 @@ extern void destroyva(vtxarray *va, bool reparent = true);
 extern void updatevabb(vtxarray *va, bool force = false);
 extern void updatevabbs(bool force = false);
 
-// dynlight
-
-extern void updatedynlights();
-extern int finddynlights();
-extern bool getdynlight(int n, vec &o, float &radius, vec &color, vec &dir, int &spot, int &flags);
-
 // command
 extern hashnameset<ident> idents;
 extern int identflags;

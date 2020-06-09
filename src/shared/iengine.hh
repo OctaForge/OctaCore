@@ -109,18 +109,6 @@ extern void fatal(const char *s, ...) PRINTFARGS(1, 2);
 
 struct VSlot;
 
-// dynlight
-enum
-{
-    DL_SHRINK = 1<<8,
-    DL_EXPAND = 1<<9,
-    DL_FLASH  = 1<<10
-};
-
-extern void adddynlight(const vec &o, float radius, const vec &color, int fade = 0, int peak = 0, int flags = 0, float initradius = 0, const vec &initcolor = vec(0, 0, 0), physent *owner = NULL, const vec &dir = vec(0, 0, 0), int spot = 0);
-extern void dynlightreaching(const vec &target, vec &color, vec &dir, bool hud = false);
-extern void removetrackeddynlights(physent *owner = NULL);
-
 // rendergl
 extern physent *camera1;
 extern vec worldpos, camdir, camright, camup;

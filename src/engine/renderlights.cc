@@ -1,6 +1,7 @@
 #include "renderlights.hh"
 
 #include "aa.hh"
+#include "dynlight.hh"
 #include "main.hh" // initwarning
 #include "material.hh"
 #include "octaedit.hh" // editmode
