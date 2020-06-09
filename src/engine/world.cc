@@ -19,7 +19,6 @@
 
 VARNR(mapscale, worldscale, 1, 0, 0);
 VARNR(mapsize, worldsize, 1, 0, 0);
-SVARR(maptitle, "Untitled Map by Unknown");
 VARNR(emptymap, _emptymap, 1, 0, 0);
 
 VAR(octaentsize, 0, 64, 1024);

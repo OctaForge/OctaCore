@@ -8,6 +8,38 @@
 
 #include "engine.hh"
 
+static const uchar fv[6][4] = // indexes for cubecoords, per each vert of a face orientation
+{
+    { 2, 1, 6, 5 },
+    { 3, 4, 7, 0 },
+    { 4, 5, 6, 7 },
+    { 1, 2, 3, 0 },
+    { 6, 1, 0, 7 },
+    { 5, 4, 3, 2 },
+};
+
+static const uchar fvmasks[64] = // mask of verts used given a mask of visible face orientations
+{
+    0x00, 0x66, 0x99, 0xFF, 0xF0, 0xF6, 0xF9, 0xFF,
+    0x0F, 0x6F, 0x9F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xC3, 0xE7, 0xDB, 0xFF, 0xF3, 0xF7, 0xFB, 0xFF,
+    0xCF, 0xEF, 0xDF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x3C, 0x7E, 0xBD, 0xFF, 0xFC, 0xFE, 0xFD, 0xFF,
+    0x3F, 0x7F, 0xBF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+};
+
+static const uchar faceedgesidx[6][4] = // ordered edges surrounding each orient
+{//0..1 = row edges, 2..3 = column edges
+    { 4,  5,  8, 10 },
+    { 6,  7,  9, 11 },
+    { 8,  9,  0, 2 },
+    { 10, 11, 1, 3 },
+    { 0,  1,  4, 6 },
+    { 2,  3,  5, 7 },
+};
+
 static struct emptycube : cube
 {
     emptycube()
@@ -598,7 +630,7 @@ void mpremip(bool local)
 
 ICOMMAND(remip, "", (), mpremip(true));
 
-const ivec cubecoords[8] = // verts of bounding cube
+static const ivec cubecoords[8] = // verts of bounding cube
 {
 #define GENCUBEVERT(n, x, y, z) ivec(x, y, z),
     GENCUBEVERTS(0, 8, 0, 8, 0, 8)
@@ -639,7 +671,8 @@ void genfaceverts(const cube &c, int orient, ivec v[4])
     }
 }
 
-const ivec facecoords[6][4] =
+#if 0
+static const ivec facecoords[6][4] =
 {
 #define GENFACEORIENT(o, v0, v1, v2, v3) \
     { v0, v1, v2, v3 },
@@ -649,38 +682,7 @@ const ivec facecoords[6][4] =
 #undef GENFACEORIENT
 #undef GENFACEVERT
 };
-
-const uchar fv[6][4] = // indexes for cubecoords, per each vert of a face orientation
-{
-    { 2, 1, 6, 5 },
-    { 3, 4, 7, 0 },
-    { 4, 5, 6, 7 },
-    { 1, 2, 3, 0 },
-    { 6, 1, 0, 7 },
-    { 5, 4, 3, 2 },
-};
-
-const uchar fvmasks[64] = // mask of verts used given a mask of visible face orientations
-{
-    0x00, 0x66, 0x99, 0xFF, 0xF0, 0xF6, 0xF9, 0xFF,
-    0x0F, 0x6F, 0x9F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xC3, 0xE7, 0xDB, 0xFF, 0xF3, 0xF7, 0xFB, 0xFF,
-    0xCF, 0xEF, 0xDF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0x3C, 0x7E, 0xBD, 0xFF, 0xFC, 0xFE, 0xFD, 0xFF,
-    0x3F, 0x7F, 0xBF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-};
-
-const uchar faceedgesidx[6][4] = // ordered edges surrounding each orient
-{//0..1 = row edges, 2..3 = column edges
-    { 4,  5,  8, 10 },
-    { 6,  7,  9, 11 },
-    { 8,  9,  0, 2 },
-    { 10, 11, 1, 3 },
-    { 0,  1,  4, 6 },
-    { 2,  3,  5, 7 },
-};
+#endif
 
 bool flataxisface(const cube &c, int orient)
 {

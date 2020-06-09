@@ -831,8 +831,6 @@ bool load_world(const char *mname, const char *cname)        // still supports a
 
     renderbackground("loading...", mapshot, mname, game::getmapinfo());
 
-    if(maptitle[0] && strcmp(maptitle, "Untitled Map by Unknown")) conoutf(CON_ECHO, "%s", maptitle);
-
     startmap(cname ? cname : mname);
 
     return true;

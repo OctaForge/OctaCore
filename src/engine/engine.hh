@@ -9,14 +9,7 @@ extern dynent *player;
 extern physent *camera1;                // special ent that acts as camera, same object as player1 in FPS mode
 
 extern int worldscale, worldsize;
-extern int mapversion;
-extern char *maptitle;
 extern int xtraverts, xtravertsva;
-extern const ivec cubecoords[8];
-extern const ivec facecoords[6][4];
-extern const uchar fv[6][4];
-extern const uchar fvmasks[64];
-extern const uchar faceedgesidx[6][4];
 
 // renderlights
 
