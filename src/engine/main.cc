@@ -3,6 +3,7 @@
 #include "main.hh"
 
 #include "blend.hh"
+#include "command.hh" // checksleep, writecfg
 #include "movie.hh"
 #include "octaedit.hh"
 #include "rendergl.hh"

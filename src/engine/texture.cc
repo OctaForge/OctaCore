@@ -1,12 +1,14 @@
 // texture.cpp: texture slot management
 
+#include "texture.hh"
+
+#include "command.hh" // identflags
 #include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe
 #include "material.hh"
 #include "octaedit.hh"
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "shader.hh"
-#include "texture.hh"
 
 #include "engine.hh"
 

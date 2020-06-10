@@ -1,6 +1,7 @@
 // worldio.cpp: loading & saving of maps and savegames
 
 #include "blend.hh"
+#include "command.hh" // idents, identflags
 #include "main.hh" // clearmainmenu, renderbackground
 #include "octa.hh"
 #include "octaedit.hh" // texmru

@@ -1,6 +1,7 @@
 #include "rendermodel.hh"
 
 #include "aa.hh"
+#include "command.hh" // identflags
 #include "main.hh" // loadprogress, renderprogress
 #include "pvs.hh"
 #include "rendergl.hh"

@@ -80,16 +80,6 @@ extern void destroyva(vtxarray *va, bool reparent = true);
 extern void updatevabb(vtxarray *va, bool force = false);
 extern void updatevabbs(bool force = false);
 
-// command
-extern hashnameset<ident> idents;
-extern int identflags;
-
-extern void clearoverrides();
-extern void writecfg(const char *name = NULL);
-
-extern void checksleep(int millis);
-extern void clearsleep(bool clearoverrides = true);
-
 // console
 extern float conscale;
 

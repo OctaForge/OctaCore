@@ -1,6 +1,7 @@
 // world.cpp: core map management stuff
 
 #include "blend.hh"
+#include "command.hh"
 #include "main.hh" // clearmainmenu
 #include "octa.hh"
 #include "octaedit.hh"

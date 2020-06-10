@@ -1,5 +1,8 @@
 // script binding functionality
 
+#ifndef SHARED_COMMAND_HH
+#define SHARED_COMMAND_HH
+
 enum { VAL_NULL = 0, VAL_INT, VAL_FLOAT, VAL_STR, VAL_ANY, VAL_CODE, VAL_MACRO, VAL_IDENT, VAL_CSTR, VAL_CANY, VAL_WORD, VAL_POP, VAL_COND };
 
 enum
@@ -408,3 +411,4 @@ inline void ident::getcval(tagval &v) const
 #define ICOMMAND(name, nargs, proto, b) ICOMMANDN(name, ICOMMANDNAME(name), nargs, proto, b)
 #define ICOMMANDS(name, nargs, proto, b) ICOMMANDNS(name, ICOMMANDSNAME, nargs, proto, b)
 
+#endif

@@ -1,5 +1,6 @@
 // console.cpp: the console buffer, its display, and command line control
 
+#include "command.hh" // idents, identflags
 #include "main.hh"
 #include "octaedit.hh" // editmode
 #include "rendertext.hh"
