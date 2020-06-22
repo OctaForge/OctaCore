@@ -6,6 +6,7 @@
 #include "physics.hh"
 
 #include "console.hh" /* conoutf */
+#include "main.hh" // player
 #include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"

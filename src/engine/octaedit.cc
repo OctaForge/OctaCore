@@ -2,7 +2,7 @@
 
 #include "blend.hh"
 #include "console.hh" /* conoutf */
-#include "main.hh" // mainmenu, keyrepeat, renderedframe
+#include "main.hh" // mainmenu, keyrepeat, renderedframe, player
 #include "material.hh"
 #include "octa.hh"
 #include "octarender.hh"

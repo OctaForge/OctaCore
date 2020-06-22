@@ -3,7 +3,7 @@
 #include "blend.hh"
 #include "command.hh"
 #include "console.hh" /* conoutf */
-#include "main.hh" // clearmainmenu
+#include "main.hh" // clearmainmenu, player
 #include "octa.hh"
 #include "octaedit.hh"
 #include "octarender.hh"

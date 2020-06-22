@@ -1,6 +1,6 @@
 #include "blend.hh"
 #include "console.hh" /* conoutf */
-#include "main.hh" // renderbackground
+#include "main.hh" // renderbackground, player
 #include "octa.hh"
 #include "octaedit.hh" // commitchanges
 #include "octarender.hh"

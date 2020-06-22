@@ -10,6 +10,9 @@ extern bool minimized;
 extern float loadprogress;
 extern bool inbetweenframes, renderedframe;
 
+struct dynent;
+extern dynent *player;
+
 void clearmainmenu();
 
 enum
