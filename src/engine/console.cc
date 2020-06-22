@@ -14,19 +14,19 @@ static void complete(char *s, int maxlen, const char *cmdprefix);
 
 #define MAXCONLINES 1000
 struct cline { char *line; int type, outtime; };
-reversequeue<cline, MAXCONLINES> conlines;
+static reversequeue<cline, MAXCONLINES> conlines;
 
-int commandmillis = -1;
-string commandbuf;
-char *commandaction = NULL, *commandprompt = NULL;
+static int commandmillis = -1;
+static string commandbuf;
+static char *commandaction = NULL, *commandprompt = NULL;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1 };
-int commandflags = 0, commandpos = -1;
+static int commandflags = 0, commandpos = -1;
 
 VARFP(maxcon, 10, 200, MAXCONLINES, { while(conlines.length() > maxcon) delete[] conlines.pop().line; });
 
 #define CONSTRLEN 512
 
-void conline(int type, const char *sf)        // add a line to the console buffer
+static void conline(int type, const char *sf)        // add a line to the console buffer
 {
     char *buf = conlines.length() >= maxcon ? conlines.remove().line : newstring("", CONSTRLEN-1);
     cline &cl = conlines.add();
@@ -85,9 +85,9 @@ HVARP(confilter, 0, 0xFFFFFF, 0xFFFFFF);
 HVARP(fullconfilter, 0, 0xFFFFFF, 0xFFFFFF);
 HVARP(miniconfilter, 0, 0, 0xFFFFFF);
 
-int conskip = 0, miniconskip = 0;
+static int conskip = 0, miniconskip = 0;
 
-void setconskip(int &skip, int filter, int n)
+static void setconskip(int &skip, int filter, int n)
 {
     int offset = abs(n), dir = n < 0 ? -1 : 1;
     skip = clamp(skip, 0, conlines.length()-1);
@@ -108,7 +108,7 @@ ICOMMAND(miniconskip, "i", (int *n), setconskip(miniconskip, miniconfilter, *n))
 
 ICOMMAND(clearconsole, "", (), { while(conlines.length()) delete[] conlines.pop().line; });
 
-float drawconlines(int conskip, int confade, float conwidth, float conheight, float conoff, int filter, float y = 0, int dir = 1)
+static float drawconlines(int conskip, int confade, float conwidth, float conheight, float conoff, int filter, float y = 0, int dir = 1)
 {
     int numl = conlines.length(), offset = min(conskip, numl);
 
@@ -193,9 +193,9 @@ struct keym
     void clear() { loopi(NUMACTIONS) clear(i); }
 };
 
-hashtable<int, keym> keyms(128);
+static hashtable<int, keym> keyms(128);
 
-void keymap(int *code, char *key)
+static void keymap(int *code, char *key)
 {
     if(identflags&IDF_OVERRIDDEN) { conoutf(CON_ERROR, "cannot override keymap %d", *code); return; }
     keym &km = keyms[*code];
@@ -206,8 +206,8 @@ void keymap(int *code, char *key)
 
 COMMAND(keymap, "is");
 
-keym *keypressed = NULL;
-char *keyaction = NULL;
+static keym *keypressed = NULL;
+static char *keyaction = NULL;
 
 #if 0
 static const char *getkeyname(int code)
@@ -217,7 +217,7 @@ static const char *getkeyname(int code)
 }
 #endif
 
-void searchbinds(char *action, int type)
+static void searchbinds(char *action, int type)
 {
     vector<char> names;
     enumerate(keyms, keym, km,
@@ -232,7 +232,7 @@ void searchbinds(char *action, int type)
     result(names.getbuf());
 }
 
-keym *findbind(char *key)
+static keym *findbind(char *key)
 {
     enumerate(keyms, keym, km,
     {
@@ -241,13 +241,13 @@ keym *findbind(char *key)
     return NULL;
 }
 
-void getbind(char *key, int type)
+static void getbind(char *key, int type)
 {
     keym *km = findbind(key);
     result(km ? km->actions[type] : "");
 }
 
-void bindkey(char *key, char *action, int state, const char *cmd)
+static void bindkey(char *key, char *action, int state, const char *cmd)
 {
     if(identflags&IDF_OVERRIDDEN) { conoutf(CON_ERROR, "cannot override %s \"%s\"", cmd, key); return; }
     keym *km = findbind(key);
@@ -286,7 +286,7 @@ ICOMMAND(clearspecbinds, "", (), enumerate(keyms, keym, km, km.clear(keym::ACTIO
 ICOMMAND(cleareditbinds, "", (), enumerate(keyms, keym, km, km.clear(keym::ACTION_EDITING)));
 ICOMMAND(clearallbinds, "", (), enumerate(keyms, keym, km, km.clear()));
 
-void inputcommand(char *init, char *action = NULL, char *prompt = NULL, char *flags = NULL) // turns input to the command line on or off
+static void inputcommand(char *init, char *action = NULL, char *prompt = NULL, char *flags = NULL) // turns input to the command line on or off
 {
     commandmillis = init ? totalmillis : -1;
     textinput(commandmillis >= 0, TI_CONSOLE);
@@ -310,7 +310,7 @@ void inputcommand(char *init, char *action = NULL, char *prompt = NULL, char *fl
 ICOMMAND(saycommand, "C", (char *init), inputcommand(init));
 COMMAND(inputcommand, "ssss");
 
-void pasteconsole()
+static void pasteconsole()
 {
     if(!SDL_HasClipboardText()) return;
     char *cb = SDL_GetClipboardText();
@@ -373,12 +373,12 @@ struct hline
         else game::toserver(buf);
     }
 };
-vector<hline *> history;
-int histpos = 0;
+static vector<hline *> history;
+static int histpos = 0;
 
 VARP(maxhistory, 0, 1000, 10000);
 
-void history_(int *n)
+static void history_(int *n)
 {
     static bool inhistory = false;
     if(!inhistory && history.inrange(*n))
@@ -402,7 +402,7 @@ struct releaseaction
     int numargs;
     tagval args[3];
 };
-vector<releaseaction> releaseactions;
+static vector<releaseaction> releaseactions;
 
 const char *addreleaseaction(char *s)
 {
@@ -424,14 +424,14 @@ tagval *addreleaseaction(ident *id, int numargs)
     return ra.args;
 }
 
-void onrelease(const char *s)
+static void onrelease(const char *s)
 {
     addreleaseaction(newstring(s));
 }
 
 COMMAND(onrelease, "s");
 
-void execbind(keym &k, bool isdown)
+static void execbind(keym &k, bool isdown)
 {
     loopv(releaseactions)
     {
@@ -465,7 +465,7 @@ void execbind(keym &k, bool isdown)
     k.pressed = isdown;
 }
 
-bool consoleinput(const char *str, int len)
+static bool consoleinput(const char *str, int len)
 {
     if(commandmillis < 0) return false;
 
@@ -487,7 +487,7 @@ bool consoleinput(const char *str, int len)
     return true;
 }
 
-bool consolekey(int code, bool isdown)
+static bool consolekey(int code, bool isdown)
 {
     if(commandmillis < 0) return false;
 
