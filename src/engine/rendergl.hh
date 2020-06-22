@@ -34,6 +34,10 @@ extern void glerror(const char *file, int line, GLenum error);
 
 #define GLERROR do { if(glerr) { GLenum error = glGetError(); if(error != GL_NO_ERROR) glerror(__FILE__, __LINE__, error); } } while(0)
 
+struct physent; // FIXME
+
+extern physent *camera1; // special ent that acts as camera, same object as player1 in FPS mode
+
 void gl_checkextensions();
 void gl_init();
 void gl_resize();
