@@ -17,7 +17,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 #define CHANGE_SHADERS 0
 

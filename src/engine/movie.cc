@@ -15,7 +15,7 @@
 #include "rendertext.hh"
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 VAR(dbgmovie, 0, 0, 1);
 

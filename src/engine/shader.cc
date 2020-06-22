@@ -10,7 +10,7 @@
 #include "rendermodel.hh" // cleanupmodels
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 Shader *Shader::lastshader = NULL;
 

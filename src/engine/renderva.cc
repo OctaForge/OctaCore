@@ -15,7 +15,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static inline void drawtris(GLsizei numindices, const GLvoid *indices, ushort minvert, ushort maxvert)
 {

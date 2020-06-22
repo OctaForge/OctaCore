@@ -6,7 +6,7 @@
 #include "octarender.hh" // valist
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 enum
 {

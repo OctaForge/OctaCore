@@ -19,7 +19,7 @@
 #include "worldio.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 VARNR(mapscale, worldscale, 1, 0, 0);
 VARNR(mapsize, worldsize, 1, 0, 0);

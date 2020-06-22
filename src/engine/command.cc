@@ -6,7 +6,7 @@
 #include "console.hh"
 #include "main.hh" // fatal
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
 vector<ident *> identmap;

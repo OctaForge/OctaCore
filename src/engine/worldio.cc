@@ -13,7 +13,7 @@
 #include "world.hh"
 #include "worldio.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 #define OCTAVERSION 33
 

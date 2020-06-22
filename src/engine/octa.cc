@@ -9,7 +9,7 @@
 #include "octarender.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static const uchar fv[6][4] = // indexes for cubecoords, per each vert of a face orientation
 {

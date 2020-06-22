@@ -5,7 +5,7 @@
 #include "renderlights.hh"
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 extern int intel_texalpha_bug;
 

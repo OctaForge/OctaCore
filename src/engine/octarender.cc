@@ -16,7 +16,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 struct vboinfo
 {

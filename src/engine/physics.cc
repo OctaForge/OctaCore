@@ -11,7 +11,7 @@
 #include "octa.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 #include "mpr.hh"
 
 const int MAXCLIPOFFSET = 4;

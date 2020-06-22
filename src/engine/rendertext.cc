@@ -4,7 +4,7 @@
 #include "rendergl.hh" // xtraverts
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static hashnameset<font> fonts;
 static font *fontdef = NULL;

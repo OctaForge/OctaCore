@@ -3,7 +3,7 @@
 #include "pvs.hh"
 #include "renderva.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 VARNP(dynlights, usedynlights, 0, 1, 1);
 VARP(dynlightdist, 0, 1024, 10000);

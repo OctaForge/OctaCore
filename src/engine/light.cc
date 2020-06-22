@@ -11,7 +11,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 CVAR1R(ambient, 0x191919);
 FVARR(ambientscale, 0, 1, 16);

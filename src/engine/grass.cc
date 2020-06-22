@@ -3,7 +3,7 @@
 #include "renderva.hh"
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 VARP(grass, 0, 1, 1);
 VAR(dbggrass, 0, 0, 1);

@@ -7,7 +7,7 @@
 #include "octaedit.hh" // editmode
 #include "rendertext.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static void resetcomplete();
 static void complete(char *s, int maxlen, const char *cmdprefix);

@@ -19,7 +19,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static SDL_Window *screen = NULL;
 static int curvsync = -1;

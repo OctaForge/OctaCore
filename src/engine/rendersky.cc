@@ -7,7 +7,7 @@
 #include "renderva.hh"
 #include "texture.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 static Texture *sky[6] = { 0, 0, 0, 0, 0, 0 }, *clouds[6] = { 0, 0, 0, 0, 0, 0 };
 

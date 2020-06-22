@@ -6,7 +6,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 extern const vec matnormals[6];
 

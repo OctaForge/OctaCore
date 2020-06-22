@@ -14,7 +14,7 @@
 #include "shader.hh"
 #include "world.hh"
 
-#include "engine.hh"
+#include <shared/cube.hh>
 
 #ifdef __APPLE__
   #include "SDL2_image/SDL_image.h"
