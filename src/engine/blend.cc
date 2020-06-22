@@ -6,6 +6,7 @@
 #include "rendergl.hh" /* has* */
 #include "renderva.hh"
 #include "texture.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

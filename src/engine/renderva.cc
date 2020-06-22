@@ -13,6 +13,7 @@
 #include "rendermodel.hh"
 #include "rendersky.hh"
 #include "texture.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

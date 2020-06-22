@@ -9,6 +9,7 @@
 #include "physics.hh"
 #include "renderlights.hh"
 #include "texture.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

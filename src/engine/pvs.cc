@@ -4,6 +4,7 @@
 #include "main.hh" // numcpus, interceptkey, renderbackground
 #include "octa.hh"
 #include "octarender.hh" // valist
+#include "world.hh"
 
 #include "engine.hh"
 

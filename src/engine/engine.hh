@@ -2,6 +2,5 @@
 #define __ENGINE_H__
 
 #include "cube.hh"
-#include "world.hh"
 
 #endif

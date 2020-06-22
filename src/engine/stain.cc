@@ -1,11 +1,13 @@
+#include "stain.hh"
+
 #include "console.hh" /* conoutf */
 #include "main.hh" // initing, loadprogress
 #include "material.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "rendermodel.hh" // loadmapmodel
-#include "stain.hh"
 #include "texture.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

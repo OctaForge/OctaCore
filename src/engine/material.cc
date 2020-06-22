@@ -6,6 +6,7 @@
 #include "renderva.hh"
 #include "texture.hh"
 #include "water.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

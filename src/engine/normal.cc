@@ -2,6 +2,7 @@
 #include "main.hh" // renderprogress
 #include "octarender.hh"
 #include "texture.hh"
+#include "world.hh"
 
 #include "engine.hh"
 

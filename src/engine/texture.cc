@@ -12,6 +12,7 @@
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "shader.hh"
+#include "world.hh"
 
 #include "engine.hh"
 
