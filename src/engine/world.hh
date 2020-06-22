@@ -27,6 +27,8 @@ enum
 extern vector<int> outsideents;
 extern vector<int> entgroup;
 
+extern int worldscale, worldsize;
+
 extern int spotlights;
 extern int volumetriclights;
 extern int nospeclights;
