@@ -4,6 +4,7 @@
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
 #include "main.hh" // loadprogress, renderprogress
+#include "octarender.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderva.hh"

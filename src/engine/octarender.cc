@@ -23,7 +23,7 @@ struct vboinfo
     uchar *data;
 };
 
-hashtable<GLuint, vboinfo> vbos;
+static hashtable<GLuint, vboinfo> vbos;
 
 VAR(printvbo, 0, 0, 1);
 VARFN(vbosize, maxvbosize, 0, 1<<14, 1<<16, allchanged());
@@ -41,7 +41,7 @@ static vector<uchar> vbodata[NUMVBO];
 static vector<vtxarray *> vbovas[NUMVBO];
 static int vbosize[NUMVBO];
 
-void destroyvbo(GLuint vbo)
+static void destroyvbo(GLuint vbo)
 {
     vboinfo *exists = vbos.access(vbo);
     if(!exists) return;
@@ -56,7 +56,7 @@ void destroyvbo(GLuint vbo)
     }
 }
 
-void genvbo(int type, void *buf, int len, vtxarray **vas, int numva)
+static void genvbo(int type, void *buf, int len, vtxarray **vas, int numva)
 {
     gle::disable();
 
@@ -99,7 +99,7 @@ void genvbo(int type, void *buf, int len, vtxarray **vas, int numva)
     }
 }
 
-void flushvbo(int type = -1)
+static void flushvbo(int type = -1)
 {
     if(type < 0)
     {
@@ -116,7 +116,7 @@ void flushvbo(int type = -1)
     vbosize[type] = 0;
 }
 
-uchar *addvbo(vtxarray *va, int type, int numelems, int elemsize)
+static uchar *addvbo(vtxarray *va, int type, int numelems, int elemsize)
 {
     switch(type)
     {
@@ -636,7 +636,7 @@ struct vacollect : verthash
     }
 } vc;
 
-int recalcprogress = 0;
+static int recalcprogress = 0;
 #define progress(s)     if((recalcprogress++&0xFFF)==0) renderprogress(recalcprogress/(float)allocnodes, s);
 
 vector<tjoint> tjoints;
@@ -683,7 +683,7 @@ extern const vec orientation_bitangent[8][6] =
     { vec( 0, -1,  0), vec( 0,  1,  0), vec( 1,  0,  0), vec(-1,  0,  0), vec(-1,  0,  0), vec(-1,  0,  0) },
 };
 
-void addtris(VSlot &vslot, int orient, const sortkey &key, vertex *verts, int *index, int numverts, int convex, int tj)
+static void addtris(VSlot &vslot, int orient, const sortkey &key, vertex *verts, int *index, int numverts, int convex, int tj)
 {
     int &total = key.tex==DEFAULT_SKY ? vc.skytris : vc.worldtris;
     int edge = orient*(MAXFACEVERTS+1);
@@ -771,7 +771,7 @@ void addtris(VSlot &vslot, int orient, const sortkey &key, vertex *verts, int *i
     }
 }
 
-void addgrasstri(int face, vertex *verts, int numv, ushort texture, int layer)
+static void addgrasstri(int face, vertex *verts, int numv, ushort texture, int layer)
 {
     grasstri &g = vc.grasstris.add();
     int i1, i2, i3, i4;
@@ -877,7 +877,7 @@ void guessnormals(const vec *pos, int numverts, vec *normals)
     normals[3] = n2;
 }
 
-void addcubeverts(VSlot &vslot, int orient, int size, vec *pos, int convex, ushort texture, vertinfo *vinfo, int numverts, int tj = -1, ushort envmap = EMID_NONE, int grassy = 0, bool alpha = false, int layer = LAYER_TOP)
+static void addcubeverts(VSlot &vslot, int orient, int size, vec *pos, int convex, ushort texture, vertinfo *vinfo, int numverts, int tj = -1, ushort envmap = EMID_NONE, int grassy = 0, bool alpha = false, int layer = LAYER_TOP)
 {
     vec4 sgen, tgen;
     calctexgen(vslot, orient, sgen, tgen);
@@ -977,10 +977,10 @@ struct cubeedge
     uchar index, flags;
 };
 
-vector<cubeedge> cubeedges;
-hashtable<edgegroup, int> edgegroups(1<<13);
+static vector<cubeedge> cubeedges;
+static hashtable<edgegroup, int> edgegroups(1<<13);
 
-void gencubeedges(cube &c, const ivec &co, int size)
+static void gencubeedges(cube &c, const ivec &co, int size)
 {
     ivec pos[MAXFACEVERTS];
     int vis;
@@ -1081,7 +1081,7 @@ void gencubeedges(cube &c, const ivec &co, int size)
     }
 }
 
-void gencubeedges(cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size = worldsize>>1)
+static void gencubeedges(cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size = worldsize>>1)
 {
     progress("fixing t-joints...");
     neighbourstack[++neighbourdepth] = c;
@@ -1095,7 +1095,7 @@ void gencubeedges(cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size 
     --neighbourdepth;
 }
 
-void gencubeverts(cube &c, const ivec &co, int size, int csi)
+static void gencubeverts(cube &c, const ivec &co, int size, int csi)
 {
     if(!(c.visible&0xC0)) return;
 
@@ -1155,7 +1155,7 @@ int allocva = 0;
 int wtris = 0, wverts = 0, vtris = 0, vverts = 0, glde = 0, gbatches = 0;
 vector<vtxarray *> valist, varoot;
 
-vtxarray *newva(const ivec &o, int size)
+static vtxarray *newva(const ivec &o, int size)
 {
     vtxarray *va = new vtxarray;
     va->parent = NULL;
@@ -1310,7 +1310,7 @@ struct mergedface
 static int vahasmerges = 0, vamergemax = 0;
 static vector<mergedface> vamerges[MAXMERGELEVEL+1];
 
-int genmergedfaces(cube &c, const ivec &co, int size, int minlevel = -1)
+static int genmergedfaces(cube &c, const ivec &co, int size, int minlevel = -1)
 {
     if(!c.ext || isempty(c)) return -1;
     int tj = c.ext->tjoints, maxlevel = -1;
@@ -1364,7 +1364,7 @@ int genmergedfaces(cube &c, const ivec &co, int size, int minlevel = -1)
     return maxlevel;
 }
 
-int findmergedfaces(cube &c, const ivec &co, int size, int csi, int minlevel)
+static int findmergedfaces(cube &c, const ivec &co, int size, int csi, int minlevel)
 {
     if(c.ext && c.ext->va && !(c.ext->va->hasmerges&MERGE_ORIGIN)) return c.ext->va->mergelevel;
     else if(c.children)
@@ -1382,7 +1382,7 @@ int findmergedfaces(cube &c, const ivec &co, int size, int csi, int minlevel)
     else return -1;
 }
 
-void addmergedverts(int level, const ivec &o)
+static void addmergedverts(int level, const ivec &o)
 {
     vector<mergedface> &mfl = vamerges[level];
     if(mfl.empty()) return;
@@ -1414,7 +1414,7 @@ static inline void finddecals(vtxarray *va)
     }
 }
 
-void rendercube(cube &c, const ivec &co, int size, int csi, int &maxlevel) // creates vertices and indices ready to be put into a va
+static void rendercube(cube &c, const ivec &co, int size, int csi, int &maxlevel) // creates vertices and indices ready to be put into a va
 {
     //if(size<=16) return;
     if(c.ext && c.ext->va)
@@ -1473,7 +1473,7 @@ void rendercube(cube &c, const ivec &co, int size, int csi, int &maxlevel) // cr
     if(csi <= MAXMERGELEVEL && vamerges[csi].length()) addmergedverts(csi, co);
 }
 
-void calcgeombb(const ivec &co, int size, ivec &bbmin, ivec &bbmax)
+static void calcgeombb(const ivec &co, int size, ivec &bbmin, ivec &bbmax)
 {
     vec vmin(co), vmax = vmin;
     vmin.add(size);
@@ -1492,7 +1492,7 @@ void calcgeombb(const ivec &co, int size, ivec &bbmin, ivec &bbmax)
 static int entdepth = -1;
 static octaentities *entstack[32];
 
-void setva(cube &c, const ivec &co, int size, int csi)
+static void setva(cube &c, const ivec &co, int size, int csi)
 {
     ASSERT(size <= 0x1000);
 
@@ -1558,7 +1558,7 @@ VARF(vafacemax, 64, 384, 256*256, allchanged());
 VARF(vafacemin, 0, 96, 256*256, allchanged());
 VARF(vacubesize, 32, 128, 0x1000, allchanged());
 
-int updateva(cube *c, const ivec &co, int size, int csi)
+static int updateva(cube *c, const ivec &co, int size, int csi)
 {
     progress("recalculating geometry...");
     int ccount = 0, cmergemax = vamergemax, chasmerges = vahasmerges;
@@ -1619,7 +1619,7 @@ int updateva(cube *c, const ivec &co, int size, int csi)
     return ccount;
 }
 
-void addtjoint(const edgegroup &g, const cubeedge &e, int offset)
+static void addtjoint(const edgegroup &g, const cubeedge &e, int offset)
 {
     int vcoord = (g.slope[g.axis]*offset + g.origin[g.axis]) & 0x7FFF;
     tjoint &tj = tjoints.add();
@@ -1640,7 +1640,7 @@ void addtjoint(const edgegroup &g, const cubeedge &e, int offset)
     else tjoints[prev].next = tjoints.length()-1;
 }
 
-void findtjoints(int cur, const edgegroup &g)
+static void findtjoints(int cur, const edgegroup &g)
 {
     int active = -1;
     while(cur >= 0)
@@ -1713,7 +1713,7 @@ void octarender()                               // creates va s for all leaf cub
     visibleva = NULL;
 }
 
-void precachetextures()
+static void precachetextures()
 {
     vector<int> texs;
     loopv(valist)
@@ -1767,7 +1767,7 @@ void allchanged(bool load)
     }
 }
 
-void recalc()
+static void recalc()
 {
     allchanged(true);
 }

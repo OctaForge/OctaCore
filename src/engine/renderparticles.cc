@@ -4,6 +4,7 @@
 #include "main.hh" // initing, minimized, loadprogress
 #include "renderparticles.hh"
 #include "octaedit.hh" // editmode
+#include "octarender.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "rendertext.hh"

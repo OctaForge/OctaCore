@@ -6,6 +6,9 @@
 
 #include "octa.hh"
 
+extern int wtris, wverts, vtris, vverts, glde, gbatches;
+extern int allocva;
+
 extern ivec worldmin, worldmax, nogimin, nogimax;
 extern vector<tjoint> tjoints;
 extern vector<vtxarray *> varoot, valist;
