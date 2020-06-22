@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "command.hh" // idents, identflags
+#include "console.hh" /* conoutf */
 #include "main.hh" // clearmainmenu, renderbackground
 #include "octa.hh"
 #include "octaedit.hh" // texmru

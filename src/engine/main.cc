@@ -4,6 +4,7 @@
 
 #include "blend.hh"
 #include "command.hh" // checksleep, writecfg
+#include "console.hh"
 #include "movie.hh"
 #include "octaedit.hh"
 #include "rendergl.hh"

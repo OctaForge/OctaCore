@@ -2,6 +2,7 @@
 
 #include "blend.hh"
 #include "command.hh"
+#include "console.hh" /* conoutf */
 #include "main.hh" // clearmainmenu
 #include "octa.hh"
 #include "octaedit.hh"

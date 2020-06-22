@@ -3,6 +3,7 @@
 #include "shader.hh"
 
 #include "command.hh" // identflags
+#include "console.hh" /* conoutf */
 #include "main.hh" // loadprogress, renderprogress
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels

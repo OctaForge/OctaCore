@@ -1,4 +1,5 @@
 #include "blend.hh"
+#include "console.hh" /* conoutf */
 #include "main.hh" // renderbackground
 #include "octa.hh"
 #include "octaedit.hh" // commitchanges

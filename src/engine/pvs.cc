@@ -1,5 +1,6 @@
 #include "pvs.hh"
 
+#include "console.hh" /* conoutf */
 #include "main.hh" // numcpus, interceptkey, renderbackground
 #include "octa.hh"
 

@@ -2,6 +2,9 @@
 // is largely backwards compatible with the quake console language.
 
 #include "command.hh"
+
+#include "console.hh"
+
 #include "engine.hh"
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases

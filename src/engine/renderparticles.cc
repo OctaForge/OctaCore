@@ -1,5 +1,6 @@
 // renderparticles.cpp
 
+#include "console.hh" /* conoutf */
 #include "main.hh" // initing, minimized, loadprogress
 #include "renderparticles.hh"
 #include "octaedit.hh" // editmode

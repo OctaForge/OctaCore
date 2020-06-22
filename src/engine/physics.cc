@@ -5,6 +5,7 @@
 
 #include "physics.hh"
 
+#include "console.hh" /* conoutf */
 #include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"

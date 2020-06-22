@@ -3,6 +3,7 @@
 #include "texture.hh"
 
 #include "command.hh" // identflags
+#include "console.hh" /* conoutf */
 #include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe
 #include "material.hh"
 #include "octaedit.hh"

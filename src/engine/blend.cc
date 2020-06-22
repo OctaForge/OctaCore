@@ -1,4 +1,5 @@
 #include "blend.hh"
+#include "console.hh" /* conoutf */
 #include "octaedit.hh"
 #include "rendergl.hh" /* has* */
 #include "renderva.hh"

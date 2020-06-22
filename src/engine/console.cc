@@ -1,11 +1,16 @@
 // console.cpp: the console buffer, its display, and command line control
 
+#include "console.hh"
+
 #include "command.hh" // idents, identflags
 #include "main.hh"
 #include "octaedit.hh" // editmode
 #include "rendertext.hh"
 
 #include "engine.hh"
+
+static void resetcomplete();
+static void complete(char *s, int maxlen, const char *cmdprefix);
 
 #define MAXCONLINES 1000
 struct cline { char *line; int type, outtime; };
@@ -204,11 +209,13 @@ COMMAND(keymap, "is");
 keym *keypressed = NULL;
 char *keyaction = NULL;
 
-const char *getkeyname(int code)
+#if 0
+static const char *getkeyname(int code)
 {
     keym *km = keyms.access(code);
     return km ? km->name : NULL;
 }
+#endif
 
 void searchbinds(char *action, int type)
 {
@@ -689,12 +696,12 @@ static inline uint hthash(const fileskey &k)
 static hashtable<fileskey, filesval *> completefiles;
 static hashtable<char *, filesval *> completions;
 
-int completesize = 0;
-char *lastcomplete = NULL;
+static int completesize = 0;
+static char *lastcomplete = NULL;
 
-void resetcomplete() { completesize = 0; }
+static void resetcomplete() { completesize = 0; }
 
-void addcomplete(char *command, int type, char *dir, char *ext)
+static void addcomplete(char *command, int type, char *dir, char *ext)
 {
     if(identflags&IDF_OVERRIDDEN)
     {
@@ -732,12 +739,12 @@ void addcomplete(char *command, int type, char *dir, char *ext)
     else completions[newstring(command)] = *val;
 }
 
-void addfilecomplete(char *command, char *dir, char *ext)
+static void addfilecomplete(char *command, char *dir, char *ext)
 {
     addcomplete(command, FILES_DIR, dir, ext);
 }
 
-void addlistcomplete(char *command, char *list)
+static void addlistcomplete(char *command, char *list)
 {
     addcomplete(command, FILES_LIST, list, NULL);
 }
@@ -745,7 +752,7 @@ void addlistcomplete(char *command, char *list)
 COMMANDN(complete, addfilecomplete, "sss");
 COMMANDN(listcomplete, addlistcomplete, "ss");
 
-void complete(char *s, int maxlen, const char *cmdprefix)
+static void complete(char *s, int maxlen, const char *cmdprefix)
 {
     int cmdlen = 0;
     if(cmdprefix)

@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "blend.hh"
+#include "console.hh"
 #include "grass.hh"
 #include "main.hh" // mainmenu, renderbackground, getfps, getclockmillis, screenw/h, inbetweenframes, renderedframe
 #include "material.hh"

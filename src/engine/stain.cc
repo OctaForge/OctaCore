@@ -1,3 +1,4 @@
+#include "console.hh" /* conoutf */
 #include "main.hh" // initing, loadprogress
 #include "material.hh"
 #include "rendergl.hh"

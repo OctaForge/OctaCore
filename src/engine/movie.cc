@@ -9,6 +9,7 @@
 
 #include "movie.hh"
 
+#include "console.hh" /* conoutf */
 #include "main.hh" // getfps, getclockmillis, screenw/h, inbetweenframes, renderedframe
 #include "rendergl.hh"
 #include "rendertext.hh"

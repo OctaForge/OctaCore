@@ -1,3 +1,5 @@
+#include <engine/console.hh> /* conoutf */
+
 #include "cube.hh"
 
 ///////////////////////// character conversion ///////////////

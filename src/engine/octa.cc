@@ -2,6 +2,7 @@
 
 #include "octa.hh"
 
+#include "console.hh" /* conoutf */
 #include "main.hh" // renderprogress
 #include "octaedit.hh"
 #include "world.hh"

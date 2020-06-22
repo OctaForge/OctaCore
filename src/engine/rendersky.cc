@@ -1,3 +1,4 @@
+#include "console.hh" /* conoutf */
 #include "octaedit.hh" // editmode
 #include "rendergl.hh"
 #include "renderlights.hh"
