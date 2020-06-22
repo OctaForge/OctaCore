@@ -1,8 +1,11 @@
 #ifndef ENGINE_RENDERLIGHTS_HH
 #define ENGINE_RENDERLIGHTS_HH
 
+#include <shared/gl.hh>
 #include <shared/tools.hh>
 #include <shared/geom.hh>
+
+#include "aa.hh"
 
 #define LIGHTTILE_MAXW 16
 #define LIGHTTILE_MAXH 16
@@ -58,5 +61,55 @@ static inline bool bbinsidespot(const vec &origin, const vec &dir, int spot, con
 }
 
 extern matrix4 worldmatrix, screenmatrix;
+
+struct extentity; // FIXME
+
+extern int transparentlayer;
+extern int gw, gh, ghasstencil;
+extern GLuint gdepthtex, gcolortex, gnormaltex, gglowtex;
+extern GLuint msdepthtex, mscolortex, msnormaltex, msglowtex;
+extern int msaasamples, msaalight;
+extern vector<vec2> msaapositions;
+
+int calcshadowinfo(const extentity &e, vec &origin, float &radius, vec &spotloc, int &spotangle, float &bias);
+void rendershadowatlas();
+bool useradiancehints();
+void renderradiancehints();
+void clearradiancehintscache();
+void cleanuplights();
+void workinoq();
+
+int calcbbcsmsplits(const ivec &bbmin, const ivec &bbmax);
+int calcspherecsmsplits(const vec &center, float radius);
+int calcbbrsmsplits(const ivec &bbmin, const ivec &bbmax);
+int calcspherersmsplits(const vec &center, float radius);
+
+void cleanupgbuffer();
+void initgbuffer();
+bool usepacknorm();
+void maskgbuffer(const char *mask);
+void bindgdepth();
+void preparegbuffer(bool depthclear = true);
+void rendergbuffer(bool depthclear = true);
+void shadesky();
+void shadegbuffer();
+void shademinimap(const vec &color = vec(-1, -1, -1));
+void shademodelpreview(int x, int y, int w, int h, bool background = true, bool scissor = false);
+void rendertransparent();
+void renderao();
+void loadhdrshaders(int aa = AA_UNUSED);
+void processhdr(GLuint outfbo = 0, int aa = AA_UNUSED);
+void copyhdr(int sw, int sh, GLuint fbo, int dw = 0, int dh = 0, bool flipx = false, bool flipy = false, bool swapxy = false);
+void setuplights();
+void setupgbuffer();
+GLuint shouldscale();
+void doscale(GLuint outfbo = 0);
+bool debuglights();
+
+extern int avatarmask;
+
+bool useavatarmask();
+void enableavatarmask();
+void disableavatarmask();
 
 #endif

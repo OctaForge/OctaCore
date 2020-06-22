@@ -5,6 +5,8 @@
 
 #include <shared/geom.hh>
 
+enum { AA_UNUSED = 0, AA_LUMA, AA_MASKED, AA_SPLIT, AA_SPLIT_LUMA, AA_SPLIT_MASKED };
+
 extern matrix4 nojittermatrix;
 
 void setaavelocityparams(GLenum tmu = GL_TEXTURE0);
