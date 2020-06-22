@@ -1,4 +1,6 @@
 #include "rendertext.hh"
+
+#include "rendergl.hh" // xtraverts
 #include "texture.hh"
 
 #include "engine.hh"
