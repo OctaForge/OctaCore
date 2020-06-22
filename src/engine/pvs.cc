@@ -3,6 +3,7 @@
 #include "console.hh" /* conoutf */
 #include "main.hh" // numcpus, interceptkey, renderbackground
 #include "octa.hh"
+#include "octarender.hh" // valist
 
 #include "engine.hh"
 

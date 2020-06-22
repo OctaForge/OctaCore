@@ -8,6 +8,7 @@
 #include "material.hh"
 #include "pvs.hh"
 #include "octaedit.hh"
+#include "octarender.hh" // valist
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "rendermodel.hh"

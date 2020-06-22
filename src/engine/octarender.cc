@@ -1,5 +1,7 @@
 // octarender.cpp: fill vertex arrays with different cube surfaces.
 
+#include "octarender.hh"
+
 #include "blend.hh"
 #include "console.hh" /* conoutf */
 #include "grass.hh"
@@ -836,7 +838,7 @@ ushort encodenormal(const vec &n)
     return ushort(clamp(pitch + 90, 0, 180)*360 + (yaw < 0 ? yaw%360 + 360 : yaw%360) + 1);
 }
 
-vec decodenormal(ushort norm)
+static vec decodenormal(ushort norm)
 {
     if(!norm) return vec(0, 0, 1);
     norm--;

@@ -5,6 +5,7 @@
 #include "console.hh" /* conoutf */
 #include "main.hh" // renderprogress
 #include "octaedit.hh"
+#include "octarender.hh"
 #include "world.hh"
 
 #include "engine.hh"

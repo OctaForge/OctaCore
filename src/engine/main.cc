@@ -7,6 +7,7 @@
 #include "console.hh"
 #include "movie.hh"
 #include "octaedit.hh"
+#include "octarender.hh" // allchanged
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels
 #include "renderparticles.hh"

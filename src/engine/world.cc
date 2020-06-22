@@ -6,6 +6,7 @@
 #include "main.hh" // clearmainmenu
 #include "octa.hh"
 #include "octaedit.hh"
+#include "octarender.hh"
 #include "physics.hh"
 #include "pvs.hh"
 #include "rendergl.hh" /* fovy */

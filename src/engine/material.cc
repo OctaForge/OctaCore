@@ -1,5 +1,6 @@
 #include "material.hh"
 #include "octaedit.hh" // editmode
+#include "octarender.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "renderva.hh"

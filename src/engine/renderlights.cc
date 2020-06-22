@@ -5,6 +5,7 @@
 #include "main.hh" // initwarning
 #include "material.hh"
 #include "octaedit.hh" // editmode
+#include "octarender.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "rendermodel.hh"

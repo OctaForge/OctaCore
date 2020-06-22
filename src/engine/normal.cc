@@ -1,4 +1,5 @@
 #include "main.hh" // renderprogress
+#include "octarender.hh"
 #include "texture.hh"
 
 #include "engine.hh"

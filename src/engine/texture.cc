@@ -7,6 +7,7 @@
 #include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe
 #include "material.hh"
 #include "octaedit.hh"
+#include "octarender.hh"
 #include "rendergl.hh"
 #include "rendersky.hh"
 #include "shader.hh"

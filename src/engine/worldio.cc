@@ -6,6 +6,7 @@
 #include "main.hh" // clearmainmenu, renderbackground
 #include "octa.hh"
 #include "octaedit.hh" // texmru
+#include "octarender.hh"
 #include "pvs.hh"
 #include "rendermodel.hh" // loadmapmodel, getmminfo, flushpreloadedmodels
 #include "texture.hh"

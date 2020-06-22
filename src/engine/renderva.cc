@@ -6,6 +6,7 @@
 #include "grass.hh"
 #include "main.hh" // renderprogress
 #include "octaedit.hh" // editmode
+#include "octarender.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

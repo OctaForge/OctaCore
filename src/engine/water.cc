@@ -1,4 +1,5 @@
 #include "material.hh"
+#include "octarender.hh"
 #include "rendergl.hh"
 #include "texture.hh"
 #include "water.hh"
