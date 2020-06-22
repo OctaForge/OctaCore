@@ -1,3 +1,13 @@
+/* TODO: cleanup */
+
+#ifndef ENGINE_LIGHT_HH
+#define ENGINE_LIGHT_HH
+
+#include <shared/tools.hh>
+#include <shared/geom.hh>
+
+#include "octa.hh"
+
 struct PackNode
 {
     PackNode *child1, *child2;
@@ -84,3 +94,4 @@ extern void check_calclight_canceled();
 
 extern const vector<int> &checklightcache(int x, int y);
 
+#endif

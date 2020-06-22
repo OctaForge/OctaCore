@@ -5,6 +5,7 @@
 #include "blend.hh"
 #include "console.hh" /* conoutf */
 #include "grass.hh"
+#include "light.hh"
 #include "main.hh" // mainmenu, laodprogress
 #include "material.hh"
 #include "rendergl.hh"

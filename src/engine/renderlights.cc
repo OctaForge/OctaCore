@@ -2,6 +2,7 @@
 
 #include "aa.hh"
 #include "dynlight.hh"
+#include "light.hh"
 #include "main.hh" // initwarning
 #include "material.hh"
 #include "octaedit.hh" // editmode

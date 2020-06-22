@@ -1,3 +1,5 @@
+#include "light.hh"
+
 #include "blend.hh"
 #include "console.hh" /* conoutf */
 #include "main.hh" // renderbackground, player

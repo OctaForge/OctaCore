@@ -3,6 +3,5 @@
 
 #include "cube.hh"
 #include "world.hh"
-#include "light.hh"
 
 #endif

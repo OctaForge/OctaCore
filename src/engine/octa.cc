@@ -3,6 +3,7 @@
 #include "octa.hh"
 
 #include "console.hh" /* conoutf */
+#include "light.hh"
 #include "main.hh" // renderprogress
 #include "octaedit.hh"
 #include "octarender.hh"
