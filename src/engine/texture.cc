@@ -5,7 +5,7 @@
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
 #include "light.hh"
-#include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe
+#include "main.hh" // initwarning, loadprogress, renderprogress, screenw/h, renderedframe, fatal, multiplayer
 #include "material.hh"
 #include "octaedit.hh"
 #include "octarender.hh"

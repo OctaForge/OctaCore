@@ -10,6 +10,7 @@
 #include "rendertext.hh"
 #include "renderva.hh"
 #include "shader.hh"
+#include "stain.hh"
 #include "texture.hh"
 #include "water.hh"
 #include "world.hh"

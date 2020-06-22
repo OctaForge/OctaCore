@@ -85,13 +85,6 @@ extern void loopend(ident *id, identstack &stack);
 static inline void loopiter(ident *id, identstack &stack, int i) { tagval v; v.setint(i); loopiter(id, stack, v); }
 static inline void loopiter(ident *id, identstack &stack, float f) { tagval v; v.setfloat(f); loopiter(id, stack, v); }
 
-// main
-extern void fatal(const char *s, ...) PRINTFARGS(1, 2);
-
-// texture
-
-struct VSlot;
-
 // rendergl
 extern physent *camera1;
 extern vec worldpos, camdir, camright, camup;
@@ -116,23 +109,6 @@ extern void pophudmatrix(bool flush = true, bool flushparams = true);
 extern void pushhudscale(float sx, float sy = 0);
 extern void pushhudtranslate(float tx, float ty, float sx = 0, float sy = 0);
 extern void resethudshader();
-
-// stain
-enum
-{
-    STAIN_BLOOD = 0,
-    STAIN_PULSE_SCORCH,
-    STAIN_RAIL_HOLE,
-    STAIN_PULSE_GLOW,
-    STAIN_RAIL_GLOW
-};
-
-extern void addstain(int type, const vec &center, const vec &surface, float radius, const bvec &color = bvec(0xFF, 0xFF, 0xFF), int info = 0);
-
-static inline void addstain(int type, const vec &center, const vec &surface, float radius, int color, int info = 0)
-{
-    addstain(type, center, surface, radius, bvec::hexcolor(color), info);
-}
 
 // physics
 extern vec collidewall;
@@ -159,8 +135,3 @@ extern void cleardynentcache();
 extern void updatedynentcache(physent *d);
 extern bool entinmap(dynent *d, bool avoidplayers = false);
 extern void findplayerspawn(dynent *d, int forceent = -1, int tag = 0);
-
-// client
-extern bool haslocalclients();
-extern bool isconnected(bool attempt = false, bool local = true);
-extern bool multiplayer(bool msg = true);

@@ -43,4 +43,9 @@ enum { TI_CONSOLE = 1<<0, TI_GUI = 1<<1 };
 
 void textinput(bool on, int mask = ~0);
 
+void fatal(const char *s, ...) PRINTFARGS(1, 2);
+
+bool isconnected(bool attempt = false, bool local = true);
+bool multiplayer(bool msg = true);
+
 #endif

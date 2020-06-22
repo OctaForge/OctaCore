@@ -4,7 +4,7 @@
 #include "command.hh"
 #include "console.hh" /* conoutf */
 #include "light.hh"
-#include "main.hh" // clearmainmenu, player
+#include "main.hh" // clearmainmenu, player, isconnected, multiplayer
 #include "octa.hh"
 #include "octaedit.hh"
 #include "octarender.hh"

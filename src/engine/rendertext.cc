@@ -1,5 +1,6 @@
 #include "rendertext.hh"
 
+#include "main.hh" // fatal
 #include "rendergl.hh" // xtraverts
 #include "texture.hh"
 

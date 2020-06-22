@@ -3,7 +3,7 @@
 #include "aa.hh"
 #include "dynlight.hh"
 #include "light.hh"
-#include "main.hh" // initwarning
+#include "main.hh" // initwarning, fatal
 #include "material.hh"
 #include "octaedit.hh" // editmode
 #include "octarender.hh"

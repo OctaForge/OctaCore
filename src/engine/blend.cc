@@ -2,6 +2,7 @@
 
 #include "console.hh" /* conoutf */
 #include "light.hh"
+#include "main.hh" // multiplayer
 #include "octaedit.hh"
 #include "rendergl.hh" /* has* */
 #include "renderva.hh"

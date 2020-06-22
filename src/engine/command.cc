@@ -4,6 +4,7 @@
 #include "command.hh"
 
 #include "console.hh"
+#include "main.hh" // fatal
 
 #include "engine.hh"
 

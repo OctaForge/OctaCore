@@ -4,7 +4,7 @@
 
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
-#include "main.hh" // loadprogress, renderprogress
+#include "main.hh" // loadprogress, renderprogress, fatal
 #include "octarender.hh"
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels

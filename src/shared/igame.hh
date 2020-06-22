@@ -1,6 +1,7 @@
 // the interface the engine uses to run the gameplay module
 
 struct selinfo;
+struct VSlot;
 
 namespace entities
 {

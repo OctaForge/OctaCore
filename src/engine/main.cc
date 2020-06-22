@@ -28,6 +28,8 @@ static void swapbuffers(bool overlay = true);
 
 VAR(mainmenu, 1, 1, 0);
 
+bool haslocalclients(); // game, FIXME
+
 void clientkeepalive() {}
 
 bool multiplayer(bool msg)

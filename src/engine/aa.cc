@@ -1,4 +1,6 @@
 #include "aa.hh"
+
+#include "main.hh" // fatal
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "texture.hh"

@@ -6,7 +6,7 @@
 #include "console.hh" /* conoutf */
 #include "grass.hh"
 #include "light.hh"
-#include "main.hh" // mainmenu, laodprogress
+#include "main.hh" // mainmenu, laodprogress, isconnected
 #include "material.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

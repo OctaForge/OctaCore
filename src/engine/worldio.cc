@@ -3,7 +3,7 @@
 #include "blend.hh"
 #include "command.hh" // idents, identflags
 #include "console.hh" /* conoutf */
-#include "main.hh" // clearmainmenu, renderbackground
+#include "main.hh" // clearmainmenu, renderbackground, multiplayer
 #include "octa.hh"
 #include "octaedit.hh" // texmru
 #include "octarender.hh"
