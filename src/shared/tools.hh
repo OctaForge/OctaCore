@@ -7,11 +7,8 @@
 #include <cstring>
 #include <cmath>
 
+#include <SDL.h>
 #include <zlib.h>
-
-#ifndef STANDALONE
-#include "gl.hh"
-#endif
 
 #ifdef NULL
 #undef NULL
@@ -542,7 +539,7 @@ static inline bool htcmp(int x, int y)
     return x==y;
 }
 
-#ifndef STANDALONE
+#ifdef GL_HH
 static inline uint hthash(GLuint key)
 {
     return key;

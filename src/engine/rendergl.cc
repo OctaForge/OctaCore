@@ -1,5 +1,7 @@
 // rendergl.cpp: core opengl rendering stuff
 
+#include <shared/gl.hh>
+
 #include "aa.hh"
 #include "blend.hh"
 #include "console.hh"

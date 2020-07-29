@@ -1,6 +1,7 @@
 #ifndef ENGINE_OCTA_HH
 #define ENGINE_OCTA_HH
 
+#include <shared/gl.hh>
 #include <shared/geom.hh>
 #include <shared/ents.hh>
 
