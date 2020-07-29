@@ -3,7 +3,8 @@
 
 #include <shared/gl.hh>
 #include <shared/geom.hh>
-#include <shared/ents.hh>
+
+#include "ents.hh"
 
 struct vertex { vec pos; bvec4 norm; vec tc; bvec4 tangent; };
 

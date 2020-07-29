@@ -1,5 +1,4 @@
-#include <shared/ents.hh>
-
+#include "ents.hh"
 #include "physics.hh"
 #include "rendermodel.hh" // loadmapmodel
 #include "stain.hh"

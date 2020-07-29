@@ -1,5 +1,5 @@
-#ifndef SHARED_ENTS_HH
-#define SHARED_ENTS_HH
+#ifndef ENGINE_ENTS_HH
+#define ENGINE_ENTS_HH
 
 #include "tools.hh"
 #include "geom.hh"

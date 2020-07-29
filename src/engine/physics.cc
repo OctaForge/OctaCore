@@ -6,10 +6,10 @@
 #include "physics.hh"
 
 #include <shared/command.hh>
-#include <shared/ents.hh>
 #include <shared/igame.hh>
 
 #include "console.hh" /* conoutf */
+#include "ents.hh"
 #include "main.hh" // player, timings
 #include "rendergl.hh" // camera1
 #include "rendermodel.hh"

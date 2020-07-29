@@ -2,7 +2,6 @@
 #define ENGINE_WORLD_HH
 
 #include <shared/geom.hh>
-#include <shared/ents.hh>
 
 /* FIXME: move these defines/enums */
 
