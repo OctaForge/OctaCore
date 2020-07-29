@@ -2,7 +2,7 @@
 
 #include "console.hh" /* conoutf */
 #include "light.hh"
-#include "main.hh" // multiplayer
+#include "main.hh" // multiplayer, timings
 #include "octaedit.hh"
 #include "rendergl.hh" /* has*, worldpos */
 #include "renderva.hh"

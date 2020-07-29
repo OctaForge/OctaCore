@@ -1,11 +1,3 @@
-// the interface the game uses to access the engine
-
-extern int curtime;                     // current frame time
-extern int lastmillis;                  // last time
-extern int elapsedtime;                 // elapsed frame time
-extern int totalmillis;                 // total elapsed time
-extern int gamespeed, paused;
-
 // command
 extern int variable(const char *name, int min, int cur, int max, int *storage, identfun fun, int flags);
 extern float fvariable(const char *name, float min, float cur, float max, float *storage, identfun fun, int flags);

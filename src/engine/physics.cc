@@ -6,7 +6,7 @@
 #include "physics.hh"
 
 #include "console.hh" /* conoutf */
-#include "main.hh" // player
+#include "main.hh" // player, timings
 #include "rendergl.hh" // camera1
 #include "rendermodel.hh"
 #include "octa.hh"

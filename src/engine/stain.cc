@@ -1,7 +1,7 @@
 #include "stain.hh"
 
 #include "console.hh" /* conoutf */
-#include "main.hh" // initing, loadprogress
+#include "main.hh" // initing, loadprogress, timings
 #include "material.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

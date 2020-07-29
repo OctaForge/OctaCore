@@ -1,5 +1,6 @@
 #include "water.hh"
 
+#include "main.hh" // timings
 #include "material.hh"
 #include "octarender.hh"
 #include "rendergl.hh"

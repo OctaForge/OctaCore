@@ -4,7 +4,7 @@
 
 #include "console.hh" /* conoutf */
 #include "light.hh"
-#include "main.hh" // renderprogress
+#include "main.hh" // renderprogress, timings
 #include "octaedit.hh"
 #include "octarender.hh"
 #include "world.hh"

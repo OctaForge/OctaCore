@@ -1,6 +1,6 @@
 #include "rendertext.hh"
 
-#include "main.hh" // fatal
+#include "main.hh" // fatal, totalmillis
 #include "rendergl.hh" // xtraverts
 #include "texture.hh"
 

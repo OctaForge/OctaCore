@@ -4,7 +4,7 @@
 #include "command.hh"
 
 #include "console.hh"
-#include "main.hh" // fatal
+#include "main.hh" // fatal, timings
 
 #include <shared/cube.hh>
 

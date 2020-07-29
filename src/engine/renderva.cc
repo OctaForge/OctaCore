@@ -4,7 +4,7 @@
 
 #include "blend.hh"
 #include "grass.hh"
-#include "main.hh" // renderprogress
+#include "main.hh" // renderprogress, timings
 #include "octaedit.hh" // editmode
 #include "octarender.hh"
 #include "pvs.hh"

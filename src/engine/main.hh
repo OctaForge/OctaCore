@@ -10,6 +10,11 @@ extern bool minimized;
 extern float loadprogress;
 extern bool inbetweenframes, renderedframe;
 
+extern int curtime;                     // current frame time
+extern int lastmillis;                  // last time
+extern int elapsedtime;                 // elapsed frame time
+extern int totalmillis;                 // total elapsed time
+
 struct dynent;
 extern dynent *player;
 

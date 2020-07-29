@@ -3,7 +3,7 @@
 #include "aa.hh"
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
-#include "main.hh" // loadprogress, renderprogress
+#include "main.hh" // loadprogress, renderprogress, timings
 #include "octarender.hh"
 #include "physics.hh" // collidewall
 #include "pvs.hh"

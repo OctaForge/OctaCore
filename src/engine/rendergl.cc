@@ -4,7 +4,7 @@
 #include "blend.hh"
 #include "console.hh"
 #include "grass.hh"
-#include "main.hh" // mainmenu, renderbackground, getfps, getclockmillis, screenw/h, inbetweenframes, renderedframe, player, fatal
+#include "main.hh"
 #include "material.hh"
 #include "pvs.hh"
 #include "octaedit.hh"
