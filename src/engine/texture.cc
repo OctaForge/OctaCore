@@ -1,5 +1,7 @@
 // texture.cpp: texture slot management
 
+#include <ctime>
+
 #include "texture.hh"
 
 #include "command.hh" // identflags

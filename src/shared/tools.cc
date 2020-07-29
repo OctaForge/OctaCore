@@ -1,5 +1,7 @@
 // implementation of generic tools
 
+#include <ctime>
+
 #include "cube.hh"
 
 void *operator new(size_t size)

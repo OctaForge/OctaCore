@@ -1,5 +1,7 @@
 // rendergl.cpp: core opengl rendering stuff
 
+#include <ctime>
+
 #include <shared/gl.hh>
 
 #include "aa.hh"
