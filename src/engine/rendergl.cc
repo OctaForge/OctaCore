@@ -1,8 +1,12 @@
 // rendergl.cpp: core opengl rendering stuff
 
+#include "rendergl.hh"
+
 #include <ctime>
 
-#include <shared/gl.hh>
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
 
 #include "aa.hh"
 #include "blend.hh"
@@ -14,7 +18,6 @@
 #include "octaedit.hh"
 #include "octarender.hh" // valist
 #include "physics.hh" // movecamera
-#include "rendergl.hh"
 #include "renderlights.hh"
 #include "rendermodel.hh"
 #include "renderparticles.hh"
@@ -23,10 +26,6 @@
 #include "renderva.hh"
 #include "texture.hh"
 #include "water.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 static vec minimapcenter(0, 0, 0), minimapradius(0, 0, 0), minimapscale(0, 0, 0);
 

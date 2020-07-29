@@ -1,5 +1,9 @@
 #include "renderlights.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "aa.hh"
 #include "dynlight.hh"
 #include "light.hh"
@@ -16,10 +20,6 @@
 #include "stain.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 #define CHANGE_SHADERS 0
 

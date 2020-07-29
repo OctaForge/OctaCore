@@ -5,16 +5,16 @@
 
 #include "physics.hh"
 
+#include <shared/command.hh>
+#include <shared/ents.hh>
+#include <shared/igame.hh>
+
 #include "console.hh" /* conoutf */
 #include "main.hh" // player, timings
 #include "rendergl.hh" // camera1
 #include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"
-
-#include <shared/ents.hh>
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 #include "mpr.hh"
 

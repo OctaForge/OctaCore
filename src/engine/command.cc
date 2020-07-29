@@ -3,11 +3,10 @@
 
 #include "command.hh"
 
+#include <shared/igame.hh>
+
 #include "console.hh"
 #include "main.hh" // fatal, timings
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
 vector<ident *> identmap;

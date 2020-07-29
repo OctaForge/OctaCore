@@ -1,13 +1,13 @@
 #include "dynlight.hh"
 
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "main.hh" // timings
 #include "physics.hh" // collide
 #include "pvs.hh"
 #include "rendergl.hh" // camera1
 #include "renderva.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 VARNP(dynlights, usedynlights, 0, 1, 1);
 VARP(dynlightdist, 0, 1024, 10000);

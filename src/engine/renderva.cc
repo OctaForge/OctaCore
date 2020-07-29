@@ -2,6 +2,10 @@
 
 #include "renderva.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "grass.hh"
 #include "main.hh" // renderprogress, timings
@@ -14,10 +18,6 @@
 #include "rendersky.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 static inline void drawtris(GLsizei numindices, const GLvoid *indices, ushort minvert, ushort maxvert)
 {

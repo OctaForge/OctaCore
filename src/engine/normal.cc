@@ -1,10 +1,10 @@
+#include <shared/command.hh>
+
 #include "light.hh"
 #include "main.hh" // renderprogress
 #include "octarender.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
 
 struct normalkey
 {

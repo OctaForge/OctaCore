@@ -1,12 +1,12 @@
 #include "aa.hh"
 
+#include <shared/glemu.hh>
+#include <shared/command.hh>
+
 #include "main.hh" // fatal
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 extern int intel_texalpha_bug;
 

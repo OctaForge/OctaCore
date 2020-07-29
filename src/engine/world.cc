@@ -1,5 +1,11 @@
 // world.cpp: core map management stuff
 
+#include "world.hh"
+
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "command.hh"
 #include "console.hh" /* conoutf */
@@ -17,11 +23,6 @@
 #include "stain.hh"
 #include "texture.hh"
 #include "worldio.hh"
-#include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 VARNR(mapscale, worldscale, 1, 0, 0);
 VARNR(mapsize, worldsize, 1, 0, 0);

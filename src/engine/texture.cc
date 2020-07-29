@@ -1,8 +1,11 @@
 // texture.cpp: texture slot management
 
+#include "texture.hh"
+
 #include <ctime>
 
-#include "texture.hh"
+#include <shared/command.hh>
+#include <shared/igame.hh>
 
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
@@ -15,9 +18,6 @@
 #include "rendersky.hh"
 #include "shader.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 #ifdef __APPLE__
   #include "SDL2_image/SDL_image.h"

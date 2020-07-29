@@ -1,14 +1,14 @@
 #include "water.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "main.hh" // timings
 #include "material.hh"
 #include "octarender.hh"
 #include "rendergl.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 extern const vec matnormals[6];
 

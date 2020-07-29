@@ -1,5 +1,9 @@
 #include "rendermodel.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "aa.hh"
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
@@ -11,10 +15,6 @@
 #include "renderva.hh"
 #include "shader.hh"
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 VAR(oqdynent, 0, 1, 1);
 VAR(animationinterpolationtime, 0, 200, 1000);

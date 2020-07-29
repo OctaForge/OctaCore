@@ -1,5 +1,9 @@
 // renderparticles.cpp
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "console.hh" /* conoutf */
 #include "main.hh" // initing, minimized, loadprogress, timings
 #include "renderparticles.hh"
@@ -15,10 +19,6 @@
 #include "texture.hh"
 #include "water.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 #if 0
 void regular_particle_flame(int type, const vec &p, float radius, float height, int color, int density = 3, float scale = 2.0f, float speed = 200.0f, float fade = 600.0f, int gravity = -15);

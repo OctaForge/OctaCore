@@ -2,13 +2,13 @@
 
 #include "console.hh"
 
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "command.hh" // idents, identflags
 #include "main.hh"
 #include "octaedit.hh" // editmode
 #include "rendertext.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 static void resetcomplete();
 static void complete(char *s, int maxlen, const char *cmdprefix);

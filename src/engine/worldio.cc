@@ -1,5 +1,10 @@
 // worldio.cpp: loading & saving of maps and savegames
 
+#include "worldio.hh"
+
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "command.hh" // idents, identflags
 #include "console.hh" /* conoutf */
@@ -11,10 +16,6 @@
 #include "rendermodel.hh" // loadmapmodel, getmminfo, flushpreloadedmodels
 #include "texture.hh"
 #include "world.hh"
-#include "worldio.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 #define OCTAVERSION 33
 

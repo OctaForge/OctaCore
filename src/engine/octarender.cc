@@ -2,6 +2,10 @@
 
 #include "octarender.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "console.hh" /* conoutf */
 #include "grass.hh"
@@ -15,10 +19,6 @@
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 struct vboinfo
 {

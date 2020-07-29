@@ -1,8 +1,8 @@
 // implementation of generic tools
 
-#include <ctime>
+#include "tools.hh"
 
-#include "cube.hh"
+#include <ctime>
 
 void *operator new(size_t size)
 {

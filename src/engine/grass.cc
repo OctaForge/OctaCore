@@ -1,11 +1,11 @@
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "blend.hh"
 #include "main.hh" // timings
 #include "rendergl.hh" // xtraverts
 #include "renderva.hh"
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 VARP(grass, 0, 1, 1);
 VAR(dbggrass, 0, 0, 1);

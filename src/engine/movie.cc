@@ -9,13 +9,13 @@
 
 #include "movie.hh"
 
+#include <shared/command.hh>
+
 #include "console.hh" /* conoutf */
 #include "main.hh"
 #include "rendergl.hh"
 #include "rendertext.hh"
 #include "texture.hh"
-
-#include <shared/cube.hh>
 
 VAR(dbgmovie, 0, 0, 1);
 

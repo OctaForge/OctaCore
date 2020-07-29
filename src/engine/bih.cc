@@ -1,10 +1,9 @@
+#include <shared/ents.hh>
+
 #include "physics.hh"
 #include "rendermodel.hh" // loadmapmodel
 #include "stain.hh"
 #include "texture.hh"
-
-#include <shared/ents.hh>
-#include <shared/cube.hh>
 
 extern vec hitsurface;
 

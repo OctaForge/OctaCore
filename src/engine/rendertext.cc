@@ -1,11 +1,11 @@
 #include "rendertext.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "main.hh" // fatal, totalmillis
 #include "rendergl.hh" // xtraverts
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 static hashnameset<font> fonts;
 static font *fontdef = NULL;

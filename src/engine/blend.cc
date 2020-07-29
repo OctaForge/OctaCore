@@ -1,5 +1,8 @@
 #include "blend.hh"
 
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "console.hh" /* conoutf */
 #include "light.hh"
 #include "main.hh" // multiplayer, timings
@@ -8,9 +11,6 @@
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 enum
 {

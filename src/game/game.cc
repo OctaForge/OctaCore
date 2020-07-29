@@ -1,4 +1,4 @@
-#include "cube.hh"
+#include <shared/command.hh>
 
 #include <engine/main.hh>
 #include <engine/octaedit.hh>

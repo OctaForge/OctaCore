@@ -3,6 +3,7 @@
 struct entity;
 struct extentity;
 struct physent;
+struct dynent;
 struct selinfo;
 struct VSlot;
 

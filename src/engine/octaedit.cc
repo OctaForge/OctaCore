@@ -1,5 +1,9 @@
 #include "octaedit.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "command.hh"
 #include "console.hh" /* conoutf */
@@ -15,10 +19,6 @@
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 extern int outline;
 

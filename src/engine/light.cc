@@ -1,5 +1,8 @@
 #include "light.hh"
 
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "console.hh" /* conoutf */
 #include "main.hh" // renderbackground, player
@@ -10,9 +13,6 @@
 #include "renderlights.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 CVAR1R(ambient, 0x191919);
 FVARR(ambientscale, 0, 1, 16);

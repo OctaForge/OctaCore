@@ -1,4 +1,8 @@
 #include "material.hh"
+
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "octaedit.hh" // editmode
 #include "octarender.hh"
 #include "rendergl.hh"
@@ -7,9 +11,6 @@
 #include "texture.hh"
 #include "water.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 vector<materialsurface> editsurfs, glasssurfs[4], watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
 

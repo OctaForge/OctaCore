@@ -2,6 +2,9 @@
 
 #include "shader.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
 #include "main.hh" // loadprogress, renderprogress, fatal
@@ -9,9 +12,6 @@
 #include "rendergl.hh"
 #include "rendermodel.hh" // cleanupmodels
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 Shader *Shader::lastshader = NULL;
 

@@ -2,6 +2,10 @@
 
 #include "main.hh"
 
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+#include <shared/igame.hh>
+
 #include "blend.hh"
 #include "command.hh" // checksleep, writecfg
 #include "console.hh"
@@ -18,10 +22,6 @@
 #include "stain.hh"
 #include "texture.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
-#include <shared/igame.hh>
 
 static SDL_Window *screen = NULL;
 static int curvsync = -1;

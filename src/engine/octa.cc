@@ -2,15 +2,15 @@
 
 #include "octa.hh"
 
+#include <shared/command.hh>
+#include <shared/igame.hh>
+
 #include "console.hh" /* conoutf */
 #include "light.hh"
 #include "main.hh" // renderprogress, timings
 #include "octaedit.hh"
 #include "octarender.hh"
 #include "world.hh"
-
-#include <shared/cube.hh>
-#include <shared/igame.hh>
 
 static const uchar fv[6][4] = // indexes for cubecoords, per each vert of a face orientation
 {

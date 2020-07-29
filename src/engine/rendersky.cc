@@ -1,3 +1,6 @@
+#include <shared/command.hh>
+#include <shared/glemu.hh>
+
 #include "console.hh" /* conoutf */
 #include "light.hh"
 #include "main.hh" // timings
@@ -7,9 +10,6 @@
 #include "renderlights.hh"
 #include "renderva.hh"
 #include "texture.hh"
-
-#include <shared/cube.hh>
-#include <shared/glemu.hh>
 
 static Texture *sky[6] = { 0, 0, 0, 0, 0, 0 }, *clouds[6] = { 0, 0, 0, 0, 0, 0 };
 
