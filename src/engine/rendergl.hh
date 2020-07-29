@@ -15,7 +15,7 @@ extern int maxdrawbufs, maxdualdrawbufs;
 enum { DRAWTEX_NONE = 0, DRAWTEX_ENVMAP, DRAWTEX_MINIMAP, DRAWTEX_MODELPREVIEW };
 
 extern int vieww, viewh;
-extern float fovy, aspect, forceaspect;
+extern float fovy, forceaspect;
 extern float nearplane;
 extern int farplane;
 extern float ldrscale, ldrscaleb;
@@ -37,6 +37,7 @@ extern void glerror(const char *file, int line, GLenum error);
 struct physent; // FIXME
 
 extern physent *camera1; // special ent that acts as camera, same object as player1 in FPS mode
+extern vec worldpos, camdir, camright, camup;
 
 void gl_checkextensions();
 void gl_init();
@@ -78,6 +79,8 @@ namespace modelpreview
     void end();
 }
 
+vec calcmodelpreviewpos(const vec &radius, float &yaw);
+
 struct timer;
 timer *begintimer(const char *name, bool gpu = true);
 void endtimer(timer *t);
@@ -87,5 +90,14 @@ struct cubemapside; /* texture.hh */
 void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
 
 void mousemove(int dx, int dy);
+
+extern matrix4 hudmatrix;
+void resethudmatrix();
+void pushhudmatrix();
+void flushhudmatrix(bool flushparams = true);
+void pophudmatrix(bool flush = true, bool flushparams = true);
+void pushhudscale(float sx, float sy = 0);
+void pushhudtranslate(float tx, float ty, float sx = 0, float sy = 0);
+void resethudshader();
 
 #endif

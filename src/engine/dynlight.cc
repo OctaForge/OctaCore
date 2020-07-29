@@ -1,6 +1,7 @@
 #include "dynlight.hh"
 
 #include "pvs.hh"
+#include "rendergl.hh" // camera1
 #include "renderva.hh"
 
 #include <shared/cube.hh>

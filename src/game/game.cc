@@ -118,8 +118,6 @@ namespace game
 
     void startgame()
     {
-        disablezoom();
-
         execident("mapstart");
     }
 
@@ -172,9 +170,6 @@ namespace game
 
     void gameplayhud(int w, int h)
     {
-        pushhudscale(h/1800.0f);
-
-        pophudmatrix();
     }
 
     float clipconsole(float w, float h)
@@ -198,10 +193,6 @@ namespace game
         execfile("config/auth.cfg", false);
     }
 
-    void drawminimap(dynent *d, float x, float y, float s)
-    {
-    }
-
     void writeclientinfo(stream *f)
     {
     }
@@ -213,7 +204,6 @@ namespace game
 
     void edittoggled(bool on)
     {
-        disablezoom();
     }
 
     void changemap(const char *name)

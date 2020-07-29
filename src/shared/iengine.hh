@@ -85,31 +85,6 @@ extern void loopend(ident *id, identstack &stack);
 static inline void loopiter(ident *id, identstack &stack, int i) { tagval v; v.setint(i); loopiter(id, stack, v); }
 static inline void loopiter(ident *id, identstack &stack, float f) { tagval v; v.setfloat(f); loopiter(id, stack, v); }
 
-// rendergl
-extern physent *camera1;
-extern vec worldpos, camdir, camright, camup;
-extern float curfov, fovy, aspect;
-
-extern void disablezoom();
-
-extern vec calcavatarpos(const vec &pos, float dist);
-extern vec calcmodelpreviewpos(const vec &radius, float &yaw);
-
-extern void damageblend(int n);
-extern void damagecompass(int n, const vec &loc);
-
-extern vec minimapcenter, minimapradius, minimapscale;
-extern void bindminimap();
-
-extern matrix4 hudmatrix;
-extern void resethudmatrix();
-extern void pushhudmatrix();
-extern void flushhudmatrix(bool flushparams = true);
-extern void pophudmatrix(bool flush = true, bool flushparams = true);
-extern void pushhudscale(float sx, float sy = 0);
-extern void pushhudtranslate(float tx, float ty, float sx = 0, float sy = 0);
-extern void resethudshader();
-
 // physics
 extern vec collidewall;
 extern int collideinside;

@@ -4,7 +4,7 @@
 #include "light.hh"
 #include "main.hh" // multiplayer
 #include "octaedit.hh"
-#include "rendergl.hh" /* has* */
+#include "rendergl.hh" /* has*, worldpos */
 #include "renderva.hh"
 #include "texture.hh"
 #include "world.hh"

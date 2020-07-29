@@ -7,6 +7,7 @@
 
 #include "console.hh" /* conoutf */
 #include "main.hh" // player
+#include "rendergl.hh" // camera1
 #include "rendermodel.hh"
 #include "octa.hh"
 #include "world.hh"

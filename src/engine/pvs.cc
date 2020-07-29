@@ -4,6 +4,7 @@
 #include "main.hh" // numcpus, interceptkey, renderbackground
 #include "octa.hh"
 #include "octarender.hh" // valist
+#include "rendergl.hh" // camera1
 #include "world.hh"
 
 #include <shared/cube.hh>

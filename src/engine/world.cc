@@ -10,7 +10,7 @@
 #include "octarender.hh"
 #include "physics.hh"
 #include "pvs.hh"
-#include "rendergl.hh" /* fovy */
+#include "rendergl.hh" /* fovy, worldpos */
 #include "renderlights.hh"
 #include "rendermodel.hh" // loadmapmodel
 #include "renderparticles.hh"

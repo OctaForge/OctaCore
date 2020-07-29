@@ -21,6 +21,8 @@
 
 #include <shared/cube.hh>
 
+static vec minimapcenter(0, 0, 0), minimapradius(0, 0, 0), minimapscale(0, 0, 0);
+
 bool hasVAO = false, hasTR = false, hasTSW = false, hasPBO = false, hasFBO = false, hasAFBO = false, hasDS = false, hasTF = false, hasCBF = false, hasS3TC = false, hasFXT1 = false, hasLATC = false, hasRGTC = false, hasAF = false, hasFBB = false, hasFBMS = false, hasTMS = false, hasMSS = false, hasFBMSBS = false, hasUBO = false, hasMBR = false, hasDB2 = false, hasDBB = false, hasTG = false, hasTQ = false, hasPF = false, hasTRG = false, hasTI = false, hasHFV = false, hasHFP = false, hasDBT = false, hasDC = false, hasDBGO = false, hasEGPU4 = false, hasGPU4 = false, hasGPU5 = false, hasBFE = false, hasEAL = false, hasCR = false, hasOQ2 = false, hasES3 = false, hasCB = false, hasCI = false;
 bool mesa = false, intel = false, amd = false, nvidia = false;
 
@@ -1342,7 +1344,8 @@ void pushhudtranslate(float tx, float ty, float sx, float sy)
 }
 
 int vieww = -1, viewh = -1;
-float curfov, curavatarfov, fovy, aspect;
+static float curfov, curavatarfov, aspect;
+float fovy;
 int farplane;
 VARP(zoominvel, 0, 40, 500);
 VARP(zoomoutvel, 0, 50, 500);
@@ -1355,12 +1358,6 @@ FVARNP(aspect, forceaspect, 0, 0, 1e3f);
 
 static float zoomprogress = 0;
 VAR(zoom, -1, 0, 1);
-
-void disablezoom()
-{
-    zoom = 0;
-    zoomprogress = 0;
-}
 
 static void computezoom()
 {
@@ -1528,7 +1525,8 @@ matrix4 cammatrix, projmatrix, camprojmatrix, invcammatrix, invcamprojmatrix, in
 
 FVAR(nearplane, 0.01f, 0.54f, 2.0f);
 
-vec calcavatarpos(const vec &pos, float dist)
+#if 0
+static vec calcavatarpos(const vec &pos, float dist)
 {
     vec eyepos;
     cammatrix.transform(pos, eyepos);
@@ -1543,6 +1541,7 @@ vec calcavatarpos(const vec &pos, float dist)
     vec dir = vec(worldpos).sub(camera1->o).rescale(dist);
     return dir.add(camera1->o);
 }
+#endif
 
 void renderavatar()
 {
@@ -2019,7 +2018,6 @@ static void drawfogoverlay(int fogmat, float fogbelow, float fogblend, int above
 int drawtex = 0;
 
 static GLuint minimaptex = 0;
-vec minimapcenter(0, 0, 0), minimapradius(0, 0, 0), minimapscale(0, 0, 0);
 
 static void clearminimap()
 {
@@ -2033,10 +2031,12 @@ VARFP(minimapsize, 7, 8, 10, { if(minimaptex) drawminimap(); });
 VARFP(showminimap, 0, 1, 1, { if(minimaptex) drawminimap(); });
 CVARFP(nominimapcolour, 0x101010, { if(minimaptex && !showminimap) drawminimap(); });
 
-void bindminimap()
+#if 0
+static void bindminimap()
 {
     glBindTexture(GL_TEXTURE_2D, minimaptex);
 }
+#endif
 
 static void clipminimap(ivec &bbmin, ivec &bbmax, cube *c = worldroot, const ivec &co = ivec(0, 0, 0), int size = worldsize>>1)
 {
