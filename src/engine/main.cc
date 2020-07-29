@@ -20,6 +20,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 static SDL_Window *screen = NULL;
 static int curvsync = -1;

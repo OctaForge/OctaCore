@@ -14,6 +14,7 @@
 #include "worldio.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 #define OCTAVERSION 33
 

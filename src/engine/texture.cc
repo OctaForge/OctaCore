@@ -15,6 +15,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 #ifdef __APPLE__
   #include "SDL2_image/SDL_image.h"

@@ -17,6 +17,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 #if 0
 void regular_particle_flame(int type, const vec &p, float radius, float height, int color, int density = 3, float scale = 2.0f, float speed = 200.0f, float fade = 600.0f, int gravity = -15);

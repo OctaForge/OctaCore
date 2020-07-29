@@ -13,6 +13,8 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
+
 #include "mpr.hh"
 
 const int MAXCLIPOFFSET = 4;

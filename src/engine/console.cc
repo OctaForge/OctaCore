@@ -8,6 +8,7 @@
 #include "rendertext.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 static void resetcomplete();
 static void complete(char *s, int maxlen, const char *cmdprefix);

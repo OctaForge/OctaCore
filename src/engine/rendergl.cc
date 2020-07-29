@@ -21,6 +21,7 @@
 #include "water.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 static vec minimapcenter(0, 0, 0), minimapradius(0, 0, 0), minimapscale(0, 0, 0);
 

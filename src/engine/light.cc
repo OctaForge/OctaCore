@@ -12,6 +12,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 CVAR1R(ambient, 0x191919);
 FVARR(ambientscale, 0, 1, 16);

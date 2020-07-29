@@ -3,6 +3,7 @@
 #include <engine/main.hh>
 #include <engine/octaedit.hh>
 #include <engine/physics.hh>
+#include <engine/texture.hh>
 #include <engine/worldio.hh>
 #include <engine/world.hh>
 

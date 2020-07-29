@@ -10,6 +10,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/igame.hh>
 
 static const uchar fv[6][4] = // indexes for cubecoords, per each vert of a face orientation
 {
