@@ -5,6 +5,7 @@
 #include "texture.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 
 static hashnameset<font> fonts;
 static font *fontdef = NULL;

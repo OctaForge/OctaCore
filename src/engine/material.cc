@@ -9,6 +9,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 
 vector<materialsurface> editsurfs, glasssurfs[4], watersurfs[4], waterfallsurfs[4], lavasurfs[4], lavafallsurfs[4];
 

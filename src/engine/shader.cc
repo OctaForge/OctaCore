@@ -11,6 +11,7 @@
 #include "texture.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 
 Shader *Shader::lastshader = NULL;
 

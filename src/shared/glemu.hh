@@ -2,6 +2,7 @@
 #define SHARED_GLEMU_HH
 
 #include "glexts.hh"
+#include "geom.hh"
 
 namespace gle
 {

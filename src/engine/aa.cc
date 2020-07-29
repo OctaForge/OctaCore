@@ -6,6 +6,7 @@
 #include "texture.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 
 extern int intel_texalpha_bug;
 

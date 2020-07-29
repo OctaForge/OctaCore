@@ -45,10 +45,5 @@
 #include "ents.hh"
 #include "command.hh"
 
-#ifndef STANDALONE
-#include "glexts.hh"
-#include "glemu.hh"
-#endif
-
 #endif
 

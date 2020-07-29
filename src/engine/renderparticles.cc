@@ -17,6 +17,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 #include <shared/igame.hh>
 
 #if 0

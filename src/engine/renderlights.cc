@@ -18,6 +18,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 #include <shared/igame.hh>
 
 #define CHANGE_SHADERS 0

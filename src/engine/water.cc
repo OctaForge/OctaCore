@@ -8,6 +8,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 
 extern const vec matnormals[6];
 

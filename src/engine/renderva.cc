@@ -16,6 +16,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 #include <shared/igame.hh>
 
 static inline void drawtris(GLsizei numindices, const GLvoid *indices, ushort minvert, ushort maxvert)

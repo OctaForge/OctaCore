@@ -13,6 +13,7 @@
 #include "texture.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 #include <shared/igame.hh>
 
 VAR(oqdynent, 0, 1, 1);

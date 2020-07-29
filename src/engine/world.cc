@@ -20,6 +20,7 @@
 #include "world.hh"
 
 #include <shared/cube.hh>
+#include <shared/glemu.hh>
 #include <shared/igame.hh>
 
 VARNR(mapscale, worldscale, 1, 0, 0);
