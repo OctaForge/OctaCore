@@ -1,6 +1,7 @@
 #include "octaedit.hh"
 
 #include "blend.hh"
+#include "command.hh"
 #include "console.hh" /* conoutf */
 #include "light.hh"
 #include "main.hh"

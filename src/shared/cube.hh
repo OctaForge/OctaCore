@@ -50,7 +50,6 @@
 #include "glemu.hh"
 #endif
 
-#include "iengine.hh"
 #include "igame.hh"
 
 #endif
