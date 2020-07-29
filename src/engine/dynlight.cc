@@ -1,5 +1,6 @@
 #include "dynlight.hh"
 
+#include "physics.hh" // collide
 #include "pvs.hh"
 #include "rendergl.hh" // camera1
 #include "renderva.hh"

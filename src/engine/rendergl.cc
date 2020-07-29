@@ -9,6 +9,7 @@
 #include "pvs.hh"
 #include "octaedit.hh"
 #include "octarender.hh" // valist
+#include "physics.hh" // movecamera
 #include "rendergl.hh"
 #include "renderlights.hh"
 #include "rendermodel.hh"

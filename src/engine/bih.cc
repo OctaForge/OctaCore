@@ -1,3 +1,4 @@
+#include "physics.hh"
 #include "rendermodel.hh" // loadmapmodel
 #include "stain.hh"
 #include "texture.hh"

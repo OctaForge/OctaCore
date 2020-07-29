@@ -5,6 +5,7 @@
 #include "console.hh" /* conoutf */
 #include "main.hh" // loadprogress, renderprogress
 #include "octarender.hh"
+#include "physics.hh" // collidewall
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderva.hh"

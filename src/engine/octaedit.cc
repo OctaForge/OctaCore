@@ -7,6 +7,7 @@
 #include "material.hh"
 #include "octa.hh"
 #include "octarender.hh"
+#include "physics.hh"
 #include "pvs.hh"
 #include "rendergl.hh"
 #include "renderlights.hh"

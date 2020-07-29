@@ -1,6 +1,7 @@
 #include "cube.hh"
 
 #include <engine/octaedit.hh>
+#include <engine/physics.hh>
 #include <engine/worldio.hh>
 #include <engine/world.hh>
 
