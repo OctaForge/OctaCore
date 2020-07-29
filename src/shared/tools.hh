@@ -4,6 +4,7 @@
 #define _TOOLS_H
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <cmath>
 

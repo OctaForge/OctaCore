@@ -7,6 +7,7 @@ struct selinfo;
 struct VSlot;
 
 #include "tools.hh"
+#include "geom.hh"
 
 namespace entities
 {
