@@ -3,6 +3,7 @@
 #include "stain.hh"
 #include "texture.hh"
 
+#include <shared/ents.hh>
 #include <shared/cube.hh>
 
 extern vec hitsurface;

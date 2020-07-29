@@ -1,7 +1,12 @@
 // the interface the engine uses to run the gameplay module
 
+struct entity;
+struct extentity;
+struct physent;
 struct selinfo;
 struct VSlot;
+
+#include "tools.hh"
 
 namespace entities
 {

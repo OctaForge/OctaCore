@@ -3,7 +3,6 @@
 
 #include "tools.hh"
 #include "geom.hh"
-#include "ents.hh"
 #include "command.hh"
 
 #endif

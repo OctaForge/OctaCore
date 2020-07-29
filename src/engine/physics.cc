@@ -12,6 +12,7 @@
 #include "octa.hh"
 #include "world.hh"
 
+#include <shared/ents.hh>
 #include <shared/cube.hh>
 #include <shared/igame.hh>
 
