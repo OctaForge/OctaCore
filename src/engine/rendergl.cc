@@ -1387,7 +1387,7 @@ FVAR(thirdpersonup, -25, 0, 25);
 FVAR(thirdpersonside, -25, 0, 25);
 physent *camera1 = NULL;
 static bool detachedcamera = false;
-bool isthirdperson() { return player!=camera1 || detachedcamera; }
+static bool isthirdperson() { return player!=camera1 || detachedcamera; }
 
 static void fixcamerarange()
 {

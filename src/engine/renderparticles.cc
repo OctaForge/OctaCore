@@ -6,6 +6,7 @@
 #include "octaedit.hh" // editmode
 #include "octarender.hh"
 #include "pvs.hh"
+#include "physics.hh" // ray*
 #include "rendergl.hh"
 #include "rendertext.hh"
 #include "renderva.hh"

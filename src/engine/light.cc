@@ -642,7 +642,8 @@ void initlights()
     loaddeferredlightshaders();
 }
 
-void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity *t, float minambient)
+#if 0
+static void lightreaching(const vec &target, vec &color, vec &dir, bool fast = false, extentity *t = nullptr, float minambient = 0.4f)
 {
     if(fullbright && editmode)
     {
@@ -702,4 +703,4 @@ void lightreaching(const vec &target, vec &color, vec &dir, bool fast, extentity
     if(dir.iszero()) dir = vec(0, 0, 1);
     else dir.normalize();
 }
-
+#endif
