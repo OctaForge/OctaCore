@@ -4,9 +4,7 @@
 
 #include <sauerlib/encoding.hh>
 
-#include "command.hh"
-
-#include <engine/console.hh> /* conoutf */
+#include "tools.hh"
 
 ///////////////////////// character conversion ///////////////
 
