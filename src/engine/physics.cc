@@ -5,6 +5,8 @@
 
 #include "physics.hh"
 
+#include <cassert>
+
 #include <shared/command.hh>
 #include <shared/igame.hh>
 

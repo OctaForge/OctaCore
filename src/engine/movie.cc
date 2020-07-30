@@ -9,6 +9,8 @@
 
 #include "movie.hh"
 
+#include <cassert>
+
 #include <shared/command.hh>
 
 #include "console.hh" /* conoutf */
@@ -96,13 +98,13 @@ struct aviwriter
 
     void endchunk()
     {
-        ASSERT(chunkdepth >= 0);
+        assert(chunkdepth >= 0);
         --chunkdepth;
     }
 
     void endlistchunk()
     {
-        ASSERT(chunkdepth >= 0);
+        assert(chunkdepth >= 0);
         int size = int(totalsize - chunkoffsets[chunkdepth]);
         f->seek(-4 - size, SEEK_CUR);
         f->putlil(size);

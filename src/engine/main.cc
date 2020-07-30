@@ -2,6 +2,8 @@
 
 #include "main.hh"
 
+#include <cassert>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -1236,7 +1238,7 @@ int main(int argc, char **argv)
         renderedframe = inbetweenframes = true;
     }
 
-    ASSERT(0);
+    assert(false);
     return EXIT_FAILURE;
 
     #if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)

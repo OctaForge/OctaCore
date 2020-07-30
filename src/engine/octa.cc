@@ -2,6 +2,8 @@
 
 #include "octa.hh"
 
+#include <cassert>
+
 #include <shared/command.hh>
 #include <shared/igame.hh>
 
@@ -879,7 +881,7 @@ static inline int clipfacevec(const ivec2 &o, const ivec2 &dir, int cx, int cy, 
     r += clipfacevecy(o, dir, cx, cy, size, rvecs[r]);
     r += clipfacevecy(o, dir, cx+size, cy, size, rvecs[r]);
 
-    ASSERT(r <= 2);
+    assert(r <= 2);
     return r;
 }
 
@@ -915,7 +917,7 @@ static inline int clipfacevecs(const ivec2 *o, int numo, int cx, int cy, int siz
     }
     ivec2 corner[4] = {ivec2(cx, cy), ivec2(cx+size, cy), ivec2(cx+size, cy+size), ivec2(cx, cy+size)};
     loopi(4) if(insideface(&corner[i], 1, o, numo)) rvecs[r++] = corner[i];
-    ASSERT(r <= 8);
+    assert(r <= 8);
     return r;
 }
 

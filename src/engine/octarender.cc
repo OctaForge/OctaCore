@@ -2,6 +2,8 @@
 
 #include "octarender.hh"
 
+#include <cassert>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -1497,7 +1499,7 @@ static octaentities *entstack[32];
 
 static void setva(cube &c, const ivec &co, int size, int csi)
 {
-    ASSERT(size <= 0x1000);
+    assert(size <= 0x1000);
 
     int vamergeoffset[MAXMERGELEVEL+1];
     loopi(MAXMERGELEVEL+1) vamergeoffset[i] = vamerges[i].length();
