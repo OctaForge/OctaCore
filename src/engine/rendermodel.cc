@@ -47,7 +47,7 @@ static model *__loadmodel__##modelclass(const char *filename) \
 { \
     return new modelclass(filename); \
 } \
-UNUSED static int __dummy__##modelclass = addmodeltype((modeltype), __loadmodel__##modelclass);
+[[maybe_unused]] static int __dummy__##modelclass = addmodeltype((modeltype), __loadmodel__##modelclass);
 
 static void loadskin(const char *dir, const char *altdir, Texture *&skin, Texture *&masks);
 

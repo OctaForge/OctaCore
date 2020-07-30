@@ -211,7 +211,7 @@ static bool initidents()
     }
     return true;
 }
-UNUSED static bool forceinitidents = initidents();
+[[maybe_unused]] static bool forceinitidents = initidents();
 
 static const char *sourcefile = nullptr, *sourcestr = nullptr;
 
