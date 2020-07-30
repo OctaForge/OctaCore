@@ -1,6 +1,8 @@
 #ifndef SAUERLIB_ENCODING_HH
 #define SAUERLIB_ENCODING_HH
 
+#include <cstddef>
+
 enum
 {
     CT_PRINT   = 1<<0,
