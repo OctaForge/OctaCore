@@ -2,11 +2,11 @@
 #define ENGINE_BLEND_HH
 
 #include <sauerlib/types.hh>
+#include <sauerlib/stream.hh>
 
 #include <shared/gl.hh>
 
 #include <shared/geom.hh>
-#include <shared/tools.hh>
 
 extern int worldsize; /* FIXME: remove */
 

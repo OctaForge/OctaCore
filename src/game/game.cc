@@ -1,3 +1,5 @@
+#include <sauerlib/stream.hh>
+
 #include <shared/command.hh>
 
 #include <engine/main.hh>

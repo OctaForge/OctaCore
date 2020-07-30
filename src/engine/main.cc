@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include <sauerlib/encoding.hh>
+#include <sauerlib/stream.hh>
 
 #include <shared/command.hh>
 #include <shared/glemu.hh>

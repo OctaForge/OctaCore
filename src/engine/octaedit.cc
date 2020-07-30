@@ -8,6 +8,7 @@
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
+#include <shared/gzstream.hh>
 
 #include "blend.hh"
 #include "command.hh"

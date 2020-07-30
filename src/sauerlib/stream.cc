@@ -1,6 +1,9 @@
-#include "tools.hh"
+#include "stream.hh"
 
 #include "encoding.hh"
+
+// FIXME
+#include <shared/zip.hh>
 
 stream::offset stream::size()
 {
@@ -310,10 +313,8 @@ stream *openrawfile(const char *filename, const char *mode)
 
 stream *openfile(const char *filename, const char *mode)
 {
-#ifndef STANDALONE
     stream *s = openzipfile(filename, mode);
     if(s) return s;
-#endif
     return openrawfile(filename, mode);
 }
 

@@ -12,7 +12,9 @@
 
 #include <shared/command.hh>
 #include <shared/igame.hh>
+#include <shared/gzstream.hh>
 #include <shared/rwops.hh>
+#include <shared/zip.hh>
 
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */

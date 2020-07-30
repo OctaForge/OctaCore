@@ -7,6 +7,8 @@ struct dynent;
 struct selinfo;
 struct VSlot;
 
+#include <sauerlib/stream.hh>
+
 #include "tools.hh"
 #include "geom.hh"
 

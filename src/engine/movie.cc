@@ -11,6 +11,8 @@
 
 #include <cassert>
 
+#include <sauerlib/stream.hh>
+
 #include <shared/command.hh>
 
 #include "console.hh" /* conoutf */

@@ -1,7 +1,7 @@
 #ifndef ENGINE_CONSOLE_HH
 #define ENGINE_CONSOLE_HH
 
-#include <shared/tools.hh>
+#include <sauerlib/stream.hh>
 
 struct tagval; /* command.hh */
 struct ident;

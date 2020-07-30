@@ -1,7 +1,6 @@
 #include <new>
 
-#include <sauerlib/encoding.hh>
-
+#include "zip.hh"
 #include "tools.hh"
 
 ///////////////////////// file system ///////////////////////

@@ -9,8 +9,10 @@
 #include <algorithm>
 
 #include <sauerlib/encoding.hh>
+#include <sauerlib/stream.hh>
 
 #include <shared/igame.hh>
+#include <shared/zip.hh>
 
 #include "console.hh"
 #include "main.hh" // fatal, timings
