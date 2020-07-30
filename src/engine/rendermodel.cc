@@ -2,6 +2,8 @@
 
 #include <new>
 
+#include <sauerlib/encoding.hh>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>

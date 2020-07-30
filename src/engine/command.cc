@@ -3,6 +3,8 @@
 
 #include "command.hh"
 
+#include <sauerlib/encoding.hh>
+
 #include <shared/igame.hh>
 
 #include "console.hh"
