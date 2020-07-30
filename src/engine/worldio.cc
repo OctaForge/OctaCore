@@ -2,6 +2,8 @@
 
 #include "worldio.hh"
 
+#include <new>
+
 #include <shared/command.hh>
 #include <shared/igame.hh>
 
@@ -500,8 +502,12 @@ static void loadvslot(stream *f, VSlot &vs, int changed)
 
 static void loadvslots(stream *f, int numvslots)
 {
-    int *prev = new (false) int[numvslots];
-    if(!prev) return;
+    int *prev;
+    try {
+        prev = new int[numvslots];
+    } catch (...) {
+        return;
+    }
     memset(prev, -1, numvslots*sizeof(int));
     while(numvslots > 0)
     {

@@ -1,5 +1,7 @@
 #include "octaedit.hh"
 
+#include <new>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -671,9 +673,12 @@ static block3 *blockcopy(const block3 &s, int rgrid)
 {
     int bsize = sizeof(block3)+sizeof(cube)*s.size();
     if(bsize <= 0 || bsize > (100<<20)) return nullptr;
-    block3 *b = (block3 *)new (false) uchar[bsize];
-    if(b) blockcopy(s, rgrid, b);
-    return b;
+    try {
+        auto *b = (block3 *)new uchar[bsize];
+        blockcopy(s, rgrid, b);
+        return b;
+    } catch (...) {}
+    return nullptr;
 }
 
 static void freeblock(block3 *b, bool alloced = true)
@@ -789,8 +794,12 @@ static undoblock *newundocube(const selinfo &s)
         selgridsize = ssize,
         blocksize = sizeof(block3)+ssize*sizeof(cube);
     if(blocksize <= 0 || blocksize > (undomegs<<20)) return nullptr;
-    undoblock *u = (undoblock *)new (false) uchar[sizeof(undoblock) + blocksize + selgridsize];
-    if(!u) return nullptr;
+    undoblock *u = nullptr;
+    try {
+        u = (undoblock *)new uchar[sizeof(undoblock) + blocksize + selgridsize];
+    } catch (...) {
+        return nullptr;
+    }
     u->numents = 0;
     block3 *b = u->block();
     blockcopy(s, -s.grid, b);
@@ -995,8 +1004,11 @@ static bool unpackblock(block3 *&b, B &buf)
     lilswap(&hdr.grid, 1);
     lilswap(&hdr.orient, 1);
     if(hdr.size() > (1<<20) || hdr.grid <= 0 || hdr.grid > (1<<12)) return false;
-    b = (block3 *)new (false) uchar[sizeof(block3)+hdr.size()*sizeof(cube)];
-    if(!b) return false;
+    try {
+        b = (block3 *)new uchar[sizeof(block3)+hdr.size()*sizeof(cube)];
+    } catch (...) {
+        return false;
+    }
     *b = hdr;
     cube *c = b->c();
     memset(c, 0, b->size()*sizeof(cube));
@@ -1052,8 +1064,12 @@ static bool compresseditinfo(const uchar *inbuf, int inlen, uchar *&outbuf, int 
 {
     uLongf len = compressBound(inlen);
     if(len > (1<<20)) return false;
-    outbuf = new (false) uchar[len];
-    if(!outbuf || compress2((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen, Z_BEST_COMPRESSION) != Z_OK || len > (1<<16))
+    try {
+        outbuf = new uchar[len];
+    } catch (...) {
+        return false;
+    }
+    if(compress2((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen, Z_BEST_COMPRESSION) != Z_OK || len > (1<<16))
     {
         delete[] outbuf;
         outbuf = nullptr;
@@ -1067,8 +1083,12 @@ static bool uncompresseditinfo(const uchar *inbuf, int inlen, uchar *&outbuf, in
 {
     if(compressBound(outlen) > (1<<20)) return false;
     uLongf len = outlen;
-    outbuf = new (false) uchar[len];
-    if(!outbuf || uncompress((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen) != Z_OK)
+    try {
+        outbuf = new uchar[len];
+    } catch (...) {
+        return false;
+    }
+    if(uncompress((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen) != Z_OK)
     {
         delete[] outbuf;
         outbuf = nullptr;

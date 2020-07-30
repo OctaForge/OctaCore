@@ -1,3 +1,5 @@
+#include <new>
+
 #include "command.hh"
 
 #include <engine/console.hh> /* conoutf */
@@ -1220,8 +1222,13 @@ char *loadfile(const char *fn, size_t *size, bool utf8)
     stream::offset fsize = f->size();
     if(fsize <= 0) { delete f; return nullptr; }
     size_t len = fsize;
-    char *buf = new (false) char[len+1];
-    if(!buf) { delete f; return nullptr; }
+    char *buf;
+    try {
+        buf = new char[len + 1];
+    } catch (...) {
+        delete f;
+        return nullptr;
+    }
     size_t offset = 0;
     if(utf8 && len >= 3)
     {

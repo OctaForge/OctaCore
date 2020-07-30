@@ -1,5 +1,7 @@
 #include "rendermodel.hh"
 
+#include <new>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
