@@ -1,8 +1,8 @@
 client_src = [
+    '../sauerlib/tools.cc',
     '../shared/geom.cc',
     '../shared/glemu.cc',
     '../shared/stream.cc',
-    '../shared/tools.cc',
     '../shared/zip.cc',
     '../engine/aa.cc',
     '../engine/bih.cc',
