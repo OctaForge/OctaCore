@@ -4,6 +4,8 @@
 
 #include <ctime>
 
+#include <zlib.h>
+
 #include <sauerlib/encoding.hh>
 
 #include <shared/command.hh>

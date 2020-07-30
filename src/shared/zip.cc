@@ -1,5 +1,7 @@
 #include <new>
 
+#include <zlib.h>
+
 #include "command.hh"
 
 #include <engine/console.hh> /* conoutf */

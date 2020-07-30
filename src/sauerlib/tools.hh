@@ -6,12 +6,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
 #include <cmath>
 #include <cassert>
 
 #include <new>
-
-#include <zlib.h>
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -1243,7 +1242,7 @@ extern stream *openrawfile(const char *filename, const char *mode);
 extern stream *openzipfile(const char *filename, const char *mode);
 extern stream *openfile(const char *filename, const char *mode);
 extern stream *opentempfile(const char *filename, const char *mode);
-extern stream *opengzfile(const char *filename, const char *mode, stream *file = nullptr, int level = Z_BEST_COMPRESSION);
+extern stream *opengzfile(const char *filename, const char *mode, stream *file = nullptr);
 extern stream *openutf8file(const char *filename, const char *mode, stream *file = nullptr);
 extern char *loadfile(const char *fn, size_t *size, bool utf8 = true);
 extern bool listdir(const char *dir, bool rel, const char *ext, vector<char *> &files);

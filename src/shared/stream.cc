@@ -1,6 +1,7 @@
 #include <new>
 
 #include <SDL.h>
+#include <zlib.h>
 
 #include <sauerlib/encoding.hh>
 
@@ -1201,12 +1202,12 @@ stream *opentempfile(const char *name, const char *mode)
     return file;
 }
 
-stream *opengzfile(const char *filename, const char *mode, stream *file, int level)
+stream *opengzfile(const char *filename, const char *mode, stream *file)
 {
     stream *source = file ? file : openfile(filename, mode);
     if(!source) return nullptr;
     gzstream *gz = new gzstream;
-    if(!gz->open(source, mode, !file, level)) { if(!file) delete source; delete gz; return nullptr; }
+    if(!gz->open(source, mode, !file, Z_BEST_COMPRESSION)) { if(!file) delete source; delete gz; return nullptr; }
     return gz;
 }
 

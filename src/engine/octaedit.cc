@@ -2,6 +2,8 @@
 
 #include <new>
 
+#include <zlib.h>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>

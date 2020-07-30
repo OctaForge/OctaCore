@@ -2,6 +2,8 @@
 
 #include "shader.hh"
 
+#include <climits>
+
 #include <sauerlib/encoding.hh>
 
 #include <shared/command.hh>

@@ -1,5 +1,7 @@
 #include "pvs.hh"
 
+#include <climits>
+
 #include <shared/command.hh>
 
 #include "console.hh" /* conoutf */

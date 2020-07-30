@@ -1,6 +1,8 @@
 #ifndef ENGINE_SHADER_HH
 #define ENGINE_SHADER_HH
 
+#include <climits>
+
 #include <shared/glexts.hh>
 #include <shared/tools.hh>
 #include <shared/geom.hh>

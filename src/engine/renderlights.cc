@@ -1,5 +1,7 @@
 #include "renderlights.hh"
 
+#include <climits>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>

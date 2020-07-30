@@ -3,6 +3,7 @@
 #include "octa.hh"
 
 #include <cassert>
+#include <climits>
 
 #include <shared/command.hh>
 #include <shared/igame.hh>

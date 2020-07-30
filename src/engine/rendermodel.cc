@@ -1,5 +1,7 @@
 #include "rendermodel.hh"
 
+#include <climits>
+
 #include <new>
 
 #include <sauerlib/encoding.hh>
