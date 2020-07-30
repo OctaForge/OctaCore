@@ -11,7 +11,6 @@
 
 #include <new>
 
-#include <SDL.h>
 #include <zlib.h>
 
 typedef unsigned char uchar;
@@ -1211,10 +1210,6 @@ struct stream
     template<class T> T get() { T n; return read(&n, sizeof(n)) == sizeof(n) ? n : 0; }
     template<class T> T getlil() { return lilswap(get<T>()); }
     template<class T> T getbig() { return bigswap(get<T>()); }
-
-#ifndef STANDALONE
-    SDL_RWops *rwops();
-#endif
 };
 
 template<class T>

@@ -8,6 +8,7 @@
 
 #include <shared/command.hh>
 #include <shared/igame.hh>
+#include <shared/rwops.hh>
 
 #include "command.hh" // identflags
 #include "console.hh" /* conoutf */
@@ -1479,7 +1480,7 @@ static SDL_Surface *loadsurface(const char *name)
     stream *z = openzipfile(name, "rb");
     if(z)
     {
-        SDL_RWops *rw = z->rwops();
+        SDL_RWops *rw = stream_rwops(z);
         if(rw)
         {
             const char *ext = strrchr(name, '.');
@@ -3869,12 +3870,12 @@ static void saveimage(const char *filename, int format, ImageData &image, bool f
                 switch(format) {
                     case IMG_JPG:
 #if SDL_IMAGE_VERSION_ATLEAST(2, 0, 2)
-                        IMG_SaveJPG_RW(s, f->rwops(), 1, screenshotquality);
+                        IMG_SaveJPG_RW(s, stream_rwops(f), 1, screenshotquality);
 #else
                         conoutf(CON_ERROR, "JPG screenshot support requires SDL_image 2.0.2");
 #endif
                         break;
-                    default: SDL_SaveBMP_RW(s, f->rwops(), 1); break;
+                    default: SDL_SaveBMP_RW(s, stream_rwops(f), 1); break;
                 }
                 delete f;
             }

@@ -1,5 +1,7 @@
 #include <new>
 
+#include <SDL.h>
+
 #include <sauerlib/encoding.hh>
 
 #include "command.hh"
@@ -566,11 +568,11 @@ static int rwopsclose(SDL_RWops *rw)
     return 0;
 }
 
-SDL_RWops *stream::rwops()
+SDL_RWops *stream_rwops(stream *s)
 {
     SDL_RWops *rw = SDL_AllocRW();
     if(!rw) return nullptr;
-    rw->hidden.unknown.data1 = this;
+    rw->hidden.unknown.data1 = s;
     rw->seek = rwopsseek;
     rw->read = rwopsread;
     rw->write = rwopswrite;
