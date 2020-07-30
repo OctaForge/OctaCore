@@ -181,7 +181,7 @@ struct aviwriter
         DELETEP(f);
     }
 
-    aviwriter(const char *name, uint w, uint h, uint fps, bool sound) : f(NULL), yuv(NULL), videoframes(0), totalsize(0), videow(w&~1), videoh(h&~1), videofps(fps), soundfrequency(0),soundchannels(0),soundformat(0)
+    aviwriter(const char *name, uint w, uint h, uint fps, bool sound) : f(nullptr), yuv(nullptr), videoframes(0), totalsize(0), videow(w&~1), videoh(h&~1), videofps(fps), soundfrequency(0),soundchannels(0),soundformat(0)
     {
         copystring(filename, moviedir);
         if(moviedir[0])
@@ -771,7 +771,7 @@ namespace recorder
 {
     static enum { REC_OK = 0, REC_USERHALT, REC_TOOSLOW, REC_FILERROR } state = REC_OK;
 
-    static aviwriter *file = NULL;
+    static aviwriter *file = nullptr;
     static int starttime = 0;
 
     static int stats[1000];
@@ -785,7 +785,7 @@ namespace recorder
         uint size, maxsize;
         uint frame;
 
-        soundbuffer() : sound(NULL), maxsize(0) {}
+        soundbuffer() : sound(nullptr), maxsize(0) {}
         ~soundbuffer() { cleanup(); }
 
         void load(uchar *stream, uint len, uint fnum)
@@ -804,7 +804,7 @@ namespace recorder
         void cleanup() { DELETEA(sound); maxsize = 0; }
     };
     static queue<soundbuffer, MAXSOUNDBUFFERS> soundbuffers;
-    static SDL_mutex *soundlock = NULL;
+    static SDL_mutex *soundlock = nullptr;
 
     enum { MAXVIDEOBUFFERS = 2 }; // double buffer
     struct videobuffer
@@ -813,7 +813,7 @@ namespace recorder
         uint w, h, bpp, frame;
         int format;
 
-        videobuffer() : video(NULL){}
+        videobuffer() : video(nullptr){}
         ~videobuffer() { cleanup(); }
 
         void init(int nw, int nh, int nbpp)
@@ -835,11 +835,11 @@ namespace recorder
     static uint scalew = 0, scaleh = 0;
     static GLuint encodefb = 0, encoderb = 0;
 
-    static SDL_Thread *thread = NULL;
-    static SDL_mutex *videolock = NULL;
-    static SDL_cond *shouldencode = NULL, *shouldread = NULL;
+    static SDL_Thread *thread = nullptr;
+    static SDL_mutex *videolock = nullptr;
+    static SDL_cond *shouldencode = nullptr, *shouldread = nullptr;
 
-    static inline bool isrecording() { return file != NULL; }
+    static inline bool isrecording() { return file != nullptr; }
 
     static inline float calcquality()
     {
@@ -964,8 +964,8 @@ namespace recorder
         videolock = SDL_CreateMutex();
         shouldencode = SDL_CreateCond();
         shouldread = SDL_CreateCond();
-        thread = SDL_CreateThread(videoencoder, "video encoder", NULL);
-        //if(file->soundfrequency > 0) Mix_SetPostMix(soundencoder, NULL);
+        thread = SDL_CreateThread(videoencoder, "video encoder", nullptr);
+        //if(file->soundfrequency > 0) Mix_SetPostMix(soundencoder, nullptr);
     }
 
     void cleanup()
@@ -981,13 +981,13 @@ namespace recorder
     {
         if(!file) return;
         if(state == REC_OK) state = REC_USERHALT;
-        //if(file->soundfrequency > 0) Mix_SetPostMix(NULL, NULL);
+        //if(file->soundfrequency > 0) Mix_SetPostMix(nullptr, nullptr);
 
         SDL_LockMutex(videolock); // wakeup thread enough to kill it
         SDL_CondSignal(shouldencode);
         SDL_UnlockMutex(videolock);
 
-        SDL_WaitThread(thread, NULL); // block until thread is finished
+        SDL_WaitThread(thread, nullptr); // block until thread is finished
 
         cleanup();
 
@@ -999,9 +999,9 @@ namespace recorder
         SDL_DestroyCond(shouldencode);
         SDL_DestroyCond(shouldread);
 
-        soundlock = videolock = NULL;
-        shouldencode = shouldread = NULL;
-        thread = NULL;
+        soundlock = videolock = nullptr;
+        shouldencode = shouldread = nullptr;
+        thread = nullptr;
 
         static const char * const mesgs[] = { "ok", "stopped", "computer too slow", "file error"};
         conoutf("movie recording halted: %s, %d frames", mesgs[state], file->videoframes);
@@ -1031,7 +1031,7 @@ namespace recorder
                 loopi(2)
                 {
                     if(!scaletex[i]) glGenTextures(1, &scaletex[i]);
-                    createtexture(scaletex[i], tw, th, NULL, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
+                    createtexture(scaletex[i], tw, th, nullptr, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
                 }
                 scalew = tw;
                 scaleh = th;

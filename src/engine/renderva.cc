@@ -41,7 +41,7 @@ static plane vfcP[5];  // perpindictular vectors to view frustrum bounding plane
 static float vfcDfog;  // far plane culling distance (fog limit).
 static float vfcDnear[5], vfcDfar[5];
 
-vtxarray *visibleva = NULL;
+vtxarray *visibleva = nullptr;
 
 bool isfoggedsphere(float rad, const vec &cv)
 {
@@ -152,7 +152,7 @@ static inline void addvisibleva(vtxarray *va)
 
 static void sortvisiblevas()
 {
-    visibleva = NULL;
+    visibleva = nullptr;
     vtxarray **last = &visibleva;
     loopi(VASORTSIZE) if(vasort[i])
     {
@@ -182,7 +182,7 @@ static inline void findvisiblevas(vector<vtxarray *> &vas)
             if(resetchildren)
             {
                 v.occluded = !v.texs ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
-                v.query = NULL;
+                v.query = nullptr;
             }
             addvisibleva(&v);
             if(v.children.length())
@@ -258,14 +258,14 @@ void visiblecubes(bool cull)
         vfcDfog = farplane;
         memset(vfcDnear, 0, sizeof(vfcDnear));
         memset(vfcDfar, 0, sizeof(vfcDfar));
-        visibleva = NULL;
+        visibleva = nullptr;
         loopv(valist)
         {
             vtxarray *va = valist[i];
             va->distance = 0;
             va->curvfc = VFC_FULL_VISIBLE;
             va->occluded = !va->texs ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
-            va->query = NULL;
+            va->query = nullptr;
             va->next = visibleva;
             visibleva = va;
         }
@@ -288,10 +288,10 @@ struct queryframe
 
     void flip()
     {
-        loopi(cur) queries[i].owner = NULL;
+        loopi(cur) queries[i].owner = nullptr;
         for(; defer > 0 && max < MAXQUERY; defer--)
         {
-            queries[max].owner = NULL;
+            queries[max].owner = nullptr;
             queries[max].fragments = -1;
             glGenQueries_(1, &queries[max++].id);
         }
@@ -302,11 +302,11 @@ struct queryframe
     {
         if(cur >= max)
         {
-            if(max >= MAXQUERY) return NULL;
+            if(max >= MAXQUERY) return nullptr;
             if(deferquery)
             {
                 if(max + defer < MAXQUERY) defer++;
-                return NULL;
+                return nullptr;
             }
             glGenQueries_(1, &queries[max++].id);
         }
@@ -316,14 +316,14 @@ struct queryframe
         return query;
     }
 
-    void reset() { loopi(max) queries[i].owner = NULL; }
+    void reset() { loopi(max) queries[i].owner = nullptr; }
 
     void cleanup()
     {
         loopi(max)
         {
             glDeleteQueries_(1, &queries[i].id);
-            queries[i].owner = NULL;
+            queries[i].owner = nullptr;
         }
         cur = max = defer = 0;
     }
@@ -478,7 +478,7 @@ static octaentities *visiblemms, **lastvisiblemms;
 
 static void findvisiblemms(const vector<extentity *> &ents, bool doquery)
 {
-    visiblemms = NULL;
+    visiblemms = nullptr;
     lastvisiblemms = &visiblemms;
     for(vtxarray *va = visibleva; va; va = va->next) if(va->occluded < OCCLUDE_BB && va->curvfc < VFC_FOGGED) loopv(va->mapmodels)
     {
@@ -490,7 +490,7 @@ static void findvisiblemms(const vector<extentity *> &ents, bool doquery)
         {
             oe->distance = -1;
 
-            oe->next = NULL;
+            oe->next = nullptr;
             *lastvisiblemms = oe;
             lastvisiblemms = &oe->next;
         }
@@ -515,7 +515,7 @@ static void findvisiblemms(const vector<extentity *> &ents, bool doquery)
                 cur = cur->next;
             }
 
-            if(*prev == NULL) lastvisiblemms = &oe->next;
+            if(*prev == nullptr) lastvisiblemms = &oe->next;
             oe->next = *prev;
             *prev = oe;
         }
@@ -548,7 +548,7 @@ void rendermapmodels()
             if(!rendered)
             {
                 rendered = true;
-                oe->query = doquery && oe->distance>0 && !(++skipoq%oqmm) ? newquery(oe) : NULL;
+                oe->query = doquery && oe->distance>0 && !(++skipoq%oqmm) ? newquery(oe) : nullptr;
                 if(oe->query) startmodelquery(oe->query);
             }
             rendermapmodel(e);
@@ -562,7 +562,7 @@ void rendermapmodels()
     bool queried = false;
     for(octaentities *oe = visiblemms; oe; oe = oe->next) if(oe->distance<0)
     {
-        oe->query = doquery && !camera1->o.insidebb(oe->bbmin, oe->bbmax, 1) ? newquery(oe) : NULL;
+        oe->query = doquery && !camera1->o.insidebb(oe->bbmin, oe->bbmax, 1) ? newquery(oe) : nullptr;
         if(!oe->query) continue;
         if(!queried)
         {
@@ -645,7 +645,7 @@ void renderoutline()
 
     if(!dtoutline) glDisable(GL_DEPTH_TEST);
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next) if(va->occluded < OCCLUDE_BB)
     {
         if((!va->texs || va->occluded >= OCCLUDE_GEOM) && !va->alphaback && !va->alphafront && !va->refracttris) continue;
@@ -702,7 +702,7 @@ void renderblendbrush(GLuint tex, float x, float y, float w, float h)
     LOCALPARAMF(texgenS, 1.0f/w, 0, 0, -x/w);
     LOCALPARAMF(texgenT, 0, 1.0f/h, 0, -y/h);
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next) if(va->texs && va->occluded < OCCLUDE_GEOM)
     {
         if(va->o.x + va->size <= x || va->o.y + va->size <= y || va->o.x >= x + w || va->o.y >= y + h) continue;
@@ -905,7 +905,7 @@ vec shadoworigin(0, 0, 0), shadowdir(0, 0, 0);
 float shadowradius = 0, shadowbias = 0;
 int shadowside = 0, shadowspot = 0;
 
-static vtxarray *shadowva = NULL;
+static vtxarray *shadowva = nullptr;
 
 static inline void addshadowva(vtxarray *va, float dist)
 {
@@ -926,7 +926,7 @@ static inline void addshadowva(vtxarray *va, float dist)
 
 static void sortshadowvas()
 {
-    shadowva = NULL;
+    shadowva = nullptr;
     vtxarray **last = &shadowva;
     loopi(VASORTSIZE) if(vasort[i])
     {
@@ -1026,7 +1026,7 @@ void rendershadowmapworld()
 
     gle::enablevertex();
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = shadowva; va; va = va->rnext) if(va->tris && va->shadowmask&(1<<shadowside))
     {
         if(!prev || va->vbuf != prev->vbuf)
@@ -1045,7 +1045,7 @@ void rendershadowmapworld()
 
     if(skyshadow)
     {
-        prev = NULL;
+        prev = nullptr;
         for(vtxarray *va = shadowva; va; va = va->rnext) if(va->sky && va->shadowmask&(1<<shadowside))
         {
             if(!prev || va->vbuf != prev->vbuf)
@@ -1068,11 +1068,11 @@ void rendershadowmapworld()
     gle::disablevertex();
 }
 
-static octaentities *shadowmms = NULL;
+static octaentities *shadowmms = nullptr;
 
 void findshadowmms()
 {
-    shadowmms = NULL;
+    shadowmms = nullptr;
     octaentities **lastmms = &shadowmms;
     for(vtxarray *va = shadowva; va; va = va->rnext) loopvj(va->mapmodels)
     {
@@ -1096,7 +1096,7 @@ void findshadowmms()
                     continue;
                 break;
         }
-        oe->rnext = NULL;
+        oe->rnext = nullptr;
         *lastmms = oe;
         lastmms = &oe->rnext;
     }
@@ -1144,7 +1144,7 @@ struct renderstate
     vec2 texgenscroll;
     int texgenorient, texgenmillis;
 
-    renderstate() : colormask(true), depthmask(true), alphaing(0), vbuf(0), vattribs(false), vquery(false), colorscale(1, 1, 1), alphascale(0), refractscale(0), refractcolor(1, 1, 1), blend(false), blendx(-1), blendy(-1), globals(-1), tmu(-1), slot(NULL), texgenslot(NULL), vslot(NULL), texgenvslot(NULL), texgenscroll(0, 0), texgenorient(-1), texgenmillis(lastmillis)
+    renderstate() : colormask(true), depthmask(true), alphaing(0), vbuf(0), vattribs(false), vquery(false), colorscale(1, 1, 1), alphascale(0), refractscale(0), refractcolor(1, 1, 1), blend(false), blendx(-1), blendy(-1), globals(-1), tmu(-1), slot(nullptr), texgenslot(nullptr), vslot(nullptr), texgenvslot(nullptr), texgenscroll(0, 0), texgenorient(-1), texgenmillis(lastmillis)
     {
         loopk(7) textures[k] = 0;
     }
@@ -1238,7 +1238,7 @@ struct geombatch
 static vector<geombatch> geombatches;
 static int firstbatch = -1, numbatches = 0;
 
-static void mergetexs(renderstate &cur, vtxarray *va, elementset *texs = NULL, int numtexs = 0, int offset = 0)
+static void mergetexs(renderstate &cur, vtxarray *va, elementset *texs = nullptr, int numtexs = 0, int offset = 0)
 {
     if(!texs)
     {
@@ -1373,7 +1373,7 @@ static void changebatchtmus(renderstate &cur, int pass, geombatch &b)
         if(!cur.blend)
         {
             cur.blend = true;
-            cur.vslot = NULL;
+            cur.vslot = nullptr;
         }
         if((cur.blendx != (b.va->o.x&~0xFFF) || cur.blendy != (b.va->o.y&~0xFFF)))
         {
@@ -1387,7 +1387,7 @@ static void changebatchtmus(renderstate &cur, int pass, geombatch &b)
     else if(cur.blend)
     {
         cur.blend = false;
-        cur.vslot = NULL;
+        cur.vslot = nullptr;
     }
 
     if(cur.tmu != 0)
@@ -1589,8 +1589,8 @@ static void resetbatches()
 
 static void renderbatches(renderstate &cur, int pass)
 {
-    cur.slot = NULL;
-    cur.vslot = NULL;
+    cur.slot = nullptr;
+    cur.vslot = nullptr;
     int curbatch = firstbatch;
     if(curbatch >= 0)
     {
@@ -1753,7 +1753,7 @@ void rendergeom()
             {
                 if(va->parent && va->parent->occluded >= OCCLUDE_BB)
                 {
-                    va->query = NULL;
+                    va->query = nullptr;
                     va->occluded = OCCLUDE_PARENT;
                     continue;
                 }
@@ -1774,7 +1774,7 @@ void rendergeom()
             }
             else
             {
-                va->query = NULL;
+                va->query = nullptr;
                 va->occluded = pvsoccluded(va->geommin, va->geommax) ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
                 if(va->occluded >= OCCLUDE_GEOM) continue;
             }
@@ -1828,7 +1828,7 @@ void rendergeom()
         resetbatches();
         for(vtxarray *va = visibleva; va; va = va->next) if(va->texs)
         {
-            va->query = NULL;
+            va->query = nullptr;
             va->occluded = pvsoccluded(va->geommin, va->geommax) ? OCCLUDE_GEOM : OCCLUDE_NOTHING;
             if(va->occluded >= OCCLUDE_GEOM) continue;
             blends += va->blends;
@@ -1898,7 +1898,7 @@ void renderrsmgeom(bool dyntex)
     {
         enablevattribs(cur, false);
         SETSHADER(rsmsky);
-        vtxarray *prev = NULL;
+        vtxarray *prev = nullptr;
         for(vtxarray *va = shadowva; va; va = va->rnext) if(va->sky)
         {
             if(!prev || va->vbuf != prev->vbuf)
@@ -2008,7 +2008,7 @@ void renderrefractmask()
 {
     gle::enablevertex();
 
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     loopv(alphavas)
     {
         vtxarray *va = alphavas[i];
@@ -2063,7 +2063,7 @@ CVARP(explicitskycolour, 0x800080);
 
 bool renderexplicitsky(bool outline)
 {
-    vtxarray *prev = NULL;
+    vtxarray *prev = nullptr;
     for(vtxarray *va = visibleva; va; va = va->next) if(va->sky && va->occluded < OCCLUDE_BB &&
         ((va->skymax.x >= 0 && isvisiblebb(va->skymin, ivec(va->skymax).sub(va->skymin)) != VFC_NOT_VISIBLE) ||
          !insideworld(camera1->o)))
@@ -2130,7 +2130,7 @@ struct decalrenderer
     GLuint textures[7];
     DecalSlot *slot;
 
-    decalrenderer() : vbuf(0), colorscale(1, 1, 1), globals(-1), tmu(-1), slot(NULL)
+    decalrenderer() : vbuf(0), colorscale(1, 1, 1), globals(-1), tmu(-1), slot(nullptr)
     {
         loopi(7) textures[i] = 0;
     }
@@ -2355,7 +2355,7 @@ static void renderdecalbatch(decalrenderer &cur, int pass, decalbatch &b)
 
 static void renderdecalbatches(decalrenderer &cur, int pass)
 {
-    cur.slot = NULL;
+    cur.slot = nullptr;
     int curbatch = firstbatch;
     while(curbatch >= 0)
     {
@@ -2718,12 +2718,12 @@ void genshadowmeshes()
 shadowmesh *findshadowmesh(int idx, extentity &e)
 {
     shadowmesh *m = shadowmeshes.access(idx);
-    if(!m || m->type != shadowmapping || m->origin != shadoworigin || m->radius < shadowradius) return NULL;
+    if(!m || m->type != shadowmapping || m->origin != shadoworigin || m->radius < shadowradius) return nullptr;
     switch(m->type)
     {
         case SM_SPOT:
             if(!e.attached || e.attached->type != ET_SPOTLIGHT || m->spotloc != e.attached->o || m->spotangle < clamp(int(e.attached->attr1), 1, 89))
-                return NULL;
+                return nullptr;
             break;
     }
     return m;

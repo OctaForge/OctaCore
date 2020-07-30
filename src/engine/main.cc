@@ -23,7 +23,7 @@
 #include "texture.hh"
 #include "world.hh"
 
-static SDL_Window *screen = NULL;
+static SDL_Window *screen = nullptr;
 static int curvsync = -1;
 
 static void swapbuffers(bool overlay = true);
@@ -49,7 +49,7 @@ void clearmainmenu()
     if(mainmenu && isconnected())
     {
         mainmenu = 0;
-        //UI::hideui(NULL);
+        //UI::hideui(nullptr);
     }
 }
 
@@ -122,7 +122,7 @@ void fatal(const char *s, ...)    // failure exit
                 #endif
             }
             SDL_Quit();
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Tesseract fatal error", msg, NULL);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Tesseract fatal error", msg, nullptr);
         }
     }
 
@@ -132,11 +132,11 @@ void fatal(const char *s, ...)    // failure exit
 VAR(desktopw, 1, 0, 0);
 VAR(desktoph, 1, 0, 0);
 int screenw = 0, screenh = 0;
-static SDL_GLContext glcontext = NULL;
+static SDL_GLContext glcontext = nullptr;
 
 int curtime = 0, lastmillis = 1, elapsedtime = 0, totalmillis = 1;
 
-dynent *player = NULL;
+dynent *player = nullptr;
 
 int initing = NOT_INITING;
 
@@ -184,9 +184,9 @@ static void getbackgroundres(int &w, int &h)
 }
 
 static string backgroundcaption = "";
-static Texture *backgroundmapshot = NULL;
+static Texture *backgroundmapshot = nullptr;
 static string backgroundmapname = "";
-static char *backgroundmapinfo = NULL;
+static char *backgroundmapinfo = nullptr;
 
 static void bgquad(float x, float y, float w, float h, float tx = 0, float ty = 0, float tw = 1, float th = 1)
 {
@@ -289,7 +289,7 @@ static void renderbackgroundview(int w, int h, const char *caption, Texture *map
 
 VAR(menumute, 0, 1, 1);
 
-static void setbackgroundinfo(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL)
+static void setbackgroundinfo(const char *caption = nullptr, Texture *mapshot = nullptr, const char *mapname = nullptr, const char *mapinfo = nullptr)
 {
     renderedframe = false;
     copystring(backgroundcaption, caption ? caption : "");
@@ -335,7 +335,7 @@ static void restorebackground(int w, int h, bool force = false)
         if(!force) return;
         setbackgroundinfo();
     }
-    renderbackgroundview(w, h, backgroundcaption[0] ? backgroundcaption : NULL, backgroundmapshot, backgroundmapname[0] ? backgroundmapname : NULL, backgroundmapinfo);
+    renderbackgroundview(w, h, backgroundcaption[0] ? backgroundcaption : nullptr, backgroundmapshot, backgroundmapname[0] ? backgroundmapname : nullptr, backgroundmapinfo);
 }
 
 float loadprogress = 0;
@@ -574,12 +574,12 @@ static void setupscreen()
     if(glcontext)
     {
         SDL_GL_DeleteContext(glcontext);
-        glcontext = NULL;
+        glcontext = nullptr;
     }
     if(screen)
     {
         SDL_DestroyWindow(screen);
-        screen = NULL;
+        screen = nullptr;
     }
     curvsync = -1;
 
@@ -950,10 +950,10 @@ static void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
     CONTEXT *context = ep->ContextRecord;
     char out[512];
     formatstring(out, "Tesseract Win32 Exception: 0x%x [0x%x]\n\n", er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
-    SymInitialize(GetCurrentProcess(), NULL, TRUE);
+    SymInitialize(GetCurrentProcess(), nullptr, TRUE);
 #ifdef _AMD64_
     STACKFRAME64 sf = {{context->Rip, 0, AddrModeFlat}, {}, {context->Rbp, 0, AddrModeFlat}, {context->Rsp, 0, AddrModeFlat}, 0};
-    while(::StackWalk64(IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL))
+    while(::StackWalk64(IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess(), GetCurrentThread(), &sf, context, nullptr, ::SymFunctionTableAccess, ::SymGetModuleBase, nullptr))
     {
         union { IMAGEHLP_SYMBOL64 sym; char symext[sizeof(IMAGEHLP_SYMBOL64) + sizeof(string)]; };
         sym.SizeOfStruct = sizeof(sym);
@@ -965,7 +965,7 @@ static void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep)
         if(SymGetSymFromAddr64(GetCurrentProcess(), sf.AddrPC.Offset, &symoff, &sym) && SymGetLineFromAddr64(GetCurrentProcess(), sf.AddrPC.Offset, &lineoff, &line))
 #else
     STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
-    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL))
+    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, nullptr, ::SymFunctionTableAccess, ::SymGetModuleBase, nullptr))
     {
         union { IMAGEHLP_SYMBOL sym; char symext[sizeof(IMAGEHLP_SYMBOL) + sizeof(string)]; };
         sym.SizeOfStruct = sizeof(sym);
@@ -1081,7 +1081,7 @@ int main(int argc, char **argv)
     #endif
     #endif
 
-    char *initscript = NULL;
+    char *initscript = nullptr;
 
     initing = INIT_RESET;
     // set home dir first
@@ -1142,7 +1142,7 @@ int main(int argc, char **argv)
 
     printf("init: world\n");
     camera1 = player = game::iterdynents(0);
-    emptymap(0, true, NULL, false);
+    emptymap(0, true, nullptr, false);
 
     printf("init: sound\n");
     //initsound();

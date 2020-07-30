@@ -8,7 +8,7 @@ extern hashnameset<ident> idents;
 extern int identflags;
 
 void clearoverrides();
-void writecfg(const char *name = NULL);
+void writecfg(const char *name = nullptr);
 
 void checksleep(int millis);
 void clearsleep(bool clearoverrides = true);

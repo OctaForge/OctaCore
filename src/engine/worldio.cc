@@ -50,7 +50,7 @@ struct mapheader
 
 VARR(mapversion, 1, MAPVERSION, 0);
 
-static void validmapname(char *dst, const char *src, const char *prefix = NULL, const char *alt = "untitled", size_t maxlen = 100)
+static void validmapname(char *dst, const char *src, const char *prefix = nullptr, const char *alt = "untitled", size_t maxlen = 100)
 {
     if(prefix) while(*prefix) *dst++ = *prefix++;
     const char *start = dst;
@@ -107,7 +107,7 @@ static bool loadmapheader(stream *f, const char *ogzname, mapheader &hdr, octahe
 
 static string ogzname, cfgname, picname;
 
-static void setmapfilenames(const char *fname, const char *cname = NULL)
+static void setmapfilenames(const char *fname, const char *cname = nullptr)
 {
     string name;
     validmapname(name, fname);
@@ -508,13 +508,13 @@ static void loadvslots(stream *f, int numvslots)
         int changed = f->getlil<int>();
         if(changed < 0)
         {
-            loopi(-changed) vslots.add(new VSlot(NULL, vslots.length()));
+            loopi(-changed) vslots.add(new VSlot(nullptr, vslots.length()));
             numvslots += changed;
         }
         else
         {
             prev[vslots.length()] = f->getlil<int>();
-            loadvslot(f, *vslots.add(new VSlot(NULL, vslots.length())), changed);
+            loadvslot(f, *vslots.add(new VSlot(nullptr, vslots.length())), changed);
             numvslots--;
         }
     }
@@ -654,7 +654,7 @@ bool load_world(const char *mname, const char *cname)        // still supports a
     renderprogress(0, "clearing world...");
 
     freeocta(worldroot);
-    worldroot = NULL;
+    worldroot = nullptr;
 
     int worldscale = 0;
     while(1<<worldscale < hdr.worldsize) worldscale++;
@@ -742,7 +742,7 @@ bool load_world(const char *mname, const char *cname)        // still supports a
 
     vector<extentity *> &ents = entities::getents();
     int einfosize = entities::extraentinfosize();
-    char *ebuf = einfosize > 0 ? new char[einfosize] : NULL;
+    char *ebuf = einfosize > 0 ? new char[einfosize] : nullptr;
     loopi(min(hdr.numents, MAXENTS))
     {
         extentity &e = *entities::newentity();
@@ -951,7 +951,7 @@ static void writecollideobj(char *name)
         return;
     }
     vector<extentity *> &ents = entities::getents();
-    extentity *mm = NULL;
+    extentity *mm = nullptr;
     loopv(entgroup)
     {
         extentity &e = *ents[entgroup[i]];

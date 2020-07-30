@@ -19,7 +19,7 @@ static reversequeue<cline, MAXCONLINES> conlines;
 
 static int commandmillis = -1;
 static string commandbuf;
-static char *commandaction = NULL, *commandprompt = NULL;
+static char *commandaction = nullptr, *commandprompt = nullptr;
 enum { CF_COMPLETE = 1<<0, CF_EXECUTE = 1<<1 };
 static int commandflags = 0, commandpos = -1;
 
@@ -187,7 +187,7 @@ struct keym
     char *actions[NUMACTIONS];
     bool pressed;
 
-    keym() : code(-1), name(NULL), pressed(false) { loopi(NUMACTIONS) actions[i] = newstring(""); }
+    keym() : code(-1), name(nullptr), pressed(false) { loopi(NUMACTIONS) actions[i] = newstring(""); }
     ~keym() { DELETEA(name); loopi(NUMACTIONS) DELETEA(actions[i]); }
 
     void clear(int type);
@@ -207,14 +207,14 @@ static void keymap(int *code, char *key)
 
 COMMAND(keymap, "is");
 
-static keym *keypressed = NULL;
-static char *keyaction = NULL;
+static keym *keypressed = nullptr;
+static char *keyaction = nullptr;
 
 #if 0
 static const char *getkeyname(int code)
 {
     keym *km = keyms.access(code);
-    return km ? km->name : NULL;
+    return km ? km->name : nullptr;
 }
 #endif
 
@@ -239,7 +239,7 @@ static keym *findbind(char *key)
     {
         if(!strcasecmp(km.name, key)) return &km;
     });
-    return NULL;
+    return nullptr;
 }
 
 static void getbind(char *key, int type)
@@ -287,7 +287,7 @@ ICOMMAND(clearspecbinds, "", (), enumerate(keyms, keym, km, km.clear(keym::ACTIO
 ICOMMAND(cleareditbinds, "", (), enumerate(keyms, keym, km, km.clear(keym::ACTION_EDITING)));
 ICOMMAND(clearallbinds, "", (), enumerate(keyms, keym, km, km.clear()));
 
-static void inputcommand(char *init, char *action = NULL, char *prompt = NULL, char *flags = NULL) // turns input to the command line on or off
+static void inputcommand(char *init, char *action = nullptr, char *prompt = nullptr, char *flags = nullptr) // turns input to the command line on or off
 {
     commandmillis = init ? totalmillis : -1;
     textinput(commandmillis >= 0, TI_CONSOLE);
@@ -328,7 +328,7 @@ struct hline
     char *buf, *action, *prompt;
     int flags;
 
-    hline() : buf(NULL), action(NULL), prompt(NULL), flags(0) {}
+    hline() : buf(nullptr), action(nullptr), prompt(nullptr), flags(0) {}
     ~hline()
     {
         DELETEA(buf);
@@ -350,8 +350,8 @@ struct hline
     bool shouldsave()
     {
         return strcmp(commandbuf, buf) ||
-               (commandaction ? !action || strcmp(commandaction, action) : action!=NULL) ||
-               (commandprompt ? !prompt || strcmp(commandprompt, prompt) : prompt!=NULL) ||
+               (commandaction ? !action || strcmp(commandaction, action) : action!=nullptr) ||
+               (commandprompt ? !prompt || strcmp(commandprompt, prompt) : prompt!=nullptr) ||
                commandflags != flags;
     }
 
@@ -407,7 +407,7 @@ static vector<releaseaction> releaseactions;
 
 const char *addreleaseaction(char *s)
 {
-    if(!keypressed) { delete[] s; return NULL; }
+    if(!keypressed) { delete[] s; return nullptr; }
     releaseaction &ra = releaseactions.add();
     ra.key = keypressed;
     ra.action = s;
@@ -417,7 +417,7 @@ const char *addreleaseaction(char *s)
 
 tagval *addreleaseaction(ident *id, int numargs)
 {
-    if(!keypressed || numargs > 3) return NULL;
+    if(!keypressed || numargs > 3) return nullptr;
     releaseaction &ra = releaseactions.add();
     ra.key = keypressed;
     ra.id = id;
@@ -444,7 +444,7 @@ static void execbind(keym &k, bool isdown)
                 if(!isdown) execute(ra.action);
                 delete[] ra.action;
             }
-            else execute(isdown ? NULL : ra.id, ra.args, ra.numargs);
+            else execute(isdown ? nullptr : ra.id, ra.args, ra.numargs);
             releaseactions.remove(i--);
         }
     }
@@ -460,7 +460,7 @@ static void execbind(keym &k, bool isdown)
         keyaction = action;
         keypressed = &k;
         execute(keyaction);
-        keypressed = NULL;
+        keypressed = nullptr;
         if(keyaction!=action) delete[] keyaction;
     }
     k.pressed = isdown;
@@ -556,7 +556,7 @@ static bool consolekey(int code, bool isdown)
             case SDLK_TAB:
                 if(commandflags&CF_COMPLETE)
                 {
-                    complete(commandbuf, sizeof(commandbuf), commandflags&CF_EXECUTE ? "/" : NULL);
+                    complete(commandbuf, sizeof(commandbuf), commandflags&CF_EXECUTE ? "/" : nullptr);
                     if(commandpos>=0 && commandpos>=(int)strlen(commandbuf)) commandpos = -1;
                 }
                 break;
@@ -570,7 +570,7 @@ static bool consolekey(int code, bool isdown)
     {
         if(code==SDLK_RETURN || code==SDLK_KP_ENTER)
         {
-            hline *h = NULL;
+            hline *h = nullptr;
             if(commandbuf[0])
             {
                 if(history.empty() || history.last()->shouldsave())
@@ -585,13 +585,13 @@ static bool consolekey(int code, bool isdown)
                 else h = history.last();
             }
             histpos = history.length();
-            inputcommand(NULL);
+            inputcommand(nullptr);
             if(h) h->run();
         }
         else if(code==SDLK_ESCAPE)
         {
             histpos = history.length();
-            inputcommand(NULL);
+            inputcommand(nullptr);
         }
     }
 
@@ -670,7 +670,7 @@ struct filesval
     vector<char *> files;
     int millis;
 
-    filesval(int type, const char *dir, const char *ext) : type(type), dir(newstring(dir)), ext(ext && ext[0] ? newstring(ext) : NULL), millis(-1) {}
+    filesval(int type, const char *dir, const char *ext) : type(type), dir(newstring(dir)), ext(ext && ext[0] ? newstring(ext) : nullptr), millis(-1) {}
     ~filesval() { DELETEA(dir); DELETEA(ext); files.deletearrays(); }
 
     void update()
@@ -698,7 +698,7 @@ static hashtable<fileskey, filesval *> completefiles;
 static hashtable<char *, filesval *> completions;
 
 static int completesize = 0;
-static char *lastcomplete = NULL;
+static char *lastcomplete = nullptr;
 
 static void resetcomplete() { completesize = 0; }
 
@@ -712,7 +712,7 @@ static void addcomplete(char *command, int type, char *dir, char *ext)
     if(!dir[0])
     {
         filesval **hasfiles = completions.access(command);
-        if(hasfiles) *hasfiles = NULL;
+        if(hasfiles) *hasfiles = nullptr;
         return;
     }
     if(type==FILES_DIR)
@@ -723,7 +723,7 @@ static void addcomplete(char *command, int type, char *dir, char *ext)
         if(ext)
         {
             if(strchr(ext, '*')) ext[0] = '\0';
-            if(!ext[0]) ext = NULL;
+            if(!ext[0]) ext = nullptr;
         }
     }
     fileskey key(type, dir, ext);
@@ -747,7 +747,7 @@ static void addfilecomplete(char *command, char *dir, char *ext)
 
 static void addlistcomplete(char *command, char *list)
 {
-    addcomplete(command, FILES_LIST, list, NULL);
+    addcomplete(command, FILES_LIST, list, nullptr);
 }
 
 COMMANDN(complete, addfilecomplete, "sss");
@@ -764,14 +764,14 @@ static void complete(char *s, int maxlen, const char *cmdprefix)
     if(!s[cmdlen]) return;
     if(!completesize) { completesize = (int)strlen(&s[cmdlen]); DELETEA(lastcomplete); }
 
-    filesval *f = NULL;
+    filesval *f = nullptr;
     if(completesize)
     {
         char *end = strchr(&s[cmdlen], ' ');
-        if(end) f = completions.find(stringslice(&s[cmdlen], end), NULL);
+        if(end) f = completions.find(stringslice(&s[cmdlen], end), nullptr);
     }
 
-    const char *nextcomplete = NULL;
+    const char *nextcomplete = nullptr;
     if(f) // complete using filenames
     {
         int commandsize = strchr(&s[cmdlen], ' ')+1-s;

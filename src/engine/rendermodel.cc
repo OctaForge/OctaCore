@@ -19,7 +19,7 @@
 VAR(oqdynent, 0, 1, 1);
 VAR(animationinterpolationtime, 0, 200, 1000);
 
-model *loadingmodel = NULL;
+model *loadingmodel = nullptr;
 
 #include "ragdoll.hh"
 #include "animmodel.hh"
@@ -92,7 +92,7 @@ static void mdltricollide(char *collide)
 {
     checkmdl;
     DELETEA(loadingmodel->collidemodel);
-    char *end = NULL;
+    char *end = nullptr;
     int val = strtol(collide, &end, 0);
     if(*end) { val = 1; loadingmodel->collidemodel = newstring(collide); }
     loadingmodel->collide = val ? COLLIDE_TRI : COLLIDE_NONE;
@@ -140,7 +140,7 @@ COMMAND(mdlglow, "fff");
 static void mdlenvmap(float *envmapmax, float *envmapmin, char *envmap)
 {
     checkmdl;
-    loadingmodel->setenvmap(*envmapmin, *envmapmax, envmap[0] ? cubemapload(envmap) : NULL);
+    loadingmodel->setenvmap(*envmapmin, *envmapmax, envmap[0] ? cubemapload(envmap) : nullptr);
 }
 COMMAND(mdlenvmap, "ffs");
 
@@ -333,7 +333,7 @@ static void mapmodel(char *name)
     mapmodelinfo &mmi = mapmodels.add();
     if(name[0]) formatstring(mmi.name, "%s%s", mmprefix, name);
     else mmi.name[0] = '\0';
-    mmi.m = mmi.collide = NULL;
+    mmi.m = mmi.collide = nullptr;
 }
 
 static void mapmodelreset(int *n)
@@ -342,7 +342,7 @@ static void mapmodelreset(int *n)
     mapmodels.shrink(clamp(*n, 0, mapmodels.length()));
 }
 
-const char *mapmodelname(int i) { return mapmodels.inrange(i) ? mapmodels[i].name : NULL; }
+const char *mapmodelname(int i) { return mapmodels.inrange(i) ? mapmodels[i].name : nullptr; }
 
 ICOMMAND(mmodel, "s", (char *name), mapmodel(name));
 COMMAND(mapmodel, "s");
@@ -398,7 +398,7 @@ void preloadusedmapmodels(bool msg, bool bih)
         if(!mapmodels.inrange(mmindex)) { if(msg) conoutf(CON_WARN, "could not find map model: %d", mmindex); continue; }
         mapmodelinfo &mmi = mapmodels[mmindex];
         if(!mmi.name[0]) continue;
-        model *m = loadmodel(NULL, mmindex, msg);
+        model *m = loadmodel(nullptr, mmindex, msg);
         if(!m) { if(msg) conoutf(CON_WARN, "could not load map model: %s", mmi.name); }
         else
         {
@@ -425,7 +425,7 @@ model *loadmodel(const char *name, int i, bool msg)
 {
     if(!name)
     {
-        if(!mapmodels.inrange(i)) return NULL;
+        if(!mapmodels.inrange(i)) return nullptr;
         mapmodelinfo &mmi = mapmodels[i];
         if(mmi.m) return mmi.m;
         name = mmi.name;
@@ -435,7 +435,7 @@ model *loadmodel(const char *name, int i, bool msg)
     if(mm) m = *mm;
     else
     {
-        if(!name[0] || loadingmodel || failedmodels.find(name, NULL)) return NULL;
+        if(!name[0] || loadingmodel || failedmodels.find(name, nullptr)) return nullptr;
         if(msg)
         {
             defformatstring(filename, "media/model/%s", name);
@@ -449,11 +449,11 @@ model *loadmodel(const char *name, int i, bool msg)
             if(m->load()) break;
             DELETEP(m);
         }
-        loadingmodel = NULL;
+        loadingmodel = nullptr;
         if(!m)
         {
             failedmodels.add(newstring(name));
-            return NULL;
+            return nullptr;
         }
         models.access(m->name, m);
     }
@@ -473,13 +473,13 @@ void cleanupmodels()
 
 static void clearmodel(char *name)
 {
-    model *m = models.find(name, NULL);
+    model *m = models.find(name, nullptr);
     if(!m) { conoutf("model %s is not loaded", name); return; }
     loopv(mapmodels)
     {
         mapmodelinfo &mmi = mapmodels[i];
-        if(mmi.m == m) mmi.m = NULL;
-        if(mmi.collide == m) mmi.collide = NULL;
+        if(mmi.m == m) mmi.m = nullptr;
+        if(mmi.collide == m) mmi.collide = nullptr;
     }
     models.remove(name);
     m->cleanup();
@@ -527,7 +527,7 @@ void resetmodelbatches()
 
 static void addbatchedmodel(model *m, batchedmodel &bm, int idx)
 {
-    modelbatch *b = NULL;
+    modelbatch *b = nullptr;
     if(batches.inrange(m->batch))
     {
         b = &batches[m->batch];
@@ -549,7 +549,7 @@ foundbatch:
 
 static inline void renderbatchedmodel(model *m, const batchedmodel &b)
 {
-    modelattach *a = NULL;
+    modelattach *a = nullptr;
     if(b.attached>=0) a = &modelattached[b.attached];
 
     int anim = b.anim;
@@ -578,7 +578,7 @@ static inline void rendercullmodelquery(model *m, dynent *d, const vec &center, 
        fabs(camera1->o.y-center.y) < radius+1 &&
        fabs(camera1->o.z-center.z) < radius+1)
     {
-        d->query = NULL;
+        d->query = nullptr;
         return;
     }
     d->query = newquery(d);
@@ -594,7 +594,7 @@ static inline void disablecullmodelquery()
     endbb();
 }
 
-static inline int cullmodel(model *m, const vec &center, float radius, int flags, dynent *d = NULL)
+static inline int cullmodel(model *m, const vec &center, float radius, int flags, dynent *d = nullptr)
 {
     if(flags&MDL_CULL_DIST && center.dist(camera1->o)/radius>maxmodelradiusdistance) return MDL_CULL_DIST;
     if(flags&MDL_CULL_VFC && isfoggedsphere(radius, center)) return MDL_CULL_VFC;
@@ -850,7 +850,7 @@ void rendertransparentmodelbatches(int stencil)
     disableaamask();
 }
 
-static occludequery *modelquery = NULL;
+static occludequery *modelquery = nullptr;
 static int modelquerybatches = -1, modelquerymodels = -1, modelqueryattached = -1;
  
 void startmodelquery(occludequery *query)
@@ -866,7 +866,7 @@ void endmodelquery()
     if(batchedmodels.length() == modelquerymodels)
     {
         modelquery->fragments = 0;
-        modelquery = NULL;
+        modelquery = nullptr;
         return;
     }
     enableaamask();
@@ -889,7 +889,7 @@ void endmodelquery()
         b.m->endrender();
     }
     endquery(modelquery);
-    modelquery = NULL;
+    modelquery = nullptr;
     batches.setsize(modelquerybatches);
     batchedmodels.setsize(modelquerymodels);
     modelattached.setsize(modelqueryattached);
@@ -951,7 +951,7 @@ void rendermapmodel(int idx, int anim, const vec &o, float yaw, float pitch, flo
     b.colorscale = vec4(1, 1, 1, 1);
     b.flags = flags | MDL_MAPMODEL;
     b.visible = visible;
-    b.d = NULL;
+    b.d = nullptr;
     b.attached = -1;
     addbatchedmodel(m, b, batchedmodels.length()-1);
 }
@@ -1125,8 +1125,8 @@ static void loadskin(const char *dir, const char *altdir, Texture *&skin, Textur
     defformatstring(mdir, "media/model/%s", dir);
     defformatstring(maltdir, "media/model/%s", altdir);
     masks = notexture;
-    tryload(skin, NULL, NULL, "skin");
-    tryload(masks, NULL, NULL, "masks");
+    tryload(skin, nullptr, nullptr, "skin");
+    tryload(masks, nullptr, nullptr, "masks");
 }
 
 void setbbfrommodel(dynent *d, const char *mdl)

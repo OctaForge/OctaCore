@@ -587,7 +587,7 @@ static void readychanges(const ivec &bbmin, const ivec &bbmax, cube *c, const iv
             {
                 int hasmerges = c[i].ext->va->hasmerges;
                 destroyva(c[i].ext->va);
-                c[i].ext->va = NULL;
+                c[i].ext->va = nullptr;
                 if(hasmerges) invalidatemerges(c[i], o, size, true);
             }
             freeoctaentities(c[i]);
@@ -646,7 +646,7 @@ static inline void copycube(const cube &src, cube &dst)
     dst = src;
     dst.visible = 0;
     dst.merged = 0;
-    dst.ext = NULL; // src cube is responsible for va destruction
+    dst.ext = nullptr; // src cube is responsible for va destruction
     if(src.children)
     {
         dst.children = newcubes(F_EMPTY);
@@ -670,7 +670,7 @@ static void blockcopy(const block3 &s, int rgrid, block3 *b)
 static block3 *blockcopy(const block3 &s, int rgrid)
 {
     int bsize = sizeof(block3)+sizeof(cube)*s.size();
-    if(bsize <= 0 || bsize > (100<<20)) return NULL;
+    if(bsize <= 0 || bsize > (100<<20)) return nullptr;
     block3 *b = (block3 *)new (false) uchar[bsize];
     if(b) blockcopy(s, rgrid, b);
     return b;
@@ -723,13 +723,13 @@ struct undolist
 {
     undoblock *first, *last;
 
-    undolist() : first(NULL), last(NULL) {}
+    undolist() : first(nullptr), last(nullptr) {}
 
     bool empty() { return !first; }
 
     void add(undoblock *u)
     {
-        u->next = NULL;
+        u->next = nullptr;
         u->prev = last;
         if(!first) first = last = u;
         else
@@ -743,8 +743,8 @@ struct undolist
     {
         undoblock *u = first;
         first = first->next;
-        if(first) first->prev = NULL;
-        else last = NULL;
+        if(first) first->prev = nullptr;
+        else last = nullptr;
         return u;
     }
 
@@ -752,8 +752,8 @@ struct undolist
     {
         undoblock *u = last;
         last = last->prev;
-        if(last) last->next = NULL;
-        else first = NULL;
+        if(last) last->next = nullptr;
+        else first = nullptr;
         return u;
     }
 };
@@ -788,9 +788,9 @@ static undoblock *newundocube(const selinfo &s)
     int ssize = s.size(),
         selgridsize = ssize,
         blocksize = sizeof(block3)+ssize*sizeof(cube);
-    if(blocksize <= 0 || blocksize > (undomegs<<20)) return NULL;
+    if(blocksize <= 0 || blocksize > (undomegs<<20)) return nullptr;
     undoblock *u = (undoblock *)new (false) uchar[sizeof(undoblock) + blocksize + selgridsize];
-    if(!u) return NULL;
+    if(!u) return nullptr;
     u->numents = 0;
     block3 *b = u->block();
     blockcopy(s, -s.grid, b);
@@ -894,7 +894,7 @@ static void editredo() { swapundo(redos, undos, EDIT_REDO); }
 #define protectsel(f) { undoblock *_u = newundocube(sel); f; if(_u) { pasteundo(_u); freeundo(_u); } }
 
 static vector<editinfo *> editinfos;
-editinfo *localedit = NULL;
+editinfo *localedit = nullptr;
 
 template<class B>
 static void packcube(cube &c, B &buf)
@@ -987,7 +987,7 @@ static void unpackcube(cube &c, B &buf)
 template<class B>
 static bool unpackblock(block3 *&b, B &buf)
 {
-    if(b) { freeblock(b); b = NULL; }
+    if(b) { freeblock(b); b = nullptr; }
     block3 hdr;
     if(buf.get((uchar *)&hdr, sizeof(hdr)) < int(sizeof(hdr))) return false;
     lilswap(hdr.o.v, 3);
@@ -1056,7 +1056,7 @@ static bool compresseditinfo(const uchar *inbuf, int inlen, uchar *&outbuf, int 
     if(!outbuf || compress2((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen, Z_BEST_COMPRESSION) != Z_OK || len > (1<<16))
     {
         delete[] outbuf;
-        outbuf = NULL;
+        outbuf = nullptr;
         return false;
     }
     outlen = len;
@@ -1071,7 +1071,7 @@ static bool uncompresseditinfo(const uchar *inbuf, int inlen, uchar *&outbuf, in
     if(!outbuf || uncompress((Bytef *)outbuf, &len, (const Bytef *)inbuf, inlen) != Z_OK)
     {
         delete[] outbuf;
-        outbuf = NULL;
+        outbuf = nullptr;
         return false;
     }
     outlen = len;
@@ -1089,8 +1089,8 @@ bool packeditinfo(editinfo *e, int &inlen, uchar *&outbuf, int &outlen)
 
 bool unpackeditinfo(editinfo *&e, const uchar *inbuf, int inlen, int outlen)
 {
-    if(e && e->copy) { freeblock(e->copy); e->copy = NULL; }
-    uchar *outbuf = NULL;
+    if(e && e->copy) { freeblock(e->copy); e->copy = nullptr; }
+    uchar *outbuf = nullptr;
     if(!uncompresseditinfo(inbuf, inlen, outbuf, outlen)) return false;
     ucharbuf buf(outbuf, outlen);
     if(!e) e = editinfos.add(new editinfo);
@@ -1110,7 +1110,7 @@ void freeeditinfo(editinfo *&e)
     editinfos.removeobj(e);
     if(e->copy) freeblock(e->copy);
     delete e;
-    e = NULL;
+    e = nullptr;
 }
 
 static bool packundo(undoblock *u, int &inlen, uchar *&outbuf, int &outlen)
@@ -1143,7 +1143,7 @@ static bool packundo(undoblock *u, int &inlen, uchar *&outbuf, int &outlen)
 
 bool unpackundo(const uchar *inbuf, int inlen, int outlen)
 {
-    uchar *outbuf = NULL;
+    uchar *outbuf = nullptr;
     if(!uncompresseditinfo(inbuf, inlen, outbuf, outlen)) return false;
     ucharbuf buf(outbuf, outlen);
     if(buf.remaining() < 2)
@@ -1170,7 +1170,7 @@ bool unpackundo(const uchar *inbuf, int inlen, int outlen)
     }
     else
     {
-        block3 *b = NULL;
+        block3 *b = nullptr;
         if(!unpackblock(b, buf) || b->grid >= worldsize || buf.remaining() < b->size())
         {
             freeblock(b);
@@ -1210,7 +1210,7 @@ struct prefab : editinfo
     GLuint ebo, vbo;
     int numtris, numverts;
 
-    prefab() : name(NULL), ebo(0), vbo(0), numtris(0), numverts(0) {}
+    prefab() : name(nullptr), ebo(0), vbo(0), numtris(0), numverts(0) {}
     ~prefab() { DELETEA(name); if(copy) freeblock(copy); }
 
     void cleanup()
@@ -1286,14 +1286,14 @@ static prefab *loadprefab(const char *name, bool msg = true)
    defformatstring(filename, "media/prefab/%s.obr", name);
    path(filename);
    stream *f = opengzfile(filename, "rb");
-   if(!f) { if(msg) conoutf(CON_ERROR, "could not read prefab %s", filename); return NULL; }
+   if(!f) { if(msg) conoutf(CON_ERROR, "could not read prefab %s", filename); return nullptr; }
    prefabheader hdr;
-   if(f->read(&hdr, sizeof(hdr)) != sizeof(prefabheader) || memcmp(hdr.magic, "OEBR", 4)) { delete f; if(msg) conoutf(CON_ERROR, "prefab %s has malformatted header", filename); return NULL; }
+   if(f->read(&hdr, sizeof(hdr)) != sizeof(prefabheader) || memcmp(hdr.magic, "OEBR", 4)) { delete f; if(msg) conoutf(CON_ERROR, "prefab %s has malformatted header", filename); return nullptr; }
    lilswap(&hdr.version, 1);
-   if(hdr.version != 0) { delete f; if(msg) conoutf(CON_ERROR, "prefab %s uses unsupported version", filename); return NULL; }
+   if(hdr.version != 0) { delete f; if(msg) conoutf(CON_ERROR, "prefab %s uses unsupported version", filename); return nullptr; }
    streambuf<uchar> s(f);
-   block3 *copy = NULL;
-   if(!unpackblock(copy, s)) { delete f; if(msg) conoutf(CON_ERROR, "could not unpack prefab %s", filename); return NULL; }
+   block3 *copy = nullptr;
+   if(!unpackblock(copy, s)) { delete f; if(msg) conoutf(CON_ERROR, "could not unpack prefab %s", filename); return nullptr; }
    delete f;
 
    b = &prefabs[name];
@@ -1519,16 +1519,16 @@ void previewprefab(const char *name, const vec &color)
 void mpcopy(editinfo *&e, selinfo &sel, bool local)
 {
     if(local) game::edittrigger(sel, EDIT_COPY);
-    if(e==NULL) e = editinfos.add(new editinfo);
+    if(e==nullptr) e = editinfos.add(new editinfo);
     if(e->copy) freeblock(e->copy);
-    e->copy = NULL;
+    e->copy = nullptr;
     protectsel(e->copy = blockcopy(block3(sel), sel.grid));
     changed(sel);
 }
 
 void mppaste(editinfo *&e, selinfo &sel, bool local)
 {
-    if(e==NULL) return;
+    if(e==nullptr) return;
     if(local) game::edittrigger(sel, EDIT_PASTE);
     if(e->copy) pasteblock(*e->copy, sel, local);
 }
@@ -1661,11 +1661,11 @@ namespace hmap
     static cube *getcube(ivec t, int f)
     {
         t[d] += dcr*f*gridsize;
-        if(t[d] > nz || t[d] < mz) return NULL;
+        if(t[d] > nz || t[d] < mz) return nullptr;
         cube *c = &lookupcube(t, gridsize);
         if(c->children) forcemip(*c, false);
         discardchildren(*c, true);
-        if(!isheightmap(sel.orient, d, true, c)) return NULL;
+        if(!isheightmap(sel.orient, d, true, c)) return nullptr;
         if     (t.x < changes.o.x) changes.o.x = t.x;
         else if(t.x > changes.s.x) changes.s.x = t.x;
         if     (t.y < changes.o.y) changes.o.y = t.y;
@@ -1707,13 +1707,13 @@ namespace hmap
         makeundo(hundo);
 
         cube **c = cmap[x][y];
-        loopk(4) c[k] = NULL;
+        loopk(4) c[k] = nullptr;
         c[1] = getcube(t, 0);
         if(!c[1] || !isempty(*c[1]))
         {   // try up
             c[2] = c[1];
             c[1] = getcube(t, 1);
-            if(!c[1] || isempty(*c[1])) { c[0] = c[1]; c[1] = c[2]; c[2] = NULL; }
+            if(!c[1] || isempty(*c[1])) { c[0] = c[1]; c[1] = c[2]; c[2] = nullptr; }
             else { z++; t[d]+=fg; }
         }
         else // drop down
@@ -1732,8 +1732,8 @@ namespace hmap
         if(!c[0]) c[0] = getcube(t, 1);
         if(!c[2]) c[2] = getcube(t, -1);
         c[3] = getcube(t, -2);
-        c[2] = !c[2] || isempty(*c[2]) ? NULL : c[2];
-        c[3] = !c[3] || isempty(*c[3]) ? NULL : c[3];
+        c[2] = !c[2] || isempty(*c[2]) ? nullptr : c[2];
+        c[3] = !c[3] || isempty(*c[3]) ? nullptr : c[3];
 
         uint face = getface(c[1], d);
         if(face == 0x08080808 && (!c[0] || !isempty(*c[0]))) { flags[x][y] |= NOTHMAP; return; }
@@ -2123,8 +2123,8 @@ static VSlot *remapvslot(int index, bool delta, const VSlot &ds)
 {
     loopv(remappedvslots) if(remappedvslots[i].index == index) return remappedvslots[i].vslot;
     VSlot &vs = lookupvslot(index, false);
-    if(vs.index < 0 || vs.index == DEFAULT_SKY) return NULL;
-    VSlot *edit = NULL;
+    if(vs.index < 0 || vs.index == DEFAULT_SKY) return nullptr;
+    VSlot *edit = nullptr;
     if(delta)
     {
         VSlot ms;
@@ -2197,7 +2197,7 @@ void mpeditvslot(int delta, VSlot &ds, int allfaces, selinfo &sel, bool local)
         repsel = sel;
     }
     bool findrep = local && !allfaces && reptex < 0;
-    VSlot *findedit = NULL;
+    VSlot *findedit = nullptr;
     loopselxyz(remapvslots(c, delta != 0, ds, allfaces ? -1 : sel.orient, findrep, findedit));
     remappedvslots.setsize(0);
     if(local && findedit)
@@ -2847,9 +2847,9 @@ void rendertexturepanel(int w, int h)
             int s = (i == 3 ? 285 : 220), ti = curtexindex+i-3;
             if(texmru.inrange(ti))
             {
-                VSlot &vslot = lookupvslot(texmru[ti]), *layer = NULL, *detail = NULL;
+                VSlot &vslot = lookupvslot(texmru[ti]), *layer = nullptr, *detail = nullptr;
                 Slot &slot = *vslot.slot;
-                Texture *tex = slot.sts.empty() ? notexture : slot.sts[0].t, *glowtex = NULL, *layertex = NULL, *detailtex = NULL;
+                Texture *tex = slot.sts.empty() ? notexture : slot.sts[0].t, *glowtex = nullptr, *layertex = nullptr, *detailtex = nullptr;
                 if(slot.texmask&(1<<TEX_GLOW))
                 {
                     loopvj(slot.sts) if(slot.sts[j].type==TEX_GLOW) { glowtex = slot.sts[j].t; break; }

@@ -147,35 +147,35 @@ struct ident
 
     ident() {}
     // ID_VAR
-    ident(int t, const char *n, int m, int x, int *s, void *f = NULL, int flags = 0)
+    ident(int t, const char *n, int m, int x, int *s, void *f = nullptr, int flags = 0)
         : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minval(m), maxval(x), fun((identfun)f)
     { storage.i = s; }
     // ID_FVAR
-    ident(int t, const char *n, float m, float x, float *s, void *f = NULL, int flags = 0)
+    ident(int t, const char *n, float m, float x, float *s, void *f = nullptr, int flags = 0)
         : type(t), flags(flags | (m > x ? IDF_READONLY : 0)), name(n), minvalf(m), maxvalf(x), fun((identfun)f)
     { storage.f = s; }
     // ID_SVAR
-    ident(int t, const char *n, char **s, void *f = NULL, int flags = 0)
+    ident(int t, const char *n, char **s, void *f = nullptr, int flags = 0)
         : type(t), flags(flags), name(n), fun((identfun)f)
     { storage.s = s; }
     // ID_ALIAS
     ident(int t, const char *n, char *a, int flags)
-        : type(t), valtype(VAL_STR), flags(flags), name(n), code(NULL), stack(NULL)
+        : type(t), valtype(VAL_STR), flags(flags), name(n), code(nullptr), stack(nullptr)
     { val.s = a; }
     ident(int t, const char *n, int a, int flags)
-        : type(t), valtype(VAL_INT), flags(flags), name(n), code(NULL), stack(NULL)
+        : type(t), valtype(VAL_INT), flags(flags), name(n), code(nullptr), stack(nullptr)
     { val.i = a; }
     ident(int t, const char *n, float a, int flags)
-        : type(t), valtype(VAL_FLOAT), flags(flags), name(n), code(NULL), stack(NULL)
+        : type(t), valtype(VAL_FLOAT), flags(flags), name(n), code(nullptr), stack(nullptr)
     { val.f = a; }
     ident(int t, const char *n, int flags)
-        : type(t), valtype(VAL_NULL), flags(flags), name(n), code(NULL), stack(NULL)
+        : type(t), valtype(VAL_NULL), flags(flags), name(n), code(nullptr), stack(nullptr)
     {}
     ident(int t, const char *n, const tagval &v, int flags)
-        : type(t), valtype(v.type), flags(flags), name(n), code(NULL), stack(NULL)
+        : type(t), valtype(v.type), flags(flags), name(n), code(nullptr), stack(nullptr)
     { val = v; }
     // ID_COMMAND
-    ident(int t, const char *n, const char *args, uint argmask, int numargs, void *f = NULL, int flags = 0)
+    ident(int t, const char *n, const char *args, uint argmask, int numargs, void *f = nullptr, int flags = 0)
         : type(t), numargs(numargs), flags(flags), name(n), args(args), argmask(argmask), fun((identfun)f)
     {}
 
@@ -223,7 +223,7 @@ extern void result(const char *s);
 
 static inline int parseint(const char *s)
 {
-    return int(strtoul(s, NULL, 0));
+    return int(strtoul(s, nullptr, 0));
 }
 
 #define PARSEFLOAT(name, type) \
@@ -315,13 +315,13 @@ inline void ident::getcval(tagval &v) const
 }
 
 // nasty macros for registering script functions, abuses globals to avoid excessive infrastructure
-#define KEYWORD(name, type) UNUSED static bool __dummy_##type = addcommand(#name, (identfun)NULL, NULL, type)
+#define KEYWORD(name, type) UNUSED static bool __dummy_##type = addcommand(#name, (identfun)nullptr, nullptr, type)
 #define COMMANDKN(name, type, fun, nargs) UNUSED static bool __dummy_##fun = addcommand(#name, (identfun)fun, nargs, type)
 #define COMMANDK(name, type, nargs) COMMANDKN(name, type, name, nargs)
 #define COMMANDN(name, fun, nargs) COMMANDKN(name, ID_COMMAND, fun, nargs)
 #define COMMAND(name, nargs) COMMANDN(name, name, nargs)
 
-#define _VAR(name, global, min, cur, max, persist)  int global = variable(#name, min, cur, max, &global, NULL, persist)
+#define _VAR(name, global, min, cur, max, persist)  int global = variable(#name, min, cur, max, &global, nullptr, persist)
 #define VARN(name, global, min, cur, max) _VAR(name, global, min, cur, max, 0)
 #define VARNP(name, global, min, cur, max) _VAR(name, global, min, cur, max, IDF_PERSIST)
 #define VARNR(name, global, min, cur, max) _VAR(name, global, min, cur, max, IDF_OVERRIDE)
@@ -339,7 +339,7 @@ inline void ident::getcval(tagval &v) const
 #define VARMP(name, min, cur, max, scale) _VARM(name, min, cur, max, scale, IDF_PERSIST)
 #define VARMR(name, min, cur, max, scale) _VARM(name, min, cur, max, scale, IDF_OVERRIDE)
 
-#define _HVAR(name, global, min, cur, max, persist)  int global = variable(#name, min, cur, max, &global, NULL, persist | IDF_HEX)
+#define _HVAR(name, global, min, cur, max, persist)  int global = variable(#name, min, cur, max, &global, nullptr, persist | IDF_HEX)
 #define HVARN(name, global, min, cur, max) _HVAR(name, global, min, cur, max, 0)
 #define HVARNP(name, global, min, cur, max) _HVAR(name, global, min, cur, max, IDF_PERSIST)
 #define HVARNR(name, global, min, cur, max) _HVAR(name, global, min, cur, max, IDF_OVERRIDE)
@@ -370,7 +370,7 @@ inline void ident::getcval(tagval &v) const
 #define CVAR1FP(name, cur, body) _CVAR1(name, cur, body, IDF_PERSIST)
 #define CVAR1FR(name, cur, body) _CVAR1(name, cur, body, IDF_OVERRIDE)
 
-#define _FVAR(name, global, min, cur, max, persist) float global = fvariable(#name, min, cur, max, &global, NULL, persist)
+#define _FVAR(name, global, min, cur, max, persist) float global = fvariable(#name, min, cur, max, &global, nullptr, persist)
 #define FVARN(name, global, min, cur, max) _FVAR(name, global, min, cur, max, 0)
 #define FVARNP(name, global, min, cur, max) _FVAR(name, global, min, cur, max, IDF_PERSIST)
 #define FVARNR(name, global, min, cur, max) _FVAR(name, global, min, cur, max, IDF_OVERRIDE)
@@ -385,7 +385,7 @@ inline void ident::getcval(tagval &v) const
 #define FVARFNP(name, global, min, cur, max, body) _FVARF(name, global, min, cur, max, body, IDF_PERSIST)
 #define FVARFNR(name, global, min, cur, max, body) _FVARF(name, global, min, cur, max, body, IDF_OVERRIDE)
 
-#define _SVAR(name, global, cur, persist) char *global = svariable(#name, cur, &global, NULL, persist)
+#define _SVAR(name, global, cur, persist) char *global = svariable(#name, cur, &global, nullptr, persist)
 #define SVARN(name, global, cur) _SVAR(name, global, cur, 0)
 #define SVARNP(name, global, cur) _SVAR(name, global, cur, IDF_PERSIST)
 #define SVARNR(name, global, cur) _SVAR(name, global, cur, IDF_OVERRIDE)

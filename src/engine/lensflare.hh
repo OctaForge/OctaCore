@@ -156,7 +156,7 @@ struct flarerenderer : partrenderer
     }
 
     //square per round hole - use addflare(..) instead
-    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, int gravity = 0) { return NULL; }
+    particle *addpart(const vec &o, const vec &d, int fade, int color, float size, int gravity = 0) { return nullptr; }
 };
 static flarerenderer flares("<grey>media/particle/lensflares.png", 64);
 

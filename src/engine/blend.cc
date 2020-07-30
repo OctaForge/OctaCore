@@ -135,7 +135,7 @@ struct BlendMapCache
 
 BlendMapCache *newblendmapcache() { return new BlendMapCache; }
 
-void freeblendmapcache(BlendMapCache *&cache) { delete cache; cache = NULL; }
+void freeblendmapcache(BlendMapCache *&cache) { delete cache; cache = nullptr; }
 
 bool setblendmaporigin(BlendMapCache *cache, const ivec &o, int size)
 {
@@ -648,7 +648,7 @@ struct BlendTexture
     GLenum format;
     bool valid;
 
-    BlendTexture() : x(0), y(0), size(0), data(NULL), tex(0), format(GL_FALSE), valid(false)
+    BlendTexture() : x(0), y(0), size(0), data(nullptr), tex(0), format(GL_FALSE), valid(false)
     {}
 
     ~BlendTexture()
@@ -666,7 +666,7 @@ struct BlendTexture
         if(data) delete[] data;
         data = new uchar[size*size];
         format = hasTRG ? GL_RED : GL_LUMINANCE;
-        createtexture(tex, size, size, NULL, 3, 1, hasTRG ? GL_R8 : GL_LUMINANCE8);
+        createtexture(tex, size, size, nullptr, 3, 1, hasTRG ? GL_R8 : GL_LUMINANCE8);
         valid = false;
         return true;
     }
@@ -674,7 +674,7 @@ struct BlendTexture
     void cleanup()
     {
         if(tex) { glDeleteTextures(1, &tex); tex = 0; }
-        if(data) { delete[] data; data = NULL; }
+        if(data) { delete[] data; data = nullptr; }
         size = 0;
         valid = false;
     }
@@ -830,7 +830,7 @@ static void updateblendtextures(uchar &type, BlendMapNode &node, int bmx, int bm
         ty2 = (min(bmy+bmsize, uy+uh) + (0x1000>>BM_SCALE)-1)&~((0x1000>>BM_SCALE)-1);
     for(int ty = ty1; ty < ty2; ty += 0x1000>>BM_SCALE) for(int tx = tx1; tx < tx2; tx += 0x1000>>BM_SCALE)
     {
-        BlendTexture *bt = NULL;
+        BlendTexture *bt = nullptr;
         loopv(blendtexs) if(blendtexs[i].contains(tx<<BM_SCALE, ty<<BM_SCALE)) { bt = &blendtexs[i]; break; }
         if(!bt)
         {

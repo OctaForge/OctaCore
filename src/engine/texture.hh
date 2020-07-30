@@ -15,17 +15,17 @@ struct ImageData
     void (*freefunc)(void *);
 
     ImageData()
-        : data(NULL), owner(NULL), freefunc(NULL)
+        : data(nullptr), owner(nullptr), freefunc(nullptr)
     {}
 
 
     ImageData(int nw, int nh, int nbpp, int nlevels = 1, int nalign = 0, GLenum ncompressed = GL_FALSE)
     {
-        setdata(NULL, nw, nh, nbpp, nlevels, nalign, ncompressed);
+        setdata(nullptr, nw, nh, nbpp, nlevels, nalign, ncompressed);
     }
 
     ImageData(int nw, int nh, int nbpp, uchar *data)
-        : owner(NULL), freefunc(NULL)
+        : owner(nullptr), freefunc(nullptr)
     {
         setdata(data, nw, nh, nbpp);
     }
@@ -43,7 +43,7 @@ struct ImageData
         pitch = align ? 0 : w*bpp;
         compressed = ncompressed;
         data = ndata ? ndata : new uchar[calcsize()];
-        if(!ndata) { owner = this; freefunc = NULL; }
+        if(!ndata) { owner = this; freefunc = nullptr; }
     }
 
     int calclevelsize(int level) const { return ((max(w>>level, 1)+align-1)/align)*((max(h>>level, 1)+align-1)/align)*bpp; }
@@ -67,9 +67,9 @@ struct ImageData
 
     void disown()
     {
-        data = NULL;
-        owner = NULL;
-        freefunc = NULL;
+        data = nullptr;
+        owner = nullptr;
+        freefunc = nullptr;
     }
 
     void cleanup()
@@ -122,7 +122,7 @@ struct Texture
     GLuint id;
     uchar *alphamask;
 
-    Texture() : alphamask(NULL) {}
+    Texture() : alphamask(nullptr) {}
 };
 
 enum
@@ -174,7 +174,7 @@ struct VSlot
     float refractscale;
     vec refractcolor;
 
-    VSlot(Slot *slot = NULL, int index = -1) : slot(slot), next(NULL), index(index), changed(0)
+    VSlot(Slot *slot = nullptr, int index = -1) : slot(slot), next(nullptr), index(index), changed(0)
     {
         reset();
         if(slot) addvariant(slot);
@@ -218,7 +218,7 @@ struct Slot
         string name;
         int combined;
 
-        Tex() : t(NULL), combined(-1) {}
+        Tex() : t(nullptr), combined(-1) {}
     };
 
     int index, smooth;
@@ -231,7 +231,7 @@ struct Slot
     char *grass;
     Texture *grasstex, *thumbnail;
 
-    Slot(int index = -1) : index(index), variants(NULL), grass(NULL) { reset(); }
+    Slot(int index = -1) : index(index), variants(nullptr), grass(nullptr) { reset(); }
     virtual ~Slot() {}
 
     virtual int type() const { return OCTA; }
@@ -254,24 +254,24 @@ struct Slot
     {
         smooth = -1;
         sts.setsize(0);
-        shader = NULL;
+        shader = nullptr;
         params.setsize(0);
         loaded = false;
         texmask = 0;
         DELETEA(grass);
-        grasstex = NULL;
-        thumbnail = NULL;
+        grasstex = nullptr;
+        thumbnail = nullptr;
     }
 
     void cleanup()
     {
         loaded = false;
-        grasstex = NULL;
-        thumbnail = NULL;
+        grasstex = nullptr;
+        thumbnail = nullptr;
         loopv(sts)
         {
             Tex &t = sts[i];
-            t.t = NULL;
+            t.t = nullptr;
             t.combined = -1;
         }
     }

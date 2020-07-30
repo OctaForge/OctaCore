@@ -214,7 +214,7 @@ struct tjoint
 
 struct cubeext
 {
-    vtxarray *va;            // vertex array for children, or NULL
+    vtxarray *va;            // vertex array for children, or nullptr
     octaentities *ents;      // map entities inside cube
     surfaceinfo surfaces[6]; // render info for each surface
     int tjoints;             // linked list of t-joints
@@ -225,7 +225,7 @@ struct cubeext
 
 struct cube
 {
-    cube *children;          // points to 8 cube structures which are its children, or NULL. -Z first, then -Y, -X
+    cube *children;          // points to 8 cube structures which are its children, or nullptr. -Z first, then -Y, -X
     cubeext *ext;            // extended info for the cube
     union
     {
@@ -256,7 +256,7 @@ struct block3
 struct editinfo
 {
     block3 *copy;
-    editinfo() : copy(NULL) {}
+    editinfo() : copy(nullptr) {}
 };
 
 struct undoent   { int i; entity e; };

@@ -94,7 +94,7 @@ static void cleardynlights()
 
 void removetrackeddynlights(physent *owner)
 {
-    loopvrev(dynlights) if(owner ? dynlights[i].owner == owner : dynlights[i].owner != NULL) dynlights.remove(i);
+    loopvrev(dynlights) if(owner ? dynlights[i].owner == owner : dynlights[i].owner != nullptr) dynlights.remove(i);
 }
 
 void updatedynlights()

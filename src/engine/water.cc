@@ -79,7 +79,7 @@ VARFP(waterfallenv, 0, 1, 1, preloadwatershaders());
 
 VARFP(vertwater, 0, 1, 1, allchanged());
 
-static Texture *caustictex[NUMCAUSTICS] = { NULL };
+static Texture *caustictex[NUMCAUSTICS] = { nullptr };
 
 void loadcaustics(bool force)
 {
@@ -98,7 +98,7 @@ void loadcaustics(bool force)
 #if 0
 static void cleanupcaustics()
 {
-    loopi(NUMCAUSTICS) caustictex[i] = NULL;
+    loopi(NUMCAUSTICS) caustictex[i] = nullptr;
 }
 #endif
 
@@ -442,7 +442,7 @@ void preloadwatershaders(bool force)
 
 static float wfwave = 0.0f, wfscroll = 0.0f, wfxscale = 1.0f, wfyscale = 1.0f;
 
-static void renderwaterfall(const materialsurface &m, float offset, const vec *normal = NULL)
+static void renderwaterfall(const materialsurface &m, float offset, const vec *normal = nullptr)
 {
     if(gle::attribbuf.empty())
     {
@@ -651,12 +651,12 @@ void renderwater()
 
         #define SETWATERSHADER(which, name) \
         do { \
-            static Shader *name##shader = NULL; \
+            static Shader *name##shader = nullptr; \
             if(!name##shader) name##shader = lookupshaderbyname(#name); \
             which##shader = name##shader; \
         } while(0)
 
-        Shader *aboveshader = NULL;
+        Shader *aboveshader = nullptr;
         if(drawtex == DRAWTEX_MINIMAP) SETWATERSHADER(above, waterminimap);
         else if(caustics && causticscale && causticmillis)
         {
@@ -671,7 +671,7 @@ void renderwater()
             else SETWATERSHADER(above, water);
         }
 
-        Shader *belowshader = NULL;
+        Shader *belowshader = nullptr;
         if(drawtex != DRAWTEX_MINIMAP) SETWATERSHADER(below, underwater);
 
         aboveshader->set();

@@ -27,9 +27,9 @@ void particle_trail(int type, int fade, const vec &from, const vec &to, int colo
 void particle_text(const vec &s, const char *t, int type, int fade = 2000, int color = 0xFFFFFF, float size = 2.0f, int gravity = 0);
 void particle_icon(const vec &s, int ix, int iy, int type, int fade = 2000, int color = 0xFFFFFF, float size = 2.0f, int gravity = 0);
 void particle_meter(const vec &s, float val, int type, int fade = 1, int color = 0xFFFFFF, int color2 = 0xFFFFF, float size = 2.0f);
-void particle_flare(const vec &p, const vec &dest, int fade, int type, int color = 0xFFFFFF, float size = 0.28f, physent *owner = NULL);
+void particle_flare(const vec &p, const vec &dest, int fade, int type, int color = 0xFFFFFF, float size = 0.28f, physent *owner = nullptr);
 void particle_fireball(const vec &dest, float max, int type, int fade = -1, int color = 0xFFFFFF, float size = 4.0f);
-void removetrackedparticles(physent *owner = NULL);
+void removetrackedparticles(physent *owner = nullptr);
 #endif
 
 enum
@@ -53,7 +53,7 @@ enum
     PART_LENS_FLARE
 };
 
-Shader *particleshader = NULL, *particlenotextureshader = NULL, *particlesoftshader = NULL, *particletextshader = NULL;
+Shader *particleshader = nullptr, *particlenotextureshader = nullptr, *particlesoftshader = nullptr, *particletextshader = nullptr;
 
 VARP(particlelayers, 0, 1, 1);
 FVARP(particlebright, 0, 2, 100);
@@ -120,7 +120,7 @@ struct particleemitter
 };
 
 static vector<particleemitter> emitters;
-static particleemitter *seedemitter = NULL;
+static particleemitter *seedemitter = nullptr;
 
 void clearparticleemitters()
 {
@@ -215,11 +215,11 @@ struct partrenderer
     string info;
 
     partrenderer(const char *texname, int texclamp, int type, int stain = -1)
-        : tex(NULL), texname(texname), texclamp(texclamp), type(type), stain(stain)
+        : tex(nullptr), texname(texname), texclamp(texclamp), type(type), stain(stain)
     {
     }
     partrenderer(int type, int stain = -1)
-        : tex(NULL), texname(NULL), texclamp(0), type(type), stain(stain)
+        : tex(nullptr), texname(nullptr), texclamp(0), type(type), stain(stain)
     {
     }
     virtual ~partrenderer()
@@ -319,11 +319,11 @@ struct listrenderer : partrenderer
     listparticle *list;
 
     listrenderer(const char *texname, int texclamp, int type, int stain = -1)
-        : partrenderer(texname, texclamp, type, stain), list(NULL)
+        : partrenderer(texname, texclamp, type, stain), list(nullptr)
     {
     }
     listrenderer(int type, int stain = -1)
-        : partrenderer(type, stain), list(NULL)
+        : partrenderer(type, stain), list(nullptr)
     {
     }
 
@@ -347,7 +347,7 @@ struct listrenderer : partrenderer
         }
         p->next = parempty;
         parempty = list;
-        list = NULL;
+        list = nullptr;
     }
 
     void resettracked(physent *owner)
@@ -385,7 +385,7 @@ struct listrenderer : partrenderer
         p->millis = lastmillis + emitoffset;
         p->color = bvec::hexcolor(color);
         p->size = size;
-        p->owner = NULL;
+        p->owner = nullptr;
         p->flags = 0;
         return p;
     }
@@ -400,7 +400,7 @@ struct listrenderer : partrenderer
 
     bool haswork()
     {
-        return (list != NULL);
+        return (list != nullptr);
     }
 
     virtual void startrender() = 0;
@@ -437,7 +437,7 @@ struct listrenderer : partrenderer
     }
 };
 
-listparticle *listrenderer::parempty = NULL;
+listparticle *listrenderer::parempty = nullptr;
 
 struct meterrenderer : listrenderer
 {
@@ -533,7 +533,7 @@ struct textrenderer : listrenderer
 
     void endrender()
     {
-        textshader = NULL;
+        textshader = nullptr;
 
         popfont();
     }
@@ -554,7 +554,7 @@ struct textrenderer : listrenderer
 
         textmatrix = &m;
         draw_text(p->text, 0, 0, p->color.r, p->color.g, p->color.b, blend);
-        textmatrix = NULL;
+        textmatrix = nullptr;
     }
 };
 static textrenderer texts;
@@ -671,7 +671,7 @@ struct varenderer : partrenderer
 
     varenderer(const char *texname, int type, int stain = -1)
         : partrenderer(texname, 3, type, stain),
-          verts(NULL), parts(NULL), maxparts(0), numparts(0), lastupdate(-1), rndmask(0), vbo(0)
+          verts(nullptr), parts(nullptr), maxparts(0), numparts(0), lastupdate(-1), rndmask(0), vbo(0)
     {
         if(type & PT_HFLIP) rndmask |= 0x01;
         if(type & PT_VFLIP) rndmask |= 0x02;
@@ -732,7 +732,7 @@ struct varenderer : partrenderer
         p->millis = lastmillis + emitoffset;
         p->color = bvec::hexcolor(color);
         p->size = size;
-        p->owner = NULL;
+        p->owner = nullptr;
         p->flags = 0x80 | (rndmask ? rnd(0x80) & rndmask : 0);
         lastupdate = -1;
         return p;
@@ -842,7 +842,7 @@ struct varenderer : partrenderer
 
         if(!vbo) glGenBuffers_(1, &vbo);
         gle::bindvbo(vbo);
-        glBufferData_(GL_ARRAY_BUFFER, maxparts*4*sizeof(partvert), NULL, GL_STREAM_DRAW);
+        glBufferData_(GL_ARRAY_BUFFER, maxparts*4*sizeof(partvert), nullptr, GL_STREAM_DRAW);
         glBufferSubData_(GL_ARRAY_BUFFER, 0, numparts*4*sizeof(partvert), verts);
         gle::clearvbo();
     }
@@ -1429,7 +1429,7 @@ void seedparticles()
         seedemitter = &pe;
         for(int millis = 0; millis < seedmillis; millis += min(emitmillis, seedmillis/10))
             makeparticles(e);
-        seedemitter = NULL;
+        seedemitter = nullptr;
         pe.lastemit = -seedmillis;
         pe.finalize();
     }

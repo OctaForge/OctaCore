@@ -5,6 +5,6 @@
 
 uint getmapcrc();
 void clearmapcrc();
-bool load_world(const char *mname, const char *cname = NULL);
+bool load_world(const char *mname, const char *cname = nullptr);
 
 #endif

@@ -8,10 +8,10 @@
 #include "texture.hh"
 
 static hashnameset<font> fonts;
-static font *fontdef = NULL;
+static font *fontdef = nullptr;
 static int fontdeftex = 0;
 
-font *curfont = NULL;
+font *curfont = nullptr;
 
 static void newfont(char *name, char *tex, int *defaultw, int *defaulth, int *scale)
 {
@@ -207,7 +207,7 @@ void draw_textf(const char *fstr, float left, float top, ...)
     draw_text(str, left, top);
 }
 
-const matrix4x3 *textmatrix = NULL;
+const matrix4x3 *textmatrix = nullptr;
 float textscale = 1;
 
 static float draw_char(Texture *&tex, int c, float x, float y, float scale)
@@ -392,7 +392,7 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
     #undef TEXTWORD
 }
 
-Shader *textshader = NULL;
+Shader *textshader = nullptr;
 
 void draw_text(const char *str, float left, float top, int r, int g, int b, int a, int cursor, int maxwidth)
 {

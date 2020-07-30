@@ -22,7 +22,7 @@ struct font
     int charoffset, defaultw, defaulth, scale;
     float bordermin, bordermax, outlinemin, outlinemax;
 
-    font() : name(NULL) {}
+    font() : name(nullptr) {}
     ~font() { DELETEA(name); }
 };
 

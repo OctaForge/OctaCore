@@ -39,7 +39,7 @@ static void setuptqaa(int w, int h)
         if(!tqaatex[i]) glGenTextures(1, &tqaatex[i]);
         if(!tqaafbo[i]) glGenFramebuffers_(1, &tqaafbo[i]);
         glBindFramebuffer_(GL_FRAMEBUFFER, tqaafbo[i]);
-        createtexture(tqaatex[i], w, h, NULL, 3, 1, GL_RGBA8, GL_TEXTURE_RECTANGLE);
+        createtexture(tqaatex[i], w, h, nullptr, 3, 1, GL_RGBA8, GL_TEXTURE_RECTANGLE);
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, tqaatex[i], 0);
         bindgdepth();
         if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -129,12 +129,12 @@ static void dotqaa(GLuint outfbo = 0)
 static GLuint fxaafbo = 0, fxaatex = 0;
 
 static int fxaatype = -1;
-static Shader *fxaashader = NULL;
+static Shader *fxaashader = nullptr;
 
 static void clearfxaashaders()
 {
     fxaatype = -1;
-    fxaashader = NULL;
+    fxaashader = nullptr;
 }
 
 static void cleanupfxaa()
@@ -168,7 +168,7 @@ static void setupfxaa(int w, int h)
     if(!fxaatex) glGenTextures(1, &fxaatex);
     if(!fxaafbo) glGenFramebuffers_(1, &fxaafbo);
     glBindFramebuffer_(GL_FRAMEBUFFER, fxaafbo);
-    createtexture(fxaatex, w, h, NULL, 3, 1, tqaa || (!fxaagreenluma && !intel_texalpha_bug) ? GL_RGBA8 : GL_RGB, GL_TEXTURE_RECTANGLE);
+    createtexture(fxaatex, w, h, nullptr, 3, 1, tqaa || (!fxaagreenluma && !intel_texalpha_bug) ? GL_RGBA8 : GL_RGB, GL_TEXTURE_RECTANGLE);
     glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, fxaatex, 0);
     bindgdepth();
     if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -196,7 +196,7 @@ static GLuint smaaareatex = 0, smaasearchtex = 0, smaafbo[4] = { 0, 0, 0, 0 }, s
 static int smaasubsampleorder = -1;
 
 static int smaatype = -1;
-static Shader *smaalumaedgeshader = NULL, *smaacoloredgeshader = NULL, *smaablendweightshader = NULL, *smaaneighborhoodshader = NULL;
+static Shader *smaalumaedgeshader = nullptr, *smaacoloredgeshader = nullptr, *smaablendweightshader = nullptr, *smaaneighborhoodshader = nullptr;
 
 VAR(smaat2x, 1, 0, 0);
 VAR(smaas2x, 1, 0, 0);
@@ -205,10 +205,10 @@ VAR(smaa4x, 1, 0, 0);
 static void clearsmaashaders()
 {
     smaatype = -1;
-    smaalumaedgeshader = NULL;
-    smaacoloredgeshader = NULL;
-    smaablendweightshader = NULL;
-    smaaneighborhoodshader = NULL;
+    smaalumaedgeshader = nullptr;
+    smaacoloredgeshader = nullptr;
+    smaablendweightshader = nullptr;
+    smaaneighborhoodshader = nullptr;
 }
 
 static void cleanupsmaa()
@@ -258,7 +258,7 @@ static void loadsmaashaders(bool split = false)
 
     if(smaalumaedgeshader && smaacoloredgeshader && smaablendweightshader && smaaneighborhoodshader) return;
 
-    generateshader(NULL, "smaashaders %d \"%s\"", smaaquality, opts);
+    generateshader(nullptr, "smaashaders %d \"%s\"", smaaquality, opts);
     smaalumaedgeshader = lookupshaderbyname(lumaedgename);
     if(!smaalumaedgeshader) smaalumaedgeshader = nullshader;
     smaacoloredgeshader = lookupshaderbyname(coloredgename);
@@ -549,12 +549,12 @@ static void setupsmaa(int w, int h)
             case 1: format = hasTRG ? GL_RG8 : GL_RGBA8; break;
             case 2: case 3: format = GL_RGBA8; break;
         }
-        createtexture(smaatex[i], w, h, NULL, 3, 1, format, GL_TEXTURE_RECTANGLE);
+        createtexture(smaatex[i], w, h, nullptr, 3, 1, format, GL_TEXTURE_RECTANGLE);
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, smaatex[i], 0);
         if(!i && split)
         {
             if(!smaatex[4]) glGenTextures(1, &smaatex[4]);
-            createtexture(smaatex[4], w, h, NULL, 3, 1, format, GL_TEXTURE_RECTANGLE);
+            createtexture(smaatex[4], w, h, nullptr, 3, 1, format, GL_TEXTURE_RECTANGLE);
             glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_RECTANGLE, smaatex[4], 0);
             static const GLenum drawbufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
             glDrawBuffers_(2, drawbufs);

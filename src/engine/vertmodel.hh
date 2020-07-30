@@ -155,8 +155,8 @@ struct vertmodel : animmodel
             vdata += voffset;
             const vert * RESTRICT vert1 = &verts[as.cur.fr1 * numverts],
                        * RESTRICT vert2 = &verts[as.cur.fr2 * numverts],
-                       * RESTRICT pvert1 = as.interp<1 ? &verts[as.prev.fr1 * numverts] : NULL,
-                       * RESTRICT pvert2 = as.interp<1 ? &verts[as.prev.fr2 * numverts] : NULL;
+                       * RESTRICT pvert1 = as.interp<1 ? &verts[as.prev.fr1 * numverts] : nullptr,
+                       * RESTRICT pvert2 = as.interp<1 ? &verts[as.prev.fr2 * numverts] : nullptr;
             #define ipvert(attrib, type) v.attrib.lerp(vert1[i].attrib, vert2[i].attrib, as.cur.t)
             #define ipvertp(attrib, type) v.attrib.lerp(type().lerp(pvert1[i].attrib, pvert2[i].attrib, as.prev.t), type().lerp(vert1[i].attrib, vert2[i].attrib, as.cur.t), as.interp)
             if(as.interp<1) loopi(numverts) { T &v = vdata[i]; ipvertp(pos, vec); ipvertp(tangent, vec4); }
@@ -179,7 +179,7 @@ struct vertmodel : animmodel
         char *name;
         matrix4x3 matrix;
 
-        tag() : name(NULL) {}
+        tag() : name(nullptr) {}
         ~tag() { DELETEA(name); }
     };
 
@@ -197,7 +197,7 @@ struct vertmodel : animmodel
         int vlen, vertsize;
         uchar *vdata;
 
-        vertmeshgroup() : numframes(0), tags(NULL), numtags(0), edata(NULL), ebuf(0), vlen(0), vertsize(0), vdata(NULL)
+        vertmeshgroup() : numframes(0), tags(nullptr), numtags(0), edata(nullptr), ebuf(0), vlen(0), vertsize(0), vdata(nullptr)
         {
         }
 
@@ -376,7 +376,7 @@ struct vertmodel : animmodel
                 return;
             }
 
-            vbocacheentry *vc = NULL;
+            vbocacheentry *vc = nullptr;
             if(numframes<=1) vc = vbocache;
             else
             {
@@ -424,7 +424,7 @@ struct vertmodel : animmodel
     meshgroup *loadmeshes(const char *name, float smooth = 2)
     {
         vertmeshgroup *group = newmeshes();
-        if(!group->load(name, smooth)) { delete group; return NULL; }
+        if(!group->load(name, smooth)) { delete group; return nullptr; }
         return group;
     }
 
@@ -433,7 +433,7 @@ struct vertmodel : animmodel
         if(!meshgroups.access(name))
         {
             meshgroup *group = loadmeshes(name, smooth);
-            if(!group) return NULL;
+            if(!group) return nullptr;
             meshgroups.add(group);
         }
         return meshgroups[name];

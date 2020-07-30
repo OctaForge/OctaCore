@@ -101,13 +101,13 @@ enum
     MODOE_CHANGED  = 1<<2
 };
 
-static void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor, int size, const ivec &bo, const ivec &br, int leafsize, vtxarray *lastva = NULL)
+static void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ivec &cor, int size, const ivec &bo, const ivec &br, int leafsize, vtxarray *lastva = nullptr)
 {
     loopoctabox(cor, size, bo, br)
     {
         ivec o(i, cor, size);
         vtxarray *va = c[i].ext && c[i].ext->va ? c[i].ext->va : lastva;
-        if(c[i].children != NULL && size > leafsize)
+        if(c[i].children != nullptr && size > leafsize)
             modifyoctaentity(flags, id, e, c[i].children, o, size>>1, bo, br, leafsize, va);
         else if(flags&MODOE_ADD)
         {
@@ -205,7 +205,7 @@ static void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ive
             if(oe.mapmodels.empty() && oe.decals.empty() && oe.other.empty())
                 freeoctaentities(c[i]);
         }
-        if(c[i].ext && c[i].ext->ents) c[i].ext->ents->query = NULL;
+        if(c[i].ext && c[i].ext->ents) c[i].ext->ents->query = nullptr;
         if(va && va!=lastva)
         {
             if(lastva)
@@ -282,7 +282,7 @@ void freeoctaentities(cube &c)
     if(c.ext->ents)
     {
         delete c.ext->ents;
-        c.ext->ents = NULL;
+        c.ext->ents = nullptr;
     }
 }
 
@@ -387,7 +387,7 @@ static void entadd(int id)
 static undoblock *newundoent()
 {
     int numents = entgroup.length();
-    if(numents <= 0) return NULL;
+    if(numents <= 0) return nullptr;
     undoblock *u = (undoblock *)new uchar[sizeof(undoblock) + numents*sizeof(undoent)];
     u->numents = numents;
     undoent *e = (undoent *)(u + 1);
@@ -412,8 +412,8 @@ static void makeundoent()
 static void detachentity(extentity &e)
 {
     if(!e.attached) return;
-    e.attached->attached = NULL;
-    e.attached = NULL;
+    e.attached->attached = nullptr;
+    e.attached = nullptr;
 }
 
 VAR(attachradius, 1, 100, 1000);
@@ -554,7 +554,7 @@ static void entrotate(int *cw)
 
 void entselectionbox(const entity &e, vec &eo, vec &es)
 {
-    model *m = NULL;
+    model *m = nullptr;
     const char *mname = entities::entmodel(e);
     if(mname && (m = loadmodel(mname)))
     {
@@ -1072,7 +1072,7 @@ static extentity *newentity(bool local, const vec &o, int type, int v1, int v2, 
     {
         idx = -1;
         for(int i = keepents; i < ents.length(); i++) if(ents[i]->type == ET_EMPTY) { idx = i; break; }
-        if(idx < 0 && ents.length() >= MAXENTS) { conoutf("too many entities"); return NULL; }
+        if(idx < 0 && ents.length() >= MAXENTS) { conoutf("too many entities"); return nullptr; }
     }
     else while(ents.length() < idx) ents.add(entities::newentity())->type = ET_EMPTY;
     extentity &e = *entities::newentity();
@@ -1424,7 +1424,7 @@ static void shrinkmap()
 
     if(!worldroot[octant].children) subdividecube(worldroot[octant], false, false);
     cube *root = worldroot[octant].children;
-    worldroot[octant].children = NULL;
+    worldroot[octant].children = nullptr;
     freeocta(worldroot);
     worldroot = root;
     worldscale--;
@@ -1441,7 +1441,7 @@ static void shrinkmap()
     conoutf("shrunk map to size %d", worldscale);
 }
 
-static void newmap(int *i) { bool force = !isconnected(); if(force) game::forceedit(""); if(emptymap(*i, force, NULL)) game::newmap(max(*i, 0)); }
+static void newmap(int *i) { bool force = !isconnected(); if(force) game::forceedit(""); if(emptymap(*i, force, nullptr)) game::newmap(max(*i, 0)); }
 static void mapenlarge() { if(enlargemap(false)) game::newmap(-1); }
 COMMAND(newmap, "i");
 COMMAND(mapenlarge, "");

@@ -263,7 +263,7 @@ static float shadowent(octaentities *oc, const vec &o, const vec &ray, float rad
                     dent = min(dent, edist); \
                 } \
             } \
-            if(lc->children==NULL) break; \
+            if(lc->children==nullptr) break; \
             lc = lc->children; \
             levels[lshift] = lc; \
         }
@@ -391,7 +391,7 @@ float rayent(const vec &o, const vec &ray, float radius, int mode, int size, int
     float dist = raycube(o, ray, radius, mode, size);
     if((mode&RAY_ENTS) == RAY_ENTS)
     {
-        float dent = disttooutsideent(o, ray, dist < 0 ? 1e16f : dist, mode, NULL);
+        float dent = disttooutsideent(o, ray, dist < 0 ? 1e16f : dist, mode, nullptr);
         if(dent < 1e15f && (dist < 0 || dent < dist)) dist = dent;
     }
     orient = hitorient;
@@ -612,7 +612,7 @@ static inline bool plcollide(physent *d, const vec &dir, physent *o)
     E entvol(d);
     O obvol(o);
     vec cp;
-    if(mpr::collide(entvol, obvol, NULL, NULL, &cp))
+    if(mpr::collide(entvol, obvol, nullptr, nullptr, &cp))
     {
         vec wn = vec(cp).sub(obvol.center());
         collidewall = obvol.contactface(wn, dir.iszero() ? vec(wn).neg() : dir);
@@ -640,7 +640,7 @@ static bool plcollide(physent *d, const vec &dir, bool insideplayercol)    // co
 {
     if(d->type==ENT_CAMERA || d->state!=CS_ALIVE) return false;
     int lastinside = collideinside;
-    physent *insideplayer = NULL;
+    physent *insideplayer = nullptr;
     loopdynentcache(x, y, d->o, d->radius)
     {
         const vector<physent *> &dynents = checkdynentcache(x, y);
@@ -687,7 +687,7 @@ static inline bool mmcollide(physent *d, const vec &dir, const extentity &e, con
     E entvol(d);
     M mdlvol(e.o, center, radius, yaw, pitch, roll);
     vec cp;
-    if(mpr::collide(entvol, mdlvol, NULL, NULL, &cp))
+    if(mpr::collide(entvol, mdlvol, nullptr, nullptr, &cp))
     {
         vec wn = vec(cp).sub(mdlvol.center());
         collidewall = mdlvol.contactface(wn, dir.iszero() ? vec(wn).neg() : dir);
@@ -820,7 +820,7 @@ static bool mmcollide(physent *d, const vec &dir, float cutoff, octaentities &oc
         model *m = mmi.collide;
         if(!m)
         {
-            if(!mmi.m && !loadmodel(NULL, e.attr1)) continue;
+            if(!mmi.m && !loadmodel(nullptr, e.attr1)) continue;
             if(mmi.m->collidemodel) m = loadmodel(mmi.m->collidemodel);
             if(!m) m = mmi.m;
             mmi.collide = m;
@@ -1153,7 +1153,7 @@ static inline bool octacollide(physent *d, const vec &dir, float cutoff, const i
 bool collide(physent *d, const vec &dir, float cutoff, bool playercol, bool insideplayercol)
 {
     collideinside = 0;
-    collideplayer = NULL;
+    collideplayer = nullptr;
     collidewall = vec(0, 0, 0);
     ivec bo(int(d->o.x-d->radius), int(d->o.y-d->radius), int(d->o.z-d->eyeheight)),
          bs(int(d->o.x+d->radius), int(d->o.y+d->radius), int(d->o.z+d->aboveeye));
@@ -1602,7 +1602,7 @@ bool bounce(physent *d, float secs, float elasticity, float waterfric, float gra
         if(d->o == old) return !collideplayer;
         d->physstate = PHYS_BOUNCE;
     }
-    return collideplayer!=NULL;
+    return collideplayer!=nullptr;
 }
 
 void avoidcollision(physent *d, const vec &dir, physent *obstacle, float space)

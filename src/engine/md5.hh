@@ -38,7 +38,7 @@ struct md5 : skelloader<md5>
         int numweights;
         md5vert *vertinfo;
 
-        md5mesh() : weightinfo(NULL), numweights(0), vertinfo(NULL)
+        md5mesh() : weightinfo(nullptr), numweights(0), vertinfo(nullptr)
         {
         }
 
@@ -103,7 +103,7 @@ struct md5 : skelloader<md5>
                 }
                 else if(strstr(buf, "shader"))
                 {
-                    char *start = strchr(buf, '"'), *end = start ? strchr(start+1, '"') : NULL;
+                    char *start = strchr(buf, '"'), *end = start ? strchr(start+1, '"') : nullptr;
                     if(start && end)
                     {
                         char *texname = newstring(start+1, end-(start+1));
@@ -267,28 +267,28 @@ struct md5 : skelloader<md5>
             if(sa) return sa;
 
             stream *f = openfile(filename, "r");
-            if(!f) return NULL;
+            if(!f) return nullptr;
 
             vector<md5hierarchy> hierarchy;
             vector<md5joint> basejoints;
             int animdatalen = 0, animframes = 0;
-            float *animdata = NULL;
-            dualquat *animbones = NULL;
+            float *animdata = nullptr;
+            dualquat *animbones = nullptr;
             char buf[512];
             while(f->getline(buf, sizeof(buf)))
             {
                 int tmp;
                 if(sscanf(buf, " MD5Version %d", &tmp)==1)
                 {
-                    if(tmp!=10) { delete f; return NULL; }
+                    if(tmp!=10) { delete f; return nullptr; }
                 }
                 else if(sscanf(buf, " numJoints %d", &tmp)==1)
                 {
-                    if(tmp!=skel->numbones) { delete f; return NULL; }
+                    if(tmp!=skel->numbones) { delete f; return nullptr; }
                 }
                 else if(sscanf(buf, " numFrames %d", &animframes)==1)
                 {
-                    if(animframes<1) { delete f; return NULL; }
+                    if(animframes<1) { delete f; return nullptr; }
                 }
                 else if(sscanf(buf, " frameRate %d", &tmp)==1);
                 else if(sscanf(buf, " numAnimatedComponents %d", &animdatalen)==1)
@@ -322,7 +322,7 @@ struct md5 : skelloader<md5>
                             basejoints.add(j);
                         }
                     }
-                    if(basejoints.length()!=skel->numbones) { delete f; if(animdata) delete[] animdata; return NULL; }
+                    if(basejoints.length()!=skel->numbones) { delete f; if(animdata) delete[] animdata; return nullptr; }
                     animbones = new dualquat[(skel->numframes+animframes)*skel->numbones];
                     if(skel->framebones)
                     {

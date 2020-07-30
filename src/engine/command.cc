@@ -10,7 +10,7 @@
 
 hashnameset<ident> idents; // contains ALL vars/commands/aliases
 vector<ident *> identmap;
-ident *dummyident = NULL;
+ident *dummyident = nullptr;
 
 int identflags = 0;
 
@@ -112,7 +112,7 @@ static inline void cleancode(ident &id)
     {
         id.code[0] -= 0x100;
         if(int(id.code[0]) < 0x100) delete[] id.code;
-        id.code = NULL;
+        id.code = nullptr;
     }
 }
 
@@ -173,7 +173,7 @@ void clearoverrides()
 }
 
 static bool initedidents = false;
-static vector<ident> *identinits = NULL;
+static vector<ident> *identinits = nullptr;
 
 static inline ident *addident(const ident &id)
 {
@@ -181,7 +181,7 @@ static inline ident *addident(const ident &id)
     {
         if(!identinits) identinits = new vector<ident>;
         identinits->add(id);
-        return NULL;
+        return nullptr;
     }
     ident &def = idents.access(id.name, id);
     def.index = identmap.length();
@@ -206,7 +206,7 @@ static bool initidents()
 }
 UNUSED static bool forceinitidents = initidents();
 
-static const char *sourcefile = NULL, *sourcestr = NULL;
+static const char *sourcefile = nullptr, *sourcestr = nullptr;
 
 static const char *debugline(const char *p, const char *fmt)
 {
@@ -237,7 +237,7 @@ static struct identlink
     identlink *next;
     int usedargs;
     identstack *argstack;
-} noalias = { NULL, NULL, (1<<MAXARGS)-1, NULL }, *aliasstack = &noalias;
+} noalias = { nullptr, nullptr, (1<<MAXARGS)-1, nullptr }, *aliasstack = &noalias;
 
 VAR(dbgalias, 0, 4, 1000);
 
@@ -463,7 +463,7 @@ ident *readident(const char *name)
 {
     ident *id = idents.access(name);
     if(id && id->index < MAXARGS && !(aliasstack->usedargs&(1<<id->index)))
-       return NULL;
+       return nullptr;
     return id;
 }
 
@@ -579,7 +579,7 @@ struct defvar : identval
     char *name;
     uint *onchange;
 
-    defvar() : name(NULL), onchange(NULL) {}
+    defvar() : name(nullptr), onchange(nullptr) {}
 
     ~defvar()
     {
@@ -603,18 +603,18 @@ hashnameset<defvar> defvars;
         name = newstring(name); \
         defvar &def = defvars[name]; \
         def.name = name; \
-        def.onchange = onchange[0] ? compilecode(onchange) : NULL; \
+        def.onchange = onchange[0] ? compilecode(onchange) : nullptr; \
         body; \
     });
 #define DEFIVAR(cmdname, flags) \
     DEFVAR(cmdname, "siiis", (char *name, int *min, int *cur, int *max, char *onchange), \
-        def.i = variable(name, *min, *cur, *max, &def.i, def.onchange ? defvar::changed : NULL, flags))
+        def.i = variable(name, *min, *cur, *max, &def.i, def.onchange ? defvar::changed : nullptr, flags))
 #define DEFFVAR(cmdname, flags) \
     DEFVAR(cmdname, "sfffs", (char *name, float *min, float *cur, float *max, char *onchange), \
-        def.f = fvariable(name, *min, *cur, *max, &def.f, def.onchange ? defvar::changed : NULL, flags))
+        def.f = fvariable(name, *min, *cur, *max, &def.f, def.onchange ? defvar::changed : nullptr, flags))
 #define DEFSVAR(cmdname, flags) \
     DEFVAR(cmdname, "sss", (char *name, char *cur, char *onchange), \
-        def.s = svariable(name, cur, &def.s, def.onchange ? defvar::changed : NULL, flags))
+        def.s = svariable(name, cur, &def.s, def.onchange ? defvar::changed : nullptr, flags))
 
 DEFIVAR(defvar, 0);
 DEFIVAR(defvarp, IDF_PERSIST);
@@ -698,7 +698,7 @@ ICOMMAND(getvarmax, "s", (char *s), intret(getvarmax(s)));
 ICOMMAND(getfvarmin, "s", (char *s), floatret(getfvarmin(s)));
 ICOMMAND(getfvarmax, "s", (char *s), floatret(getfvarmax(s)));
 
-bool identexists(const char *name) { return idents.access(name)!=NULL; }
+bool identexists(const char *name) { return idents.access(name)!=nullptr; }
 ICOMMAND(identexists, "s", (char *s), intret(identexists(s) ? 1 : 0));
 
 ident *getident(const char *name) { return idents.access(name); }
@@ -869,7 +869,7 @@ int unescapestring(char *dst, const char *src, const char *end)
     return dst - start;
 }
 
-static char *conc(vector<char> &buf, tagval *v, int n, bool space, const char *prefix = NULL, int prefixlen = 0)
+static char *conc(vector<char> &buf, tagval *v, int n, bool space, const char *prefix = nullptr, int prefixlen = 0)
 {
     if(prefix)
     {
@@ -952,7 +952,7 @@ overflow:
 
 static inline char *conc(tagval *v, int n, bool space)
 {
-    return conc(v, n, space, NULL, 0);
+    return conc(v, n, space, nullptr, 0);
 }
 
 static inline char *conc(tagval *v, int n, bool space, const char *prefix)
@@ -1031,7 +1031,7 @@ static inline char *cutword(const char *&p)
 {
     const char *word = p;
     p = parseword(p);
-    return p!=word ? newstring(word, p-word) : NULL;
+    return p!=word ? newstring(word, p-word) : nullptr;
 }
 
 #define retcode(type, defaultret) ((type) >= VAL_ANY ? ((type) == VAL_CSTR ? RET_STR : (defaultret)) : (type) << CODE_RET)
@@ -1203,7 +1203,7 @@ static inline bool getbool(const tagval &v)
     }
 }
 
-static inline void compileval(vector<uint> &code, int wordtype, const stringslice &word = stringslice(NULL, 0))
+static inline void compileval(vector<uint> &code, int wordtype, const stringslice &word = stringslice(nullptr, 0))
 {
     switch(wordtype)
     {
@@ -1220,7 +1220,7 @@ static inline void compileval(vector<uint> &code, int wordtype, const stringslic
     }
 }
 
-static stringslice unusedword(NULL, 0);
+static stringslice unusedword(nullptr, 0);
 static bool compilearg(vector<uint> &code, const char *&p, int wordtype, int prevargs = MAXRESULTS, stringslice &word = unusedword);
 
 static void compilelookup(vector<uint> &code, const char *&p, int ltype, int prevargs = MAXRESULTS)
@@ -1298,7 +1298,7 @@ static void compilelookup(vector<uint> &code, const char *&p, int ltype, int pre
                     for(const char *fmt = id->args; *fmt; fmt++) switch(*fmt)
                     {
                         case 'S': compilestr(code); numargs++; break;
-                        case 's': compilestr(code, NULL, 0, true); numargs++; break;
+                        case 's': compilestr(code, nullptr, 0, true); numargs++; break;
                         case 'i': compileint(code); numargs++; break;
                         case 'b': compileint(code, INT_MIN); numargs++; break;
                         case 'f': compilefloat(code); numargs++; break;
@@ -1536,7 +1536,7 @@ done:
         case VAL_CODE: if(!concs && p-1 <= start) compileblock(code); else code.add(CODE_COMPILE); break;
         case VAL_IDENT: if(!concs && p-1 <= start) compileident(code); else code.add(CODE_IDENTU); break;
         case VAL_CSTR: case VAL_CANY:
-            if(!concs && p-1 <= start) compilestr(code, NULL, 0, true);
+            if(!concs && p-1 <= start) compilestr(code, nullptr, 0, true);
             break;
         case VAL_STR: case VAL_NULL: case VAL_ANY: case VAL_WORD:
             if(!concs && p-1 <= start) compilestr(code);
@@ -1674,7 +1674,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
     for(;;)
     {
         skipcomments(p);
-        idname.str = NULL;
+        idname.str = nullptr;
         bool more = compilearg(code, p, VAL_WORD, prevargs, idname);
         if(!more) goto endstatement;
         skipcomments(p);
@@ -1760,7 +1760,7 @@ static void compilestatements(vector<uint> &code, const char *&p, int rettype, i
                         if(!more)
                         {
                             if(rep) break;
-                            compilestr(code, NULL, 0, *fmt=='s');
+                            compilestr(code, nullptr, 0, *fmt=='s');
                             fakeargs++;
                         }
                         else if(!fmt[1])
@@ -2906,7 +2906,7 @@ char *executestr(const uint *code)
 {
     tagval result;
     runcode(code, result);
-    if(result.type == VAL_NULL) return NULL;
+    if(result.type == VAL_NULL) return nullptr;
     forcestr(result);
     return result.s;
 }
@@ -2915,7 +2915,7 @@ char *executestr(const char *p)
 {
     tagval result;
     executeret(p, result);
-    if(result.type == VAL_NULL) return NULL;
+    if(result.type == VAL_NULL) return nullptr;
     forcestr(result);
     return result.s;
 }
@@ -2924,7 +2924,7 @@ char *executestr(ident *id, tagval *args, int numargs, bool lookup)
 {
     tagval result;
     executeret(id, args, numargs, lookup, result);
-    if(result.type == VAL_NULL) return NULL;
+    if(result.type == VAL_NULL) return nullptr;
     forcestr(result);
     return result.s;
 }
@@ -2932,7 +2932,7 @@ char *executestr(ident *id, tagval *args, int numargs, bool lookup)
 char *execidentstr(const char *name, bool lookup)
 {
     ident *id = idents.access(name);
-    return id ? executestr(id, NULL, 0, lookup) : NULL;
+    return id ? executestr(id, nullptr, 0, lookup) : nullptr;
 }
 
 int execute(const uint *code)
@@ -2969,7 +2969,7 @@ int execute(ident *id, tagval *args, int numargs, bool lookup)
 int execident(const char *name, int noid, bool lookup)
 {
     ident *id = idents.access(name);
-    return id ? execute(id, NULL, 0, lookup) : noid;
+    return id ? execute(id, nullptr, 0, lookup) : noid;
 }
 
 float executefloat(const uint *code)
@@ -3002,7 +3002,7 @@ float executefloat(ident *id, tagval *args, int numargs, bool lookup)
 float execidentfloat(const char *name, float noid, bool lookup)
 {
     ident *id = idents.access(name);
-    return id ? executefloat(id, NULL, 0, lookup) : noid;
+    return id ? executefloat(id, nullptr, 0, lookup) : noid;
 }
 
 bool executebool(const uint *code)
@@ -3035,14 +3035,14 @@ bool executebool(ident *id, tagval *args, int numargs, bool lookup)
 bool execidentbool(const char *name, bool noid, bool lookup)
 {
     ident *id = idents.access(name);
-    return id ? executebool(id, NULL, 0, lookup) : noid;
+    return id ? executebool(id, nullptr, 0, lookup) : noid;
 }
 
 bool execfile(const char *cfgfile, bool msg)
 {
     string s;
     copystring(s, cfgfile);
-    char *buf = loadfile(path(s), NULL);
+    char *buf = loadfile(path(s), nullptr);
     if(!buf)
     {
         if(msg) conoutf(CON_ERROR, "could not read \"%s\"", cfgfile);
@@ -3420,7 +3420,7 @@ void format(tagval *args, int numargs)
 }
 COMMAND(format, "V");
 
-static const char *liststart = NULL, *listend = NULL, *listquotestart = NULL, *listquoteend = NULL;
+static const char *liststart = nullptr, *listend = nullptr, *listquotestart = nullptr, *listquoteend = nullptr;
 
 static inline void skiplist(const char *&p)
 {
@@ -3823,7 +3823,7 @@ ICOMMAND(loopfiles, "rsse", (ident *id, char *dir, char *ext, uint *body),
     if(id->type!=ID_ALIAS) return;
     identstack stack;
     vector<char *> files;
-    listfiles(dir, ext[0] ? ext : NULL, files);
+    listfiles(dir, ext[0] ? ext : nullptr, files);
     files.sort();
     files.uniquedeletearrays();
     loopv(files)
@@ -3911,7 +3911,7 @@ void sortlist(char *list, ident *x, ident *y, uint *body, uint *unique)
             for(int i = 1; i < items.length(); i++)
             {
                 sortitem &item = items[i];
-                if(f(items[i-1], item)) item.quotestart = NULL;
+                if(f(items[i-1], item)) item.quotestart = nullptr;
                 else { totalunique += item.quotelength(); numunique++; }
             }
         }
@@ -3927,7 +3927,7 @@ void sortlist(char *list, ident *x, ident *y, uint *body, uint *unique)
             loopj(i)
             {
                 sortitem &prev = items[j];
-                if(prev.quotestart && f(item, prev)) { item.quotestart = NULL; break; }
+                if(prev.quotestart && f(item, prev)) { item.quotestart = nullptr; break; }
             }
             if(item.quotestart) { totalunique += item.quotelength(); numunique++; }
         }
@@ -3959,7 +3959,7 @@ void sortlist(char *list, ident *x, ident *y, uint *body, uint *unique)
     commandret->setstr(sorted);
 }
 COMMAND(sortlist, "srree");
-ICOMMAND(uniquelist, "srre", (char *list, ident *x, ident *y, uint *body), sortlist(list, x, y, NULL, body));
+ICOMMAND(uniquelist, "srre", (char *list, ident *x, ident *y, uint *body), sortlist(list, x, y, nullptr, body));
 
 #define MATHCMD(name, fmt, type, op, initval, unaryop) \
     ICOMMANDS(name, #fmt "1V", (tagval *args, int numargs), \
@@ -4282,7 +4282,7 @@ void checksleep(int millis)
         if(millis - s.millis >= s.delay)
         {
             char *cmd = s.command; // execute might create more sleep commands
-            s.command = NULL;
+            s.command = nullptr;
             int oldflags = identflags;
             identflags = s.flags;
             execute(cmd);

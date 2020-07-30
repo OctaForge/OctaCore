@@ -392,7 +392,7 @@ static void calcsurfaces(cube &c, const ivec &co, int size, int usefacemask, int
         }
 
         VSlot &vslot = lookupvslot(c.texture[i], false),
-             *layer = vslot.layer && !(c.material&MAT_ALPHA) ? &lookupvslot(vslot.layer, false) : NULL;
+             *layer = vslot.layer && !(c.material&MAT_ALPHA) ? &lookupvslot(vslot.layer, false) : nullptr;
         Shader *shader = vslot.slot->shader;
         int shadertype = shader->type;
         if(layer) shadertype |= layer->slot->shader->type;
@@ -559,7 +559,7 @@ static bool previewblends(cube *c, const ivec &co, int size, const ivec &bo, con
         {
             changed = true;
             destroyva(ext->va);
-            ext->va = NULL;
+            ext->va = nullptr;
             invalidatemerges(c[i], co, size, true);
         }
         if(c[i].children ? previewblends(c[i].children, o, size/2, bo, bs) : previewblends(c[i], o, size))
@@ -569,7 +569,7 @@ static bool previewblends(cube *c, const ivec &co, int size, const ivec &bo, con
             if(ext && ext->va)
             {
                 destroyva(ext->va);
-                ext->va = NULL;
+                ext->va = nullptr;
             }
         }
     }
@@ -600,7 +600,7 @@ void calclight()
     lightprogress = 0;
     calclight_canceled = false;
     check_calclight_progress = false;
-    SDL_TimerID timer = SDL_AddTimer(250, calclighttimer, NULL);
+    SDL_TimerID timer = SDL_AddTimer(250, calclighttimer, nullptr);
     Uint32 start = SDL_GetTicks();
     calcnormals(filltjoints > 0);
     calcsurfaces(worldroot, ivec(0, 0, 0), worldsize >> 1);

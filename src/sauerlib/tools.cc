@@ -75,7 +75,7 @@ uint randomMT()
     int cur = next;
     if(++next >= N)
     {
-        if(next > N) { seedMT(5489U + time(NULL)); cur = next++; }
+        if(next > N) { seedMT(5489U + time(nullptr)); cur = next++; }
         else next = 0;
     }
     uint y = (state[cur] & 0x80000000U) | (state[next] & 0x7FFFFFFFU);

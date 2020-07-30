@@ -72,22 +72,22 @@ void setupbloom(int w, int h)
     loopi(5) if(!bloomfbo[i]) glGenFramebuffers_(1, &bloomfbo[i]);
 
     bloomformat = gethdrformat(bloomprec);
-    createtexture(bloomtex[0], max(gw/2, bloomw), max(gh/2, bloomh), NULL, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
-    createtexture(bloomtex[1], max(gw/4, bloomw), max(gh/4, bloomh), NULL, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
-    createtexture(bloomtex[2], bloomw, bloomh, NULL, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
-    createtexture(bloomtex[3], bloomw, bloomh, NULL, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
+    createtexture(bloomtex[0], max(gw/2, bloomw), max(gh/2, bloomh), nullptr, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
+    createtexture(bloomtex[1], max(gw/4, bloomw), max(gh/4, bloomh), nullptr, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
+    createtexture(bloomtex[2], bloomw, bloomh, nullptr, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
+    createtexture(bloomtex[3], bloomw, bloomh, nullptr, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
     if(bloomformat != GL_RGB)
     {
         if(!bloomtex[5]) glGenTextures(1, &bloomtex[5]);
         if(!bloomfbo[5]) glGenFramebuffers_(1, &bloomfbo[5]);
-        createtexture(bloomtex[5], bloomw, bloomh, NULL, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
+        createtexture(bloomtex[5], bloomw, bloomh, nullptr, 3, 1, bloomformat, GL_TEXTURE_RECTANGLE);
     }
 
     if(hwvtexunits < 4)
     {
         glGenBuffers_(1, &bloompbo);
         glBindBuffer_(GL_PIXEL_PACK_BUFFER, bloompbo);
-        glBufferData_(GL_PIXEL_PACK_BUFFER, 4*(hasTF ? sizeof(GLfloat) : sizeof(GLushort))*(hasTRG ? 1 : 3), NULL, GL_DYNAMIC_COPY);
+        glBufferData_(GL_PIXEL_PACK_BUFFER, 4*(hasTF ? sizeof(GLfloat) : sizeof(GLushort))*(hasTRG ? 1 : 3), nullptr, GL_DYNAMIC_COPY);
         glBindBuffer_(GL_PIXEL_PACK_BUFFER, 0);
     }
 
@@ -118,7 +118,7 @@ void cleanupbloom()
 
 extern int ao, aotaps, aoreduce, aoreducedepth, aonoise, aobilateral, aobilateralupscale, aopackdepth, aodepthformat, aoprec, aoderivnormal;
 
-static Shader *bilateralshader[2] = { NULL, NULL };
+static Shader *bilateralshader[2] = { nullptr, nullptr };
 
 Shader *loadbilateralshader(int pass)
 {
@@ -151,7 +151,7 @@ void loadbilateralshaders()
 
 void clearbilateralshaders()
 {
-    loopk(2) bilateralshader[k] = NULL;
+    loopk(2) bilateralshader[k] = nullptr;
 }
 
 void setbilateralparams(int radius, float depth)
@@ -166,7 +166,7 @@ void setbilateralshader(int radius, int pass, float depth)
     setbilateralparams(radius, depth);
 }
 
-static Shader *ambientobscuranceshader = NULL;
+static Shader *ambientobscuranceshader = nullptr;
 
 Shader *loadambientobscuranceshader()
 {
@@ -190,7 +190,7 @@ void loadaoshaders()
 
 void clearaoshaders()
 {
-    ambientobscuranceshader = NULL;
+    ambientobscuranceshader = nullptr;
 }
 
 void setupao(int w, int h)
@@ -216,7 +216,7 @@ void setupao(int w, int h)
     {
         if(!aotex[i]) glGenTextures(1, &aotex[i]);
         if(!aofbo[i]) glGenFramebuffers_(1, &aofbo[i]);
-        createtexture(aotex[i], upscale && i ? w : aow, upscale && i >= 2 ? h : aoh, NULL, 3, i < 2 ? packfilter : 1, i < 2 ? packformat : format, GL_TEXTURE_RECTANGLE);
+        createtexture(aotex[i], upscale && i ? w : aow, upscale && i >= 2 ? h : aoh, nullptr, 3, i < 2 ? packfilter : 1, i < 2 ? packformat : format, GL_TEXTURE_RECTANGLE);
         glBindFramebuffer_(GL_FRAMEBUFFER, aofbo[i]);
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, aotex[i], 0);
         if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -232,7 +232,7 @@ void setupao(int w, int h)
     {
         if(!aotex[3]) glGenTextures(1, &aotex[3]);
         if(!aofbo[3]) glGenFramebuffers_(1, &aofbo[3]);
-        createtexture(aotex[3], aow, aoh, NULL, 3, 0, aodepthformat > 1 ? GL_R32F : (aodepthformat ? GL_R16F : GL_RGBA8), GL_TEXTURE_RECTANGLE);
+        createtexture(aotex[3], aow, aoh, nullptr, 3, 0, aodepthformat > 1 ? GL_R32F : (aodepthformat ? GL_R16F : GL_RGBA8), GL_TEXTURE_RECTANGLE);
         glBindFramebuffer_(GL_FRAMEBUFFER, aofbo[3]);
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, aotex[3], 0);
         if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -416,7 +416,7 @@ void setupscale(int sw, int sh, int w, int h)
 
         glBindFramebuffer_(GL_FRAMEBUFFER, scalefbo[i]);
 
-        createtexture(scaletex[i], sw, i ? h : sh, NULL, 3, gscalecubic || !gscalenearest ? 1 : 0, GL_RGB, GL_TEXTURE_RECTANGLE);
+        createtexture(scaletex[i], sw, i ? h : sh, nullptr, 3, gscalecubic || !gscalenearest ? 1 : 0, GL_RGB, GL_TEXTURE_RECTANGLE);
 
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, scaletex[i], 0);
         if(!i) bindgdepth();
@@ -815,11 +815,11 @@ void setupgbuffer()
 
         static const GLenum depthformats[] = { GL_RGBA8, GL_R16F, GL_R32F };
         GLenum depthformat = gdepthformat ? depthformats[gdepthformat-1] : (ghasstencil > 1 ? stencilformat : GL_DEPTH_COMPONENT24);
-        createtexture(gdepthtex, gw, gh, NULL, 3, 0, depthformat, GL_TEXTURE_RECTANGLE);
+        createtexture(gdepthtex, gw, gh, nullptr, 3, 0, depthformat, GL_TEXTURE_RECTANGLE);
 
-        createtexture(gcolortex, gw, gh, NULL, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
-        createtexture(gnormaltex, gw, gh, NULL, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
-        createtexture(gglowtex, gw, gh, NULL, 3, 0, hasAFBO ? hdrformat : GL_RGBA8, GL_TEXTURE_RECTANGLE);
+        createtexture(gcolortex, gw, gh, nullptr, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
+        createtexture(gnormaltex, gw, gh, nullptr, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
+        createtexture(gglowtex, gw, gh, nullptr, 3, 0, hasAFBO ? hdrformat : GL_RGBA8, GL_TEXTURE_RECTANGLE);
 
         bindgdepth();
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, gcolortex, 0);
@@ -831,7 +831,7 @@ void setupgbuffer()
         {
             if(hasAFBO)
             {
-                createtexture(gglowtex, gw, gh, NULL, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
+                createtexture(gglowtex, gw, gh, nullptr, 3, 0, GL_RGBA8, GL_TEXTURE_RECTANGLE);
                 glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_RECTANGLE, gglowtex, 0);
                 if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                     fatal("failed allocating g-buffer!");
@@ -848,7 +848,7 @@ void setupgbuffer()
 
     glBindFramebuffer_(GL_FRAMEBUFFER, hdrfbo);
 
-    createtexture(hdrtex, gw, gh, NULL, 3, 1, hdrformat, GL_TEXTURE_RECTANGLE);
+    createtexture(hdrtex, gw, gh, nullptr, 3, 1, hdrformat, GL_TEXTURE_RECTANGLE);
 
     glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, hdrtex, 0);
     bindgdepth();
@@ -863,7 +863,7 @@ void setupgbuffer()
 
         glBindFramebuffer_(GL_FRAMEBUFFER, refractfbo);
 
-        createtexture(refracttex, gw, gh, NULL, 3, 0, GL_RGB, GL_TEXTURE_RECTANGLE);
+        createtexture(refracttex, gw, gh, nullptr, 3, 0, GL_RGB, GL_TEXTURE_RECTANGLE);
 
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, refracttex, 0);
         bindgdepth();
@@ -902,7 +902,7 @@ void resolvemsaadepth(int w = vieww, int h = viewh)
 {
     if(!msaasamples || msaalight) return;
 
-    timer *resolvetimer = drawtex ? NULL : begintimer("msaa depth resolve");
+    timer *resolvetimer = drawtex ? nullptr : begintimer("msaa depth resolve");
 
     if(msaadepthblit)
     {
@@ -950,7 +950,7 @@ void resolvemsaacolor(int w = vieww, int h = viewh)
 {
     if(!msaalight) return;
 
-    timer *resolvetimer = drawtex ? NULL : begintimer("msaa resolve");
+    timer *resolvetimer = drawtex ? nullptr : begintimer("msaa resolve");
 
     glBindFramebuffer_(GL_READ_FRAMEBUFFER, mshdrfbo);
     glBindFramebuffer_(GL_DRAW_FRAMEBUFFER, hdrfbo);
@@ -1170,7 +1170,7 @@ void processhdr(GLuint outfbo, int aa)
         {
             glBindBuffer_(GL_PIXEL_PACK_BUFFER, bloompbo);
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
-            glReadPixels(0, 0, 4, 1, hasTRG ? GL_RED : GL_RGB, hasTF ? GL_FLOAT : GL_UNSIGNED_SHORT, NULL);
+            glReadPixels(0, 0, 4, 1, hasTRG ? GL_RED : GL_RGB, hasTF ? GL_FLOAT : GL_UNSIGNED_SHORT, nullptr);
             glBindBuffer_(GL_PIXEL_PACK_BUFFER, 0);
         }
 
@@ -1387,8 +1387,8 @@ GLuint rsmdepthtex = 0, rsmcolortex = 0, rsmnormaltex = 0, rsmfbo = 0;
 
 extern int rhrect, rhgrid, rhsplits, rhborder, rhprec, rhtaps, rhcache, rhforce, rsmprec, rsmdepthprec, rsmsize;
 
-static Shader *radiancehintsshader = NULL;
-Shader *rsmworldshader = NULL;
+static Shader *radiancehintsshader = nullptr;
+Shader *rsmworldshader = nullptr;
 
 Shader *loadradiancehintsshader()
 {
@@ -1408,8 +1408,8 @@ void loadrhshaders()
 
 void clearrhshaders()
 {
-    radiancehintsshader = NULL;
-    rsmworldshader = NULL;
+    radiancehintsshader = nullptr;
+    rsmworldshader = nullptr;
 }
 
 void setupradiancehints()
@@ -1419,7 +1419,7 @@ void setupradiancehints()
     loopi(!rhrect && rhcache ? 8 : 4)
     {
         if(!rhtex[i]) glGenTextures(1, &rhtex[i]);
-        create3dtexture(rhtex[i], rhgrid+2*rhborder, rhgrid+2*rhborder, (rhgrid+2*rhborder)*rhsplits, NULL, 7, 1, rhformat);
+        create3dtexture(rhtex[i], rhgrid+2*rhborder, rhgrid+2*rhborder, (rhgrid+2*rhborder)*rhsplits, nullptr, 7, 1, rhformat);
         if(rhborder)
         {
             glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -1459,9 +1459,9 @@ void setupradiancehints()
 
     GLenum rsmformat = gethdrformat(rsmprec, GL_RGBA8);
 
-    createtexture(rsmdepthtex, rsmsize, rsmsize, NULL, 3, 0, rsmdepthprec > 1 ? GL_DEPTH_COMPONENT32 : (rsmdepthprec ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16), GL_TEXTURE_RECTANGLE);
-    createtexture(rsmcolortex, rsmsize, rsmsize, NULL, 3, 0, rsmformat, GL_TEXTURE_RECTANGLE);
-    createtexture(rsmnormaltex, rsmsize, rsmsize, NULL, 3, 0, rsmformat, GL_TEXTURE_RECTANGLE);
+    createtexture(rsmdepthtex, rsmsize, rsmsize, nullptr, 3, 0, rsmdepthprec > 1 ? GL_DEPTH_COMPONENT32 : (rsmdepthprec ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16), GL_TEXTURE_RECTANGLE);
+    createtexture(rsmcolortex, rsmsize, rsmsize, nullptr, 3, 0, rsmformat, GL_TEXTURE_RECTANGLE);
+    createtexture(rsmnormaltex, rsmsize, rsmsize, nullptr, 3, 0, rsmformat, GL_TEXTURE_RECTANGLE);
 
     glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_RECTANGLE, rsmdepthtex, 0);
     glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, rsmcolortex, 0);
@@ -1589,7 +1589,7 @@ struct lightinfo
     lightinfo(const vec &o, const vec &color, float radius, int flags = 0, const vec &dir = vec(0, 0, 0), int spot = 0)
       : ent(-1), shadowmap(-1), flags(flags),
         o(o), color(color), radius(radius), dist(camera1->o.dist(o)),
-        dir(dir), spot(spot), query(NULL)
+        dir(dir), spot(spot), query(nullptr)
     {
         if(spot > 0) calcspot();
         calcscissor();
@@ -1597,7 +1597,7 @@ struct lightinfo
     lightinfo(int i, const extentity &e)
       : ent(i), shadowmap(-1), flags(e.attr5),
         o(e.o), color(vec(e.attr2, e.attr3, e.attr4).max(0)), radius(e.attr1), dist(camera1->o.dist(e.o)),
-        dir(0, 0, 0), spot(0), query(NULL)
+        dir(0, 0, 0), spot(0), query(nullptr)
     {
         if(e.attached && e.attached->type == ET_SPOTLIGHT)
         {
@@ -1771,7 +1771,7 @@ void setupshadowatlas()
     if(!shadowatlastex) glGenTextures(1, &shadowatlastex);
 
     shadowatlastarget = usegatherforsm() ? GL_TEXTURE_2D : GL_TEXTURE_RECTANGLE;
-    createtexture(shadowatlastex, shadowatlaspacker.w, shadowatlaspacker.h, NULL, 3, 1, smdepthprec > 1 ? GL_DEPTH_COMPONENT32 : (smdepthprec ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16), shadowatlastarget);
+    createtexture(shadowatlastex, shadowatlaspacker.w, shadowatlaspacker.h, nullptr, 3, 1, smdepthprec > 1 ? GL_DEPTH_COMPONENT32 : (smdepthprec ? GL_DEPTH_COMPONENT24 : GL_DEPTH_COMPONENT16), shadowatlastarget);
     glTexParameteri(shadowatlastarget, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     glTexParameteri(shadowatlastarget, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
@@ -1955,7 +1955,7 @@ void clearshadowcache()
     clearshadowmeshes();
 }
 
-static shadowmapinfo *addshadowmap(ushort x, ushort y, int size, int &idx, int light = -1, shadowcacheval *cached = NULL)
+static shadowmapinfo *addshadowmap(ushort x, ushort y, int size, int &idx, int light = -1, shadowcacheval *cached = nullptr)
 {
     idx = shadowmaps.length();
     shadowmapinfo *sm = &shadowmaps.add();
@@ -2423,13 +2423,13 @@ VAR(forcespotlights, 1, 0, 0);
 
 extern int spotlights;
 
-static Shader *volumetricshader = NULL, *volumetricbilateralshader[2] = { NULL, NULL };
+static Shader *volumetricshader = nullptr, *volumetricbilateralshader[2] = { nullptr, nullptr };
 
 void clearvolumetricshaders()
 {
-    volumetricshader = NULL;
+    volumetricshader = nullptr;
 
-    loopi(2) volumetricbilateralshader[i] = NULL;
+    loopi(2) volumetricbilateralshader[i] = nullptr;
 }
 
 extern int volsteps, volbilateral, volblur, volreduce;
@@ -2477,7 +2477,7 @@ void setupvolumetric(int w, int h)
 
         glBindFramebuffer_(GL_FRAMEBUFFER, volfbo[i]);
 
-        createtexture(voltex[i], volw, volh, NULL, 3, 1, hdrformat, GL_TEXTURE_RECTANGLE);
+        createtexture(voltex[i], volw, volh, nullptr, 3, 1, hdrformat, GL_TEXTURE_RECTANGLE);
 
         glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, voltex[i], 0);
 
@@ -2511,19 +2511,19 @@ FVAR(voldistclamp, 0, 0.99f, 2);
 CVAR1R(volcolour, 0x808080);
 FVARR(volscale, 0, 1, 16);
 
-static Shader *deferredlightshader = NULL, *deferredminimapshader = NULL, *deferredmsaapixelshader = NULL, *deferredmsaasampleshader = NULL;
+static Shader *deferredlightshader = nullptr, *deferredminimapshader = nullptr, *deferredmsaapixelshader = nullptr, *deferredmsaasampleshader = nullptr;
 
 void cleardeferredlightshaders()
 {
-    deferredlightshader = NULL;
-    deferredminimapshader = NULL;
-    deferredmsaapixelshader = NULL;
-    deferredmsaasampleshader = NULL;
+    deferredlightshader = nullptr;
+    deferredminimapshader = nullptr;
+    deferredmsaapixelshader = nullptr;
+    deferredmsaasampleshader = nullptr;
 }
 
 extern int nospeclights;
 
-Shader *loaddeferredlightshader(const char *type = NULL)
+Shader *loaddeferredlightshader(const char *type = nullptr)
 {
     string common, shadow, sun;
     int commonlen = 0, shadowlen = 0, sunlen = 0;
@@ -2665,8 +2665,8 @@ void resetlights()
 
 namespace lightsphere
 {
-    vec *verts = NULL;
-    GLushort *indices = NULL;
+    vec *verts = nullptr;
+    GLushort *indices = nullptr;
     int numverts = 0, numindices = 0;
     GLuint vbuf = 0, ebuf = 0;
 
@@ -3125,7 +3125,7 @@ static void renderlightbatches(Shader *s, int stencilref, bool transparent, floa
     }
 }
 
-void renderlights(float bsx1 = -1, float bsy1 = -1, float bsx2 = 1, float bsy2 = 1, const uint *tilemask = NULL, int stencilmask = 0, int msaapass = 0, bool transparent = false)
+void renderlights(float bsx1 = -1, float bsy1 = -1, float bsx2 = 1, float bsy2 = 1, const uint *tilemask = nullptr, int stencilmask = 0, int msaapass = 0, bool transparent = false)
 {
     Shader *s = drawtex == DRAWTEX_MINIMAP ? deferredminimapshader : (msaapass <= 0 ? deferredlightshader : (msaapass > 1 ? deferredmsaasampleshader : deferredmsaapixelshader));
     if(!s || s == nullshader) return;
@@ -4379,7 +4379,7 @@ void rendershadowmaps(int offset = 0)
         if(sm.light < 0) continue;
 
         lightinfo &l = lights[sm.light];
-        extentity *e = l.ent >= 0 ? ents[l.ent] : NULL;
+        extentity *e = l.ent >= 0 ? ents[l.ent] : nullptr;
 
         int border, sidemask;
         if(l.spot)
@@ -4403,15 +4403,15 @@ void rendershadowmaps(int offset = 0)
         shadowdir = l.dir;
         shadowspot = l.spot;
 
-        shadowmesh *mesh = e ? findshadowmesh(l.ent, *e) : NULL;
+        shadowmesh *mesh = e ? findshadowmesh(l.ent, *e) : nullptr;
 
         findshadowvas();
         findshadowmms();
 
         shadowmaskbatchedmodels(!(l.flags&L_NODYNSHADOW) && smdynshadow);
-        batchshadowmapmodels(mesh != NULL);
+        batchshadowmapmodels(mesh != nullptr);
 
-        shadowcacheval *cached = NULL;
+        shadowcacheval *cached = nullptr;
         int cachemask = 0;
         if(smcache)
         {
@@ -4851,8 +4851,8 @@ void preparegbuffer(bool depthclear)
 
 void rendergbuffer(bool depthclear)
 {
-    timer *gcputimer = drawtex ? NULL : begintimer("g-buffer", false);
-    timer *gtimer = drawtex ? NULL : begintimer("g-buffer");
+    timer *gcputimer = drawtex ? nullptr : begintimer("g-buffer", false);
+    timer *gtimer = drawtex ? nullptr : begintimer("g-buffer");
 
     preparegbuffer(depthclear);
 
@@ -4902,7 +4902,7 @@ void shademinimap(const vec &color)
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    renderlights(-1, -1, 1, 1, NULL, 0, msaalight ? -1 : 0);
+    renderlights(-1, -1, 1, 1, nullptr, 0, msaalight ? -1 : 0);
     GLERROR;
 }
 
@@ -4964,8 +4964,8 @@ void shadegbuffer()
 
     if(msaasamples && (msaalight || !drawtex))
     {
-        if((ghasstencil && msaaedgedetect) || msaalight==2) loopi(2) renderlights(-1, -1, 1, 1, NULL, 0, i+1);
-        else renderlights(-1, -1, 1, 1, NULL, 0, drawtex ? -1 : 3);
+        if((ghasstencil && msaaedgedetect) || msaalight==2) loopi(2) renderlights(-1, -1, 1, 1, nullptr, 0, i+1);
+        else renderlights(-1, -1, 1, 1, nullptr, 0, drawtex ? -1 : 3);
     }
     else renderlights();
     GLERROR;

@@ -115,8 +115,8 @@ struct iqm : skelloader<iqm>
             lilswap((uint *)&buf[hdr.ofs_joints], hdr.num_joints*sizeof(iqmjoint)/sizeof(uint));
 
             const char *str = hdr.ofs_text ? (char *)&buf[hdr.ofs_text] : "";
-            float *vpos = NULL, *vnorm = NULL, *vtan = NULL, *vtc = NULL;
-            uchar *vindex = NULL, *vweight = NULL;
+            float *vpos = nullptr, *vnorm = nullptr, *vtan = nullptr, *vtc = nullptr;
+            uchar *vindex = nullptr, *vweight = nullptr;
             iqmvertexarray *vas = (iqmvertexarray *)&buf[hdr.ofs_vertexarrays];
             loopi(hdr.num_vertexarrays)
             {
@@ -187,10 +187,10 @@ struct iqm : skelloader<iqm>
                 }
                 int fv = im.first_vertex;
                 float *mpos = vpos + 3*fv,
-                      *mnorm = vnorm ? vnorm + 3*fv : NULL,
-                      *mtan = vtan ? vtan + 4*fv : NULL,
-                      *mtc = vtc ? vtc + 2*fv : NULL;
-                uchar *mindex = vindex ? vindex + 4*fv : NULL, *mweight = vweight ? vweight + 4*fv : NULL;
+                      *mnorm = vnorm ? vnorm + 3*fv : nullptr,
+                      *mtan = vtan ? vtan + 4*fv : nullptr,
+                      *mtc = vtc ? vtc + 2*fv : nullptr;
+                uchar *mindex = vindex ? vindex + 4*fv : nullptr, *mweight = vweight ? vweight + 4*fv : nullptr;
                 loopj(im.num_vertexes)
                 {
                     vert &v = m->verts[j];
@@ -325,7 +325,7 @@ struct iqm : skelloader<iqm>
             stream *f = openfile(filename, "rb");
             if(!f) return false;
 
-            uchar *buf = NULL;
+            uchar *buf = nullptr;
             iqmheader hdr;
             if(f->read(&hdr, sizeof(hdr)) != sizeof(hdr) || memcmp(hdr.magic, "INTERQUAKEMODEL", sizeof(hdr.magic))) goto error;
             lilswap(&hdr.version, (sizeof(hdr) - sizeof(hdr.magic))/sizeof(uint));

@@ -30,7 +30,7 @@ namespace gle
     int enabled = 0;
     static int numattribs = 0, attribmask = 0, numlastattribs = 0, lastattribmask = 0, vertexsize = 0, lastvertexsize = 0;
     static GLenum primtype = GL_TRIANGLES;
-    static uchar *lastbuf = NULL;
+    static uchar *lastbuf = nullptr;
     static bool changedattribs = false;
     static vector<GLint> multidrawstart;
     static vector<GLsizei> multidrawcount;
@@ -225,7 +225,7 @@ namespace gle
                 len = min(len, MAXVBOSIZE);
                 if(!vbo) glGenBuffers_(1, &vbo);
                 glBindBuffer_(GL_ARRAY_BUFFER, vbo);
-                glBufferData_(GL_ARRAY_BUFFER, MAXVBOSIZE, NULL, GL_STREAM_DRAW);
+                glBufferData_(GL_ARRAY_BUFFER, MAXVBOSIZE, nullptr, GL_STREAM_DRAW);
                 vbooffset = 0;
             }
             else if(!lastvertexsize) glBindBuffer_(GL_ARRAY_BUFFER, vbo);
@@ -266,11 +266,11 @@ namespace gle
                 {
                     if(!vbo) glGenBuffers_(1, &vbo);
                     glBindBuffer_(GL_ARRAY_BUFFER, vbo);
-                    glBufferData_(GL_ARRAY_BUFFER, MAXVBOSIZE, NULL, GL_STREAM_DRAW);
+                    glBufferData_(GL_ARRAY_BUFFER, MAXVBOSIZE, nullptr, GL_STREAM_DRAW);
                     vbooffset = 0;
                 }
                 else if(!lastvertexsize) glBindBuffer_(GL_ARRAY_BUFFER, vbo);
-                void *dst = intel_mapbufferrange_bug ? NULL :
+                void *dst = intel_mapbufferrange_bug ? nullptr :
                     glMapBufferRange_(GL_ARRAY_BUFFER, vbooffset, attribbuf.length(), GL_MAP_WRITE_BIT|GL_MAP_INVALIDATE_RANGE_BIT|GL_MAP_UNSYNCHRONIZED_BIT);
                 if(dst)
                 {
@@ -317,7 +317,7 @@ namespace gle
     {
         for(int i = 0; enabled; i++) if(enabled&(1<<i)) { glDisableVertexAttribArray_(i); enabled &= ~(1<<i); }
         numlastattribs = lastattribmask = lastvertexsize = 0;
-        lastbuf = NULL;
+        lastbuf = nullptr;
         if(quadsenabled) disablequads();
         if(glversion >= 300) glBindBuffer_(GL_ARRAY_BUFFER, 0);
     }

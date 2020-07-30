@@ -34,7 +34,7 @@ bool interceptkey(int sym);
 
 struct Texture;
 
-void renderbackground(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL, bool force = false);
+void renderbackground(const char *caption = nullptr, Texture *mapshot = nullptr, const char *mapname = nullptr, const char *mapinfo = nullptr, bool force = false);
 void renderprogress(float bar, const char *text, bool background = false);
 
 void getfps(int &fps, int &bestdiff, int &worstdiff);

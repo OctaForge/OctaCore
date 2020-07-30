@@ -281,7 +281,7 @@ char *path(char *s)
             curpart = file+1;
         }
         for(char *t = curpart; (t = strpbrk(t, "/\\")); *t++ = PATHDIV);
-        for(char *prevdir = NULL, *curdir = curpart;;)
+        for(char *prevdir = nullptr, *curdir = curpart;;)
         {
             prevdir = curdir[0]==PATHDIV ? curdir+1 : curdir;
             curdir = strchr(prevdir, PATHDIV);
@@ -352,7 +352,7 @@ bool createdir(const char *path)
         path = copystring(strip, path, len);
     }
 #ifdef WIN32
-    return CreateDirectory(path, NULL)!=0;
+    return CreateDirectory(path, nullptr)!=0;
 #else
     return mkdir(path, 0777)==0;
 #endif
@@ -379,7 +379,7 @@ bool subhomedir(char *dst, int len, const char *src)
 #ifdef WIN32
         char home[MAX_PATH+1];
         home[0] = '\0';
-        if(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, home) != S_OK || !home[0]) return false;
+        if(SHGetFolderPath(nullptr, CSIDL_PERSONAL, nullptr, 0, home) != S_OK || !home[0]) return false;
 #else
         const char *home = getenv("HOME");
         if(!home || !home[0]) return false;
@@ -395,7 +395,7 @@ const char *sethomedir(const char *dir)
 {
     string pdir;
     copystring(pdir, dir);
-    if(!subhomedir(pdir, sizeof(pdir), dir) || !fixpackagedir(pdir)) return NULL;
+    if(!subhomedir(pdir, sizeof(pdir), dir) || !fixpackagedir(pdir)) return nullptr;
     copystring(homedir, pdir);
     return homedir;
 }
@@ -404,7 +404,7 @@ const char *addpackagedir(const char *dir)
 {
     string pdir;
     copystring(pdir, dir);
-    if(!subhomedir(pdir, sizeof(pdir), dir) || !fixpackagedir(pdir)) return NULL;
+    if(!subhomedir(pdir, sizeof(pdir), dir) || !fixpackagedir(pdir)) return nullptr;
     char *filter = pdir;
     for(;;)
     {
@@ -417,7 +417,7 @@ const char *addpackagedir(const char *dir)
     packagedir &pf = packagedirs.add();
     pf.dir = filter ? newstring(pdir, filter-pdir) : newstring(pdir);
     pf.dirlen = filter ? filter-pdir : strlen(pdir);
-    pf.filter = filter ? newstring(filter) : NULL;
+    pf.filter = filter ? newstring(filter) : nullptr;
     pf.filterlen = filter ? strlen(filter) : 0;
     return pf.dir;
 }
@@ -452,7 +452,7 @@ const char *findfile(const char *filename, const char *mode)
         formatstring(s, "%s%s", pf.dir, filename);
         if(fileexists(s, mode)) return s;
     }
-    if(mode[0]=='e') return NULL;
+    if(mode[0]=='e') return nullptr;
     return filename;
 }
 
@@ -487,7 +487,7 @@ bool listdir(const char *dirname, bool rel, const char *ext, vector<char *> &fil
     if(d)
     {
         struct dirent *de;
-        while((de = readdir(d)) != NULL)
+        while((de = readdir(d)) != nullptr)
         {
             if(!ext) files.add(newstring(de->d_name));
             else
@@ -565,7 +565,7 @@ static int rwopsclose(SDL_RWops *rw)
 SDL_RWops *stream::rwops()
 {
     SDL_RWops *rw = SDL_AllocRW();
-    if(!rw) return NULL;
+    if(!rw) return nullptr;
     rw->hidden.unknown.data1 = this;
     rw->seek = rwopsseek;
     rw->read = rwopsread;
@@ -628,14 +628,14 @@ struct filestream : stream
 {
     FILE *file;
 
-    filestream() : file(NULL) {}
+    filestream() : file(nullptr) {}
     ~filestream() { close(); }
 
     bool open(const char *name, const char *mode)
     {
         if(file) return false;
         file = fopen(name, mode);
-        return file!=NULL;
+        return file!=nullptr;
     }
 
     bool opentemp(const char *name, const char *mode)
@@ -646,12 +646,12 @@ struct filestream : stream
 #else
         file = tmpfile();
 #endif
-        return file!=NULL;
+        return file!=nullptr;
     }
 
     void close()
     {
-        if(file) { fclose(file); file = NULL; }
+        if(file) { fclose(file); file = nullptr; }
     }
 
     bool end() { return feof(file)!=0; }
@@ -687,7 +687,7 @@ struct filestream : stream
     bool flush() { return !fflush(file); }
     int getchar() { return fgetc(file); }
     bool putchar(int c) { return fputc(c, file)!=EOF; }
-    bool getline(char *str, size_t len) { return fgets(str, len, file)!=NULL; }
+    bool getline(char *str, size_t len) { return fgets(str, len, file)!=nullptr; }
     bool putstring(const char *str) { return fputs(str, file)!=EOF; }
 
     size_t printf(const char *fmt, ...)
@@ -731,12 +731,12 @@ struct gzstream : stream
     uint crc;
     size_t headersize;
 
-    gzstream() : file(NULL), buf(NULL), reading(false), writing(false), autoclose(false), crc(0), headersize(0)
+    gzstream() : file(nullptr), buf(nullptr), reading(false), writing(false), autoclose(false), crc(0), headersize(0)
     {
-        zfile.zalloc = NULL;
-        zfile.zfree = NULL;
-        zfile.opaque = NULL;
-        zfile.next_in = zfile.next_out = NULL;
+        zfile.zalloc = nullptr;
+        zfile.zfree = nullptr;
+        zfile.opaque = nullptr;
+        zfile.next_in = zfile.next_out = nullptr;
         zfile.avail_in = zfile.avail_out = 0;
     }
 
@@ -816,7 +816,7 @@ struct gzstream : stream
         if(!reading && !writing) return false;
 
         file = f;
-        crc = crc32(0, NULL, 0);
+        crc = crc32(0, nullptr, 0);
         buf = new uchar[BUFSIZE];
 
         if(reading)
@@ -929,10 +929,10 @@ struct gzstream : stream
             else
             {
                 zfile.avail_in = 0;
-                zfile.next_in = NULL;
+                zfile.next_in = nullptr;
             }
             inflateReset(&zfile);
-            crc = crc32(0, NULL, 0);
+            crc = crc32(0, nullptr, 0);
         }
 
         uchar skip[512];
@@ -1009,7 +1009,7 @@ struct utf8stream : stream
     bool reading, writing, autoclose;
     uchar buf[BUFSIZE];
 
-    utf8stream() : file(NULL), pos(0), bufread(0), bufcarry(0), buflen(0), reading(false), writing(false), autoclose(false)
+    utf8stream() : file(nullptr), pos(0), bufread(0), bufcarry(0), buflen(0), reading(false), writing(false), autoclose(false)
     {
     }
 
@@ -1172,9 +1172,9 @@ struct utf8stream : stream
 stream *openrawfile(const char *filename, const char *mode)
 {
     const char *found = findfile(filename, mode);
-    if(!found) return NULL;
+    if(!found) return nullptr;
     filestream *file = new filestream;
-    if(!file->open(found, mode)) { delete file; return NULL; }
+    if(!file->open(found, mode)) { delete file; return nullptr; }
     return file;
 }
 
@@ -1191,50 +1191,50 @@ stream *opentempfile(const char *name, const char *mode)
 {
     const char *found = findfile(name, mode);
     filestream *file = new filestream;
-    if(!file->opentemp(found ? found : name, mode)) { delete file; return NULL; }
+    if(!file->opentemp(found ? found : name, mode)) { delete file; return nullptr; }
     return file;
 }
 
 stream *opengzfile(const char *filename, const char *mode, stream *file, int level)
 {
     stream *source = file ? file : openfile(filename, mode);
-    if(!source) return NULL;
+    if(!source) return nullptr;
     gzstream *gz = new gzstream;
-    if(!gz->open(source, mode, !file, level)) { if(!file) delete source; delete gz; return NULL; }
+    if(!gz->open(source, mode, !file, level)) { if(!file) delete source; delete gz; return nullptr; }
     return gz;
 }
 
 stream *openutf8file(const char *filename, const char *mode, stream *file)
 {
     stream *source = file ? file : openfile(filename, mode);
-    if(!source) return NULL;
+    if(!source) return nullptr;
     utf8stream *utf8 = new utf8stream;
-    if(!utf8->open(source, mode, !file)) { if(!file) delete source; delete utf8; return NULL; }
+    if(!utf8->open(source, mode, !file)) { if(!file) delete source; delete utf8; return nullptr; }
     return utf8;
 }
 
 char *loadfile(const char *fn, size_t *size, bool utf8)
 {
     stream *f = openfile(fn, "rb");
-    if(!f) return NULL;
+    if(!f) return nullptr;
     stream::offset fsize = f->size();
-    if(fsize <= 0) { delete f; return NULL; }
+    if(fsize <= 0) { delete f; return nullptr; }
     size_t len = fsize;
     char *buf = new (false) char[len+1];
-    if(!buf) { delete f; return NULL; }
+    if(!buf) { delete f; return nullptr; }
     size_t offset = 0;
     if(utf8 && len >= 3)
     {
-        if(f->read(buf, 3) != 3) { delete f; delete[] buf; return NULL; }
+        if(f->read(buf, 3) != 3) { delete f; delete[] buf; return nullptr; }
         if(((uchar *)buf)[0] == 0xEF && ((uchar *)buf)[1] == 0xBB && ((uchar *)buf)[2] == 0xBF) len -= 3;
         else offset += 3;
     }
     size_t rlen = f->read(&buf[offset], len-offset);
     delete f;
-    if(rlen != len-offset) { delete[] buf; return NULL; }
+    if(rlen != len-offset) { delete[] buf; return nullptr; }
     if(utf8) len = decodeutf8((uchar *)buf, len, (uchar *)buf, len);
     buf[len] = '\0';
-    if(size!=NULL) *size = len;
+    if(size!=nullptr) *size = len;
     return buf;
 }
 

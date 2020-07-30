@@ -145,7 +145,7 @@ struct smd : skelloader<smd>
 
         void readtriangles(stream *f, char *buf, size_t bufsize)
         {
-            smdmeshdata *curmesh = NULL;
+            smdmeshdata *curmesh = nullptr;
             hashtable<const char *, smdmeshdata> materials(1<<6);
             hashset<int> verts(1<<12);
             while(f->getline(buf, bufsize))
@@ -354,7 +354,7 @@ struct smd : skelloader<smd>
             if(sa || skel->numbones <= 0) return sa;
 
             stream *f = openfile(filename, "r");
-            if(!f) return NULL;
+            if(!f) return nullptr;
 
             char buf[512];
             int version = -1;
@@ -366,12 +366,12 @@ struct smd : skelloader<smd>
                 if(skipcomment(curbuf)) continue;
                 if(sscanf(curbuf, " version %d", &version) == 1)
                 {
-                    if(version != 1) { delete f; return NULL; }
+                    if(version != 1) { delete f; return nullptr; }
                 }
                 else if(!strncmp(curbuf, "nodes", 5))
                 {
                     readnodes(f, buf, sizeof(buf), bones);
-                    if(bones.length() != skel->numbones) { delete f; return NULL; }
+                    if(bones.length() != skel->numbones) { delete f; return nullptr; }
                 }
                 else if(!strncmp(curbuf, "triangles", 9))
                     skipsection(f, buf, sizeof(buf));

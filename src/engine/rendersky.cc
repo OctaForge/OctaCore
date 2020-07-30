@@ -41,7 +41,7 @@ static void loadsky(const char *basename, Texture *texs[6])
     }
 }
 
-static Texture *cloudoverlay = NULL;
+static Texture *cloudoverlay = nullptr;
 
 static Texture *loadskyoverlay(const char *basename)
 {
@@ -105,7 +105,7 @@ static void drawenvboxface(float s0, float t0, int x0, int y0, int z0,
     xtraverts += gle::end();
 }
 
-static void drawenvbox(Texture **sky = NULL, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F)
+static void drawenvbox(Texture **sky = nullptr, float z1clip = 0.0f, float z2clip = 1.0f, int faces = 0x3F)
 {
     if(z1clip >= z2clip) return;
 
@@ -152,7 +152,7 @@ static void drawenvbox(Texture **sky = NULL, float z1clip = 0.0f, float z2clip =
                        0.0f, 1.0f,  w, -w, w, sky[5]);
 }
 
-static void drawenvoverlay(Texture *overlay = NULL, float tx = 0, float ty = 0)
+static void drawenvoverlay(Texture *overlay = nullptr, float tx = 0, float ty = 0)
 {
     int w = farplane/2;
     float z = w*cloudheight, tsz = 0.5f*(1-cloudfade)/cloudscale, psz = w*(1-cloudfade);
@@ -212,8 +212,8 @@ namespace fogdome
         {
             if(v0.pos.z != v1.pos.z) color.a += uchar((v1.color.a - v0.color.a) * (pos.z - v0.pos.z) / (v1.pos.z - v0.pos.z));
         }
-    } *verts = NULL;
-    static GLushort *indices = NULL;
+    } *verts = nullptr;
+    static GLushort *indices = nullptr;
     static int numverts = 0, numindices = 0, capindices = 0;
     static GLuint vbuf = 0, ebuf = 0;
     static bvec lastcolor(0, 0, 0);

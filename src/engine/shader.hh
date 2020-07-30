@@ -127,14 +127,14 @@ struct UniformLoc
     const char *name, *blockname;
     int loc, version, binding, stride, offset, size;
     void *data;
-    UniformLoc(const char *name = NULL, const char *blockname = NULL, int binding = -1, int stride = -1) : name(name), blockname(blockname), loc(-1), version(-1), binding(binding), stride(stride), offset(-1), size(-1), data(NULL) {}
+    UniformLoc(const char *name = nullptr, const char *blockname = nullptr, int binding = -1, int stride = -1) : name(name), blockname(blockname), loc(-1), version(-1), binding(binding), stride(stride), offset(-1), size(-1), data(nullptr) {}
 };
 
 struct AttribLoc
 {
     const char *name;
     int loc;
-    AttribLoc(const char *name = NULL, int loc = -1) : name(name), loc(loc) {}
+    AttribLoc(const char *name = nullptr, int loc = -1) : name(name), loc(loc) {}
 };
 
 struct FragDataLoc
@@ -143,7 +143,7 @@ struct FragDataLoc
     int loc;
     GLenum format;
     int index;
-    FragDataLoc(const char *name = NULL, int loc = -1, GLenum format = GL_FALSE, int index = 0) : name(name), loc(loc), format(format), index(index) {}
+    FragDataLoc(const char *name = nullptr, int loc = -1, GLenum format = GL_FALSE, int index = 0) : name(name), loc(loc), format(format), index(index) {}
 };
 
 struct Shader
@@ -167,7 +167,7 @@ struct Shader
     vector<FragDataLoc> fragdatalocs;
     const void *owner;
 
-    Shader() : name(NULL), vsstr(NULL), psstr(NULL), defer(NULL), type(SHADER_DEFAULT), program(0), vsobj(0), psobj(0), variantshader(NULL), variantrows(NULL), standard(false), forced(false), used(false), reusevs(NULL), reuseps(NULL), owner(NULL)
+    Shader() : name(nullptr), vsstr(nullptr), psstr(nullptr), defer(nullptr), type(SHADER_DEFAULT), program(0), vsobj(0), psobj(0), variantshader(nullptr), variantrows(nullptr), standard(false), forced(false), used(false), reusevs(nullptr), reuseps(nullptr), owner(nullptr)
     {
     }
 
@@ -180,12 +180,12 @@ struct Shader
         DELETEA(variantrows);
     }
 
-    void allocparams(Slot *slot = NULL);
+    void allocparams(Slot *slot = nullptr);
     void setslotparams(Slot &slot);
     void setslotparams(Slot &slot, VSlot &vslot);
     void bindprograms();
 
-    void flushparams(Slot *slot = NULL)
+    void flushparams(Slot *slot = nullptr)
     {
         if(!used) { allocparams(slot); used = true; }
         loopv(globalparams) globalparams[i].flush();
@@ -213,9 +213,9 @@ struct Shader
 
     Shader *getvariant(int col, int row) const
     {
-        if(row < 0 || row >= MAXVARIANTROWS || col < 0 || !variantrows) return NULL;
+        if(row < 0 || row >= MAXVARIANTROWS || col < 0 || !variantrows) return nullptr;
         int start = variantrows[row], end = variantrows[row+1];
-        return col < end - start ? variants[start + col] : NULL;
+        return col < end - start ? variants[start + col] : nullptr;
     }
 
     void addvariant(int row, Shader *s)
@@ -299,7 +299,7 @@ struct GlobalShaderParam
     const char *name;
     GlobalShaderParamState *param;
 
-    GlobalShaderParam(const char *name) : name(name), param(NULL) {}
+    GlobalShaderParam(const char *name) : name(name), param(nullptr) {}
 
     GlobalShaderParamState *resolve()
     {
@@ -363,15 +363,15 @@ struct LocalShaderParam
     LocalShaderParamState *resolve()
     {
         Shader *s = Shader::lastshader;
-        if(!s) return NULL;
+        if(!s) return nullptr;
         if(!s->localparamremap.inrange(loc))
         {
             extern int getlocalparam(const char *name);
             if(loc == -1) loc = getlocalparam(name);
-            if(!s->localparamremap.inrange(loc)) return NULL;
+            if(!s->localparamremap.inrange(loc)) return nullptr;
         }
         uchar remap = s->localparamremap[loc];
-        return s->localparams.inrange(remap) ? &s->localparams[remap] : NULL;
+        return s->localparams.inrange(remap) ? &s->localparams[remap] : nullptr;
     }
 
     void setf(float x = 0, float y = 0, float z = 0, float w = 0)
@@ -461,13 +461,13 @@ struct LocalShaderParam
 
 #define SETSHADER(name, ...) \
     do { \
-        static Shader *name##shader = NULL; \
+        static Shader *name##shader = nullptr; \
         if(!name##shader) name##shader = lookupshaderbyname(#name); \
         name##shader->set(__VA_ARGS__); \
     } while(0)
 #define SETVARIANT(name, ...) \
     do { \
-        static Shader *name##shader = NULL; \
+        static Shader *name##shader = nullptr; \
         if(!name##shader) name##shader = lookupshaderbyname(#name); \
         name##shader->setvariant(__VA_ARGS__); \
     } while(0)

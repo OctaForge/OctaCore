@@ -283,7 +283,7 @@ void skelbih::build(skelmodel::skelmeshgroup *m, ushort *indices, int numindices
 }
 
 skelbih::skelbih(skelmodel::skelmeshgroup *m, int numtris, tri *tris)
-  : nodes(NULL), numnodes(0), tris(tris), bbmin(1e16f, 1e16f, 1e16f), bbmax(-1e16f, -1e16f, -1e16f)
+  : nodes(nullptr), numnodes(0), tris(tris), bbmin(1e16f, 1e16f, 1e16f), bbmax(-1e16f, -1e16f, -1e16f)
 {
     loopi(numtris)
     {
@@ -323,10 +323,10 @@ struct skelhitzone
         skelbih *bih;
     };
 
-    skelhitzone() : numparents(0), numchildren(0), parents(NULL), children(NULL), center(0, 0, 0), animcenter(0, 0, 0), radius(0), visited(-1)
+    skelhitzone() : numparents(0), numchildren(0), parents(nullptr), children(nullptr), center(0, 0, 0), animcenter(0, 0, 0), radius(0), visited(-1)
     {
         blend = -1;
-        bih = NULL;
+        bih = nullptr;
     }
 
     ~skelhitzone()
@@ -561,7 +561,7 @@ struct skelhitdata
     int numblends;
     skelmodel::blendcacheentry blendcache;
 
-    skelhitdata() : numzones(0), rootzones(0), visited(0), zones(NULL), links(NULL), tris(NULL), numblends(0) {}
+    skelhitdata() : numzones(0), rootzones(0), visited(0), zones(nullptr), links(nullptr), tris(nullptr), numblends(0) {}
     ~skelhitdata()
     {
         DELETEA(zones);
@@ -666,7 +666,7 @@ void skelhitdata::build(skelmodel::skelmeshgroup *g, const uchar *ids)
     skelzonebounds *bounds = new skelzonebounds[g->skel->numbones];
     numblends = g->blendcombos.length();
     loopv(g->blendcombos) if(!g->blendcombos[i].weights[1]) { numblends = i; break; }
-    blendcache.bdata = numblends > 0 ? new dualquat[numblends] : NULL;
+    blendcache.bdata = numblends > 0 ? new dualquat[numblends] : nullptr;
     loopi(min(g->meshes.length(), 0x100))
     {
         skelmodel::skelmesh *m = (skelmodel::skelmesh *)g->meshes[i];
@@ -783,7 +783,7 @@ void skelhitdata::build(skelmodel::skelmeshgroup *g, const uchar *ids)
     }
     numzones = info.length();
     zones = new skelhitzone[numzones];
-    links = numlinks ? new skelhitzone *[numlinks] : NULL;
+    links = numlinks ? new skelhitzone *[numlinks] : nullptr;
     tris = new skelhitzone::tri[numtris];
     skelhitzone **curlink = links;
     skelhitzone::tri *curtris = tris;

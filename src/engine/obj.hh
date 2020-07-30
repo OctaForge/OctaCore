@@ -46,7 +46,7 @@ struct obj : vertloader<obj>
             #define STARTMESH do { \
                 vertmesh &m = *new vertmesh; \
                 m.group = this; \
-                m.name = meshname[0] ? newstring(meshname) : NULL; \
+                m.name = meshname[0] ? newstring(meshname) : nullptr; \
                 meshes.add(&m); \
                 curmesh = &m; \
                 verthash.clear(); \
@@ -79,7 +79,7 @@ struct obj : vertloader<obj>
             } while(0)
 
             string meshname = "";
-            vertmesh *curmesh = NULL;
+            vertmesh *curmesh = nullptr;
             while(file->getline(buf, sizeof(buf)))
             {
                 char *c = buf;
@@ -102,7 +102,7 @@ struct obj : vertloader<obj>
                         copystring(meshname, name, min(namelen+1, sizeof(meshname)));
 
                         if(curmesh) FLUSHMESH;
-                        curmesh = NULL;
+                        curmesh = nullptr;
                         break;
                     }
                     case 'f':

@@ -11,7 +11,7 @@ extern void clearmainmenu();
 
 namespace game
 {
-    dynent *player1 = NULL;         // our client
+    dynent *player1 = nullptr;         // our client
     string clientmap = "";
     bool connected = false;
 
@@ -132,12 +132,12 @@ namespace game
 
     const char *getmapinfo()
     {
-        return NULL;
+        return nullptr;
     }
 
     const char *getscreenshotinfo()
     {
-        return NULL;
+        return nullptr;
     }
 
     void physicstrigger(physent *d, bool local, int floorlevel, int waterlevel, int material)
@@ -153,7 +153,7 @@ namespace game
     dynent *iterdynents(int i)
     {
         if(!i) return player1;
-        return NULL;
+        return nullptr;
     }
 
     bool needminimap() { return false; }
@@ -229,7 +229,7 @@ namespace game
 
     void newmap(int size)
     {
-        if(size>=0) emptymap(size, true, NULL);
+        if(size>=0) emptymap(size, true, nullptr);
         else enlargemap(true);
         connected = true;
     }
@@ -288,7 +288,7 @@ namespace entities
 
     const char *entmodel(const entity &e)
     {
-        return NULL;
+        return nullptr;
     }
 
     void preloadentities()

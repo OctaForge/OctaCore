@@ -136,7 +136,7 @@ int findmaterial(const char *name)
 const char *findmaterialname(int mat)
 {
     loopi(sizeof(materials)/sizeof(materials[0])) if(materials[i].id == mat) return materials[i].name;
-    return NULL;
+    return nullptr;
 }
 
 const char *getmaterialdesc(int mat, const char *prefix)
@@ -376,7 +376,7 @@ void setupmaterials(int start, int len)
     for(int i = start; i < len; i++)
     {
         vtxarray *va = valist[i];
-        materialsurface *skip = NULL;
+        materialsurface *skip = nullptr;
         loopj(va->matsurfs)
         {
             materialsurface &m = va->matbuf[j];
@@ -522,7 +522,7 @@ static void rendermatgrid()
 
 static float glassxscale = 0, glassyscale = 0;
 
-static void drawglass(const materialsurface &m, float offset, const vec *normal = NULL)
+static void drawglass(const materialsurface &m, float offset, const vec *normal = nullptr)
 {
     if(gle::attribbuf.empty())
     {

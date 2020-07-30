@@ -38,7 +38,7 @@ struct extentity : entity                       // part of the entity that doesn
     int flags;
     extentity *attached;
 
-    extentity() : flags(0), attached(NULL) {}
+    extentity() : flags(0), attached(nullptr) {}
 
     bool spawned() const { return (flags&EF_SPAWNED) != 0; }
     void setspawned(bool val) { if(val) flags |= EF_SPAWNED; else flags &= ~EF_SPAWNED; }
@@ -162,7 +162,7 @@ struct animinterpinfo // used for animation blending of animated characters
     int lastswitch;
     void *lastmodel;
 
-    animinterpinfo() : lastswitch(-1), lastmodel(NULL) {}
+    animinterpinfo() : lastswitch(-1), lastmodel(nullptr) {}
 
     void reset() { lastswitch = -1; }
 };
@@ -181,7 +181,7 @@ struct dynent : physent                         // animated characters, or chara
     occludequery *query;
     int lastrendered;
 
-    dynent() : ragdoll(NULL), query(NULL), lastrendered(0)
+    dynent() : ragdoll(nullptr), query(nullptr), lastrendered(0)
     {
         reset();
     }

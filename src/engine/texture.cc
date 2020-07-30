@@ -805,7 +805,7 @@ static void uploadtexture(GLenum target, GLenum internal, int tw, int th, GLenum
 {
     int bpp = formatsize(format), row = 0, rowalign = 0;
     if(!pitch) pitch = pw*bpp;
-    uchar *buf = NULL;
+    uchar *buf = nullptr;
     if(pw!=tw || ph!=th)
     {
         buf = new uchar[tw*th*bpp];
@@ -922,7 +922,7 @@ static const GLint *swizzlemask(GLenum format)
         case GL_RED: return luminance;
         case GL_RG: return luminancealpha;
     }
-    return NULL;
+    return nullptr;
 }
 
 static void setuptexparameters(int tnum, const void *pixels, int clamp, int filter, GLenum format, GLenum target, bool swizzle)
@@ -1115,7 +1115,7 @@ void create3dtexture(int tnum, int w, int h, int d, const void *pixels, int clam
 
 static hashnameset<Texture> textures;
 
-Texture *notexture = NULL; // used as default, ensured to be loaded
+Texture *notexture = nullptr; // used as default, ensured to be loaded
 
 static GLenum texformat(int bpp, bool swizzle = false)
 {
@@ -1261,13 +1261,13 @@ static SDL_Surface *wrapsurface(void *data, int width, int height, int bpp)
         case 3: return SDL_CreateRGBSurfaceFrom(data, width, height, 8*bpp, bpp*width, RGBMASKS);
         case 4: return SDL_CreateRGBSurfaceFrom(data, width, height, 8*bpp, bpp*width, RGBAMASKS);
     }
-    return NULL;
+    return nullptr;
 }
 
 static SDL_Surface *creatergbsurface(SDL_Surface *os)
 {
     SDL_Surface *ns = SDL_CreateRGBSurface(SDL_SWSURFACE, os->w, os->h, 24, RGBMASKS);
-    if(ns) SDL_BlitSurface(os, NULL, ns, NULL);
+    if(ns) SDL_BlitSurface(os, nullptr, ns, nullptr);
     SDL_FreeSurface(os);
     return ns;
 }
@@ -1278,7 +1278,7 @@ static SDL_Surface *creatergbasurface(SDL_Surface *os)
     if(ns)
     {
         SDL_SetSurfaceBlendMode(os, SDL_BLENDMODE_NONE);
-        SDL_BlitSurface(os, NULL, ns, NULL);
+        SDL_BlitSurface(os, nullptr, ns, nullptr);
     }
     SDL_FreeSurface(os);
     return ns;
@@ -1289,7 +1289,7 @@ static bool checkgrayscale(SDL_Surface *s)
     // gray scale images have 256 levels, no colorkey, and the palette is a ramp
     if(s->format->palette)
     {
-        if(s->format->palette->ncolors != 256 || SDL_GetColorKey(s, NULL) >= 0) return false;
+        if(s->format->palette->ncolors != 256 || SDL_GetColorKey(s, nullptr) >= 0) return false;
         const SDL_Color *colors = s->format->palette->colors;
         loopi(256) if(colors[i].r != i || colors[i].g != i || colors[i].b != i) return false;
     }
@@ -1298,17 +1298,17 @@ static bool checkgrayscale(SDL_Surface *s)
 
 static SDL_Surface *fixsurfaceformat(SDL_Surface *s)
 {
-    if(!s) return NULL;
+    if(!s) return nullptr;
     if(!s->pixels || min(s->w, s->h) <= 0 || s->format->BytesPerPixel <= 0)
     {
         SDL_FreeSurface(s);
-        return NULL;
+        return nullptr;
     }
     static const uint rgbmasks[] = { RGBMASKS }, rgbamasks[] = { RGBAMASKS };
     switch(s->format->BytesPerPixel)
     {
         case 1:
-            if(!checkgrayscale(s)) return SDL_GetColorKey(s, NULL) >= 0 ? creatergbasurface(s) : creatergbsurface(s);
+            if(!checkgrayscale(s)) return SDL_GetColorKey(s, nullptr) >= 0 ? creatergbasurface(s) : creatergbsurface(s);
             break;
         case 3:
             if(s->format->Rmask != rgbmasks[0] || s->format->Gmask != rgbmasks[1] || s->format->Bmask != rgbmasks[2])
@@ -1473,7 +1473,7 @@ static bool canloadsurface(const char *name)
 
 static SDL_Surface *loadsurface(const char *name)
 {
-    SDL_Surface *s = NULL;
+    SDL_Surface *s = nullptr;
     stream *z = openzipfile(name, "rb");
     if(z)
     {
@@ -1508,9 +1508,9 @@ VAR(usedds, 0, 1, 1);
 VAR(dbgdds, 0, 0, 1);
 VAR(scaledds, 0, 2, 4);
 
-static bool texturedata(ImageData &d, const char *tname, bool msg = true, int *compress = NULL, int *wrap = NULL, const char *tdir = NULL, int ttype = TEX_DIFFUSE)
+static bool texturedata(ImageData &d, const char *tname, bool msg = true, int *compress = nullptr, int *wrap = nullptr, const char *tdir = nullptr, int ttype = TEX_DIFFUSE)
 {
-    const char *cmds = NULL, *file = tname;
+    const char *cmds = nullptr, *file = tname;
     if(tname[0]=='<')
     {
         cmds = tname;
@@ -1529,7 +1529,7 @@ static bool texturedata(ImageData &d, const char *tname, bool msg = true, int *c
     for(const char *pcmds = cmds; pcmds;)
     {
         #define PARSETEXCOMMANDS(cmds) \
-            const char *cmd = NULL, *end = NULL, *arg[4] = { NULL, NULL, NULL, NULL }; \
+            const char *cmd = nullptr, *end = nullptr, *arg[4] = { nullptr, nullptr, nullptr, nullptr }; \
             cmd = &cmds[1]; \
             end = strchr(cmd, '>'); \
             if(!end) break; \
@@ -1606,7 +1606,7 @@ static bool texturedata(ImageData &d, const char *tname, bool msg = true, int *c
             string srcname, maskname;
             COPYTEXARG(srcname, arg[0]);
             COPYTEXARG(maskname, arg[1]);
-            if(srcname[0] && texturedata(src, srcname, false, NULL, NULL, tdir, ttype) && (!maskname[0] || texturedata(mask, maskname, false, NULL, NULL, tdir, ttype)))
+            if(srcname[0] && texturedata(src, srcname, false, nullptr, nullptr, tdir, ttype) && (!maskname[0] || texturedata(mask, maskname, false, nullptr, nullptr, tdir, ttype)))
                 texblend(d, src, maskname[0] ? mask : src);
         }
         else if(matchstring(cmd, len, "thumbnail"))
@@ -1641,7 +1641,7 @@ static bool texturedata(ImageData &d, const char *tname, bool msg = true, int *c
     return true;
 }
 
-static inline bool texturedata(ImageData &d, Slot &slot, Slot::Tex &tex, bool msg = true, int *compress = NULL, int *wrap = NULL)
+static inline bool texturedata(ImageData &d, Slot &slot, Slot::Tex &tex, bool msg = true, int *compress = nullptr, int *wrap = nullptr)
 {
     return texturedata(d, tex.name, msg, compress, wrap, slot.texturedir(), tex.type);
 }
@@ -1649,9 +1649,9 @@ static inline bool texturedata(ImageData &d, Slot &slot, Slot::Tex &tex, bool ms
 uchar *loadalphamask(Texture *t)
 {
     if(t->alphamask) return t->alphamask;
-    if(!(t->type&Texture::ALPHA)) return NULL;
+    if(!(t->type&Texture::ALPHA)) return nullptr;
     ImageData s;
-    if(!texturedata(s, t->name, false) || !s.data || s.compressed) return NULL;
+    if(!texturedata(s, t->name, false) || !s.data || s.compressed) return nullptr;
     t->alphamask = new uchar[s.h * ((s.w+7)/8)];
     uchar *srcrow = s.data, *dst = t->alphamask-1;
     loop(y, s.h)
@@ -1677,7 +1677,7 @@ Texture *textureload(const char *name, int clamp, bool mipit, bool msg)
     if(t) return t;
     int compress = 0;
     ImageData s;
-    if(texturedata(s, tname, msg, &compress, &clamp)) return newtexture(NULL, tname, s, clamp, mipit, false, false, compress);
+    if(texturedata(s, tname, msg, &compress, &clamp)) return newtexture(nullptr, tname, s, clamp, mipit, false, false, compress);
     return notexture;
 }
 
@@ -1696,7 +1696,7 @@ DecalSlot dummydecalslot;
 
 static MatSlot materialslots[(MATF_VOLUME|MATF_INDEX)+1];
 static vector<DecalSlot *> decalslots;
-static Slot *defslot = NULL;
+static Slot *defslot = nullptr;
 
 const char *Slot::name() const { return tempformatstring("slot %d", index); }
 
@@ -1708,7 +1708,7 @@ const char *DecalSlot::name() const { return tempformatstring("decal slot %d", S
 static void texturereset(int *n)
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
-    defslot = NULL;
+    defslot = nullptr;
     resetslotshader();
     int limit = clamp(*n, 0, slots.length());
     for(int i = limit; i < slots.length(); i++)
@@ -1731,7 +1731,7 @@ COMMAND(texturereset, "i");
 static void materialreset()
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
-    defslot = NULL;
+    defslot = nullptr;
     loopi((MATF_VOLUME|MATF_INDEX)+1) materialslots[i].reset();
 }
 
@@ -1740,7 +1740,7 @@ COMMAND(materialreset, "");
 static void decalreset(int *n)
 {
     if(!(identflags&IDF_OVERRIDDEN) && !game::allowedittoggle()) return;
-    defslot = NULL;
+    defslot = nullptr;
     resetslotshader();
     decalslots.deletecontents(*n);
 }
@@ -1752,7 +1752,7 @@ static bool markingvslots = false;
 
 void clearslots()
 {
-    defslot = NULL;
+    defslot = nullptr;
     resetslotshader();
     slots.deletecontents();
     vslots.deletecontents();
@@ -1807,7 +1807,7 @@ void compactvslots(cube *c, int n)
 
 int compactvslots(bool cull)
 {
-    defslot = NULL;
+    defslot = nullptr;
     clonedvslots = 0;
     markingvslots = cull;
     compactedvslots = 0;
@@ -1899,7 +1899,7 @@ ICOMMAND(compactvslots, "i", (int *cull),
     allchanged();
 });
 
-static void clampvslotoffset(VSlot &dst, Slot *slot = NULL)
+static void clampvslotoffset(VSlot &dst, Slot *slot = nullptr)
 {
     if(!slot) slot = dst.slot;
     if(slot && slot->sts.inrange(0))
@@ -1954,7 +1954,7 @@ static void propagatevslot(VSlot *root, int changed)
     }
 }
 
-static void mergevslot(VSlot &dst, const VSlot &src, int diff, Slot *slot = NULL)
+static void mergevslot(VSlot &dst, const VSlot &src, int diff, Slot *slot = nullptr)
 {
     if(diff & (1<<VSLOT_SHPARAM)) loopv(src.params)
     {
@@ -2149,7 +2149,7 @@ bool unpackvslot(ucharbuf &buf, VSlot &dst, bool delta)
             {
                 string name;
                 getstring(name, buf);
-                SlotShaderParam p = { name[0] ? getshaderparamname(name) : NULL, -1, 0, { 0, 0, 0, 0 } };
+                SlotShaderParam p = { name[0] ? getshaderparamname(name) : nullptr, -1, 0, { 0, 0, 0, 0 } };
                 loopi(4) p.val[i] = getfloat(buf);
                 if(p.name) dst.params.add(p);
                 break;
@@ -2217,7 +2217,7 @@ VSlot *findvslot(Slot &slot, const VSlot &src, const VSlot &delta)
            comparevslot(*dst, delta, delta.changed))
             return dst;
     }
-    return NULL;
+    return nullptr;
 }
 
 static VSlot *clonevslot(const VSlot &src, const VSlot &delta)
@@ -2239,7 +2239,7 @@ VSlot *editvslot(const VSlot &src, const VSlot &delta)
     {
         compactvslots();
         allchanged();
-        if(vslots.length()>=0x10000) return NULL;
+        if(vslots.length()>=0x10000) return nullptr;
     }
     if(autocompactvslots && ++clonedvslots >= autocompactvslots)
     {
@@ -2344,7 +2344,7 @@ static void texgrass(char *name)
     if(!defslot) return;
     Slot &s = *defslot;
     DELETEA(s.grass);
-    s.grass = name[0] ? newstring(makerelpath("media/texture", name)) : NULL;
+    s.grass = name[0] ? newstring(makerelpath("media/texture", name)) : nullptr;
 }
 COMMAND(texgrass, "s");
 
@@ -2549,7 +2549,7 @@ bool DecalSlot::shouldpremul(int type) const
     }
 }
 
-static void addname(vector<char> &key, Slot &slot, Slot::Tex &t, bool combined = false, const char *prefix = NULL)
+static void addname(vector<char> &key, Slot &slot, Slot::Tex &t, bool combined = false, const char *prefix = nullptr)
 {
     if(combined) key.add('&');
     if(prefix) { while(*prefix) key.add(*prefix++); }
@@ -2560,8 +2560,8 @@ static void addname(vector<char> &key, Slot &slot, Slot::Tex &t, bool combined =
 void Slot::load(int index, Slot::Tex &t)
 {
     vector<char> key;
-    addname(key, *this, t, false, shouldpremul(t.type) ? "<premul>" : NULL);
-    Slot::Tex *combine = NULL;
+    addname(key, *this, t, false, shouldpremul(t.type) ? "<premul>" : nullptr);
+    Slot::Tex *combine = nullptr;
     loopv(sts)
     {
         Slot::Tex &c = sts[i];
@@ -2604,7 +2604,7 @@ void Slot::load(int index, Slot::Tex &t)
             break;
     }
     if(!ts.compressed && shouldpremul(t.type)) texpremul(ts);
-    t.t = newtexture(NULL, key.getbuf(), ts, wrap, true, true, true, compress);
+    t.t = newtexture(nullptr, key.getbuf(), ts, wrap, true, true, true, compress);
 }
 
 void Slot::load()
@@ -2740,7 +2740,7 @@ Texture *Slot::loadthumbnail()
             addname(name, *this, sts[glow], true, prefix);
         }
     }
-    VSlot *layer = vslot.layer ? &lookupvslot(vslot.layer, false) : NULL;
+    VSlot *layer = vslot.layer ? &lookupvslot(vslot.layer, false) : nullptr;
     if(layer)
     {
         if(layer->colorscale == vec(1, 1, 1)) addname(name, *layer->slot, layer->slot->sts[0], true, "<layer>");
@@ -2750,7 +2750,7 @@ Texture *Slot::loadthumbnail()
             addname(name, *layer->slot, layer->slot->sts[0], true, prefix);
         }
     }
-    VSlot *detail = vslot.detail ? &lookupvslot(vslot.detail, false) : NULL;
+    VSlot *detail = vslot.detail ? &lookupvslot(vslot.detail, false) : nullptr;
     if(detail) addname(name, *detail->slot, detail->slot->sts[0], true, "<detail>");
     name.add('\0');
     Texture *t = textures.access(path(name.getbuf()));
@@ -2786,7 +2786,7 @@ Texture *Slot::loadthumbnail()
                 blitthumbnail(s, d, 0, 0);
             }
             if(s.bpp < 3) forcergbimage(s);
-            t = newtexture(NULL, name.getbuf(), s, 0, false, false, true);
+            t = newtexture(nullptr, name.getbuf(), s, 0, false, false, true);
             t->xs = xs;
             t->ys = ys;
             thumbnail = t;
@@ -2838,16 +2838,16 @@ static Texture *cubemaploadwildcard(Texture *t, const char *name, bool mipit, bo
         }
         ImageData &s = surface[i];
         texturedata(s, sname, msg, &compress);
-        if(!s.data) return NULL;
+        if(!s.data) return nullptr;
         if(s.w != s.h)
         {
             if(msg) conoutf(CON_ERROR, "cubemap texture %s does not have square size", sname);
-            return NULL;
+            return nullptr;
         }
         if(s.compressed ? s.compressed!=surface[0].compressed || s.w!=surface[0].w || s.h!=surface[0].h || s.levels!=surface[0].levels : surface[0].compressed || s.bpp!=surface[0].bpp)
         {
             if(msg) conoutf(CON_ERROR, "cubemap texture %s doesn't match other sides' format", sname);
-            return NULL;
+            return nullptr;
         }
         tsize = max(tsize, max(s.w, s.h));
     }
@@ -2924,19 +2924,19 @@ Texture *cubemapload(const char *name, bool mipit, bool msg, bool transient)
     string pname;
     copystring(pname, makerelpath("media/sky", name));
     path(pname);
-    Texture *t = NULL;
+    Texture *t = nullptr;
     if(!strchr(pname, '*'))
     {
         defformatstring(jpgname, "%s_*.jpg", pname);
-        t = cubemaploadwildcard(NULL, jpgname, mipit, false, transient);
+        t = cubemaploadwildcard(nullptr, jpgname, mipit, false, transient);
         if(!t)
         {
             defformatstring(pngname, "%s_*.png", pname);
-            t = cubemaploadwildcard(NULL, pngname, mipit, false, transient);
+            t = cubemaploadwildcard(nullptr, pngname, mipit, false, transient);
             if(!t && msg) conoutf(CON_ERROR, "could not load envmap %s", name);
         }
     }
-    else t = cubemaploadwildcard(NULL, pname, mipit, msg, transient);
+    else t = cubemaploadwildcard(nullptr, pname, mipit, msg, transient);
     return t;
 }
 
@@ -2983,7 +2983,7 @@ static GLuint genenvmap(const vec &o, int envmapsize, int blur, bool onlysky)
         emtexsize = texsize;
         loopi(2)
         {
-            createtexture(emtex[i], emtexsize, emtexsize, NULL, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
+            createtexture(emtex[i], emtexsize, emtexsize, nullptr, 3, 1, GL_RGB, GL_TEXTURE_RECTANGLE);
             glBindFramebuffer_(GL_FRAMEBUFFER, emfbo[i]);
             glFramebufferTexture2D_(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, emtex[i], 0);
             if(glCheckFramebufferStatus_(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -2994,7 +2994,7 @@ static GLuint genenvmap(const vec &o, int envmapsize, int blur, bool onlysky)
     glGenTextures(1, &tex);
     // workaround for Catalyst bug:
     // all texture levels must be specified before glCopyTexSubImage2D is called, otherwise it crashes
-    loopi(6) createtexture(!i ? tex : 0, texsize, texsize, NULL, 3, 2, GL_RGB5, cubemapsides[i].target);
+    loopi(6) createtexture(!i ? tex : 0, texsize, texsize, nullptr, 3, 2, GL_RGB5, cubemapsides[i].target);
     float yaw = 0, pitch = 0;
     loopi(6)
     {
@@ -3203,12 +3203,12 @@ bool reloadtexture(Texture &tex)
         {
             int compress = 0;
             ImageData s;
-            if(!texturedata(s, tex.name, true, &compress) || !newtexture(&tex, NULL, s, tex.clamp, tex.mipmap, false, false, compress)) return false;
+            if(!texturedata(s, tex.name, true, &compress) || !newtexture(&tex, nullptr, s, tex.clamp, tex.mipmap, false, false, compress)) return false;
             break;
         }
 
         case Texture::CUBEMAP:
-            if(!cubemaploadwildcard(&tex, NULL, tex.mipmap, true)) return false;
+            if(!cubemaploadwildcard(&tex, nullptr, tex.mipmap, true)) return false;
             break;
     }
     return true;
@@ -3499,7 +3499,7 @@ static bool loaddds(const char *filename, ImageData &image, int force)
         case GL_COMPRESSED_RG_RGTC2: bpp = 16; break;
 
     }
-    image.setdata(NULL, d.dwWidth, d.dwHeight, bpp, !supported || force > 0 ? 1 : d.dwMipMapCount, 4, format);
+    image.setdata(nullptr, d.dwWidth, d.dwHeight, bpp, !supported || force > 0 ? 1 : d.dwMipMapCount, 4, format);
     size_t size = image.calcsize();
     if(f->read(image.data, size) != size) { delete f; image.cleanup(); return false; }
     delete f;
@@ -3627,7 +3627,7 @@ static void gendds(char *infile, char *outfile)
 }
 COMMAND(gendds, "ss");
 
-static void writepngchunk(stream *f, const char *type, uchar *data = NULL, uint len = 0)
+static void writepngchunk(stream *f, const char *type, uchar *data = nullptr, uint len = 0)
 {
     f->putbig<uint>(len);
     f->write(type, 4);
@@ -3672,9 +3672,9 @@ void savepng(const char *filename, ImageData &image, bool flip)
     crc = crc32(crc, (const Bytef *)"IDAT", 4);
 
     z_stream z;
-    z.zalloc = NULL;
-    z.zfree = NULL;
-    z.opaque = NULL;
+    z.zalloc = nullptr;
+    z.zfree = nullptr;
+    z.opaque = nullptr;
 
     if(deflateInit(&z, compresspng) != Z_OK)
         goto error;
@@ -3912,7 +3912,7 @@ static void screenshot(char *filename)
     else
     {
         string sstime;
-        time_t t = time(NULL);
+        time_t t = time(nullptr);
         size_t len = strftime(sstime, sizeof(sstime), "%Y-%m-%d_%H.%M.%S", localtime(&t));
         sstime[min(len, sizeof(sstime)-1)] = '\0';
         concatstring(buf, sstime);
