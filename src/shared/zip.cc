@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include <sauerlib/endian.hh>
+
 #include "command.hh"
 
 #include <engine/console.hh> /* conoutf */

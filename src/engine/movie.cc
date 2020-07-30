@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include <sauerlib/stream.hh>
+#include <sauerlib/endian.hh>
 
 #include <shared/command.hh>
 
@@ -615,7 +616,7 @@ struct aviwriter
                 break;
             case AUDIO_U16MSB:
                 for(ushort *dst = (ushort *)data, *end = (ushort *)&data[framesize]; dst < end; dst++)
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#ifdef SAUERLIB_BIG_ENDIAN
                     *dst = endianswap(*dst) ^ 0x0080;
 #else
                     *dst = endianswap(*dst) ^ 0x8000;

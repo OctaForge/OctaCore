@@ -5,6 +5,8 @@
 
 #include <zlib.h>
 
+#include <sauerlib/endian.hh>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>

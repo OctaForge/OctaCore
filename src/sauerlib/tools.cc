@@ -3,6 +3,7 @@
 #include "tools.hh"
 
 #include "encoding.hh"
+#include "endian.hh"
 
 #include <ctime>
 

@@ -2,6 +2,7 @@
 #define SAUERLIB_STREAM_HH
 
 #include "tools.hh"
+#include "endian.hh"
 
 /* workaround for some C platforms that have these two functions as macros - not used anywhere */
 #ifdef getchar

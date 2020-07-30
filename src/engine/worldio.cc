@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include <sauerlib/endian.hh>
 #include <sauerlib/encoding.hh>
 
 #include <shared/command.hh>

@@ -5,6 +5,7 @@
 #include <new>
 #include <algorithm>
 
+#include <sauerlib/endian.hh>
 #include <sauerlib/encoding.hh>
 #include <sauerlib/stream.hh>
 

@@ -9,6 +9,7 @@
 #include <zlib.h>
 
 #include <sauerlib/encoding.hh>
+#include <sauerlib/endian.hh>
 
 #include <shared/command.hh>
 #include <shared/igame.hh>
@@ -1255,7 +1256,7 @@ static Texture *newtexture(Texture *t, const char *rname, ImageData &s, int clam
     return t;
 }
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#ifdef SAUERLIB_BIG_ENDIAN
 #define RGBAMASKS 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
 #define RGBMASKS  0xff0000, 0x00ff00, 0x0000ff, 0
 #else
