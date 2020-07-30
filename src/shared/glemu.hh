@@ -3,6 +3,7 @@
 
 #include "glexts.hh"
 #include "geom.hh"
+#include "tools.hh"
 
 namespace gle
 {

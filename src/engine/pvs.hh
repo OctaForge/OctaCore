@@ -2,6 +2,7 @@
 #define ENGINE_PVS_HH
 
 #include <shared/geom.hh>
+#include <shared/tools.hh>
 
 void clearpvs();
 bool pvsoccluded(const ivec &bbmin, const ivec &bbmax);

@@ -1,10 +1,30 @@
 #ifndef GEOM_HH
 #define GEOM_HH
 
-#include "tools.hh"
+#include <cmath>
 
 struct vec;
 struct vec4;
+
+namespace detail {
+    template<typename T> static inline T geom_max(T a, T b) {
+        return (a > b) ? a : b;
+    }
+    template<typename T> static inline T geom_min(T a, T b) {
+        return (a < b) ? a : b;
+    }
+    template<typename T, typename U> static inline T geom_clamp(T a, U b, U c) {
+        return geom_max(T(b), geom_min(a, T(c)));
+    }
+    template<typename T> static inline void geom_swap(T &a, T &b) {
+        T t = a; a = b; b = t;
+    }
+
+    using uchar = unsigned char;
+
+    static constexpr float GEOM_PI = 3.14159265358979f;
+    static constexpr float GEOM_RAD = GEOM_PI / 180.0f;
+}
 
 struct vec2
 {
@@ -46,12 +66,12 @@ struct vec2
     vec2 &sub(float f)       { x -= f; y -= f; return *this; }
     vec2 &sub(const vec2 &o) { x -= o.x; y -= o.y; return *this; }
     vec2 &neg()              { x = -x; y = -y; return *this; }
-    vec2 &min(const vec2 &o) { x = ::min(x, o.x); y = ::min(y, o.y); return *this; }
-    vec2 &max(const vec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
-    vec2 &min(float f)       { x = ::min(x, f); y = ::min(y, f); return *this; }
-    vec2 &max(float f)       { x = ::max(x, f); y = ::max(y, f); return *this; }
+    vec2 &min(const vec2 &o) { x = detail::geom_min(x, o.x); y = detail::geom_min(y, o.y); return *this; }
+    vec2 &max(const vec2 &o) { x = detail::geom_max(x, o.x); y = detail::geom_max(y, o.y); return *this; }
+    vec2 &min(float f)       { x = detail::geom_min(x, f); y = detail::geom_min(y, f); return *this; }
+    vec2 &max(float f)       { x = detail::geom_max(x, f); y = detail::geom_max(y, f); return *this; }
     vec2 &abs() { x = fabs(x); y = fabs(y); return *this; }
-    vec2 &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); return *this; }
+    vec2 &clamp(float l, float h) { x = detail::geom_clamp(x, l, h); y = detail::geom_clamp(y, l, h); return *this; }
     vec2 &reflect(const vec2 &n) { float k = 2*dot(n); x -= k*n.x; y -= k*n.y; return *this; }
     vec2 &lerp(const vec2 &b, float t) { x += (b.x-x)*t; y += (b.y-y)*t; return *this; }
     vec2 &lerp(const vec2 &a, const vec2 &b, float t) { x = a.x + (b.x-a.x)*t; y = a.y + (b.y-a.y)*t; return *this; }
@@ -69,11 +89,11 @@ static inline bool htcmp(const vec2 &x, const vec2 &y)
     return x == y;
 }
 
-static inline uint hthash(const vec2 &k)
+static inline unsigned int hthash(const vec2 &k)
 {
-    union { uint i; float f; } x, y;
+    union { unsigned int i; float f; } x, y;
     x.f = k.x; y.f = k.y;
-    uint v = x.i^y.i;
+    unsigned int v = x.i^y.i;
     return v + (v>>12);
 }
 
@@ -138,12 +158,12 @@ struct vec
     vec &subz(float f)       { z -= f; return *this; }
     vec &neg2()              { x = -x; y = -y; return *this; }
     vec &neg()               { x = -x; y = -y; z = -z; return *this; }
-    vec &min(const vec &o)   { x = ::min(x, o.x); y = ::min(y, o.y); z = ::min(z, o.z); return *this; }
-    vec &max(const vec &o)   { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
-    vec &min(float f)        { x = ::min(x, f); y = ::min(y, f); z = ::min(z, f); return *this; }
-    vec &max(float f)        { x = ::max(x, f); y = ::max(y, f); z = ::max(z, f); return *this; }
+    vec &min(const vec &o)   { x = detail::geom_min(x, o.x); y = detail::geom_min(y, o.y); z = detail::geom_min(z, o.z); return *this; }
+    vec &max(const vec &o)   { x = detail::geom_max(x, o.x); y = detail::geom_max(y, o.y); z = detail::geom_max(z, o.z); return *this; }
+    vec &min(float f)        { x = detail::geom_min(x, f); y = detail::geom_min(y, f); z = detail::geom_min(z, f); return *this; }
+    vec &max(float f)        { x = detail::geom_max(x, f); y = detail::geom_max(y, f); z = detail::geom_max(z, f); return *this; }
     vec &abs() { x = fabs(x); y = fabs(y); z = fabs(z); return *this; }
-    vec &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
+    vec &clamp(float l, float h) { x = detail::geom_clamp(x, l, h); y = detail::geom_clamp(y, l, h); z = detail::geom_clamp(z, l, h); return *this; }
     float magnitude2() const { return sqrtf(dot2(*this)); }
     float magnitude() const  { return sqrtf(squaredlen()); }
     vec &normalize()         { div(magnitude()); return *this; }
@@ -168,14 +188,14 @@ struct vec
     {
         float m = squaredlen(), k = dot(n);
         projectxydir(n);
-        rescale(sqrtf(::max(m - k*k, 0.0f)));
+        rescale(sqrtf(detail::geom_max(m - k*k, 0.0f)));
         return *this;
     }
     vec &projectxy(const vec &n, float threshold)
     {
-        float m = squaredlen(), k = ::min(dot(n), threshold);
+        float m = squaredlen(), k = detail::geom_min(dot(n), threshold);
         projectxydir(n);
-        rescale(sqrtf(::max(m - k*k, 0.0f)));
+        rescale(sqrtf(detail::geom_max(m - k*k, 0.0f)));
         return *this;
     }
     vec &lerp(const vec &b, float t) { x += (b.x-x)*t; y += (b.y-y)*t; z += (b.z-z)*t; return *this; }
@@ -248,7 +268,7 @@ struct vec
     template<class T> float dist_to_bb(const T &min, const T &max) const
     {
         float sqrdist = 0;
-        loopi(3)
+        for (int i = 0; i < 3; ++i)
         {
             if     (v[i] < min[i]) { float delta = v[i]-min[i]; sqrdist += delta*delta; }
             else if(v[i] > max[i]) { float delta = max[i]-v[i]; sqrdist += delta*delta; }
@@ -271,7 +291,7 @@ struct vec
         return vec(((color>>16)&0xFF)*(1.0f/255.0f), ((color>>8)&0xFF)*(1.0f/255.0f), (color&0xFF)*(1.0f/255.0f));
     }
 
-    int tohexcolor() const { return (int(::clamp(r, 0.0f, 1.0f)*255)<<16)|(int(::clamp(g, 0.0f, 1.0f)*255)<<8)|int(::clamp(b, 0.0f, 1.0f)*255); }
+    int tohexcolor() const { return (int(detail::geom_clamp(r, 0.0f, 1.0f)*255)<<16)|(int(detail::geom_clamp(g, 0.0f, 1.0f)*255)<<8)|int(detail::geom_clamp(b, 0.0f, 1.0f)*255); }
 };
 
 inline vec2::vec2(const vec &v) : x(v.x), y(v.y) {}
@@ -281,11 +301,11 @@ static inline bool htcmp(const vec &x, const vec &y)
     return x == y;
 }
 
-static inline uint hthash(const vec &k)
+static inline unsigned int hthash(const vec &k)
 {
-    union { uint i; float f; } x, y, z;
+    union { unsigned int i; float f; } x, y, z;
     x.f = k.x; y.f = k.y; z.f = k.z;
-    uint v = x.i^y.i^z.i;
+    unsigned int v = x.i^y.i^z.i;
     return v + (v>>12);
 }
 
@@ -362,7 +382,7 @@ struct vec4
     vec4 &subw(float f)      { w -= f; return *this; }
     vec4 &neg3()             { x = -x; y = -y; z = -z; return *this; }
     vec4 &neg()              { neg3(); w = -w; return *this; }
-    vec4 &clamp(float l, float h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); w = ::clamp(w, l, h); return *this; }
+    vec4 &clamp(float l, float h) { x = detail::geom_clamp(x, l, h); y = detail::geom_clamp(y, l, h); z = detail::geom_clamp(z, l, h); w = detail::geom_clamp(w, l, h); return *this; }
 
     template<class A, class B>
     vec4 &cross(const A &a, const B &b) { x = a.y*b.z-a.z*b.y; y = a.z*b.x-a.x*b.z; z = a.x*b.y-a.y*b.x; return *this; }
@@ -691,8 +711,8 @@ struct matrix3
 
     void transpose()
     {
-        swap(a.y, b.x); swap(a.z, c.x);
-        swap(b.z, c.y);
+        detail::geom_swap(a.y, b.x); detail::geom_swap(a.z, c.x);
+        detail::geom_swap(b.z, c.y);
     }
 
     template<class M>
@@ -978,8 +998,8 @@ struct matrix4x3
     void transpose()
     {
         d = vec(a.dot(d), b.dot(d), c.dot(d)).neg();
-        swap(a.y, b.x); swap(a.z, c.x);
-        swap(b.z, c.y);
+        detail::geom_swap(a.y, b.x); detail::geom_swap(a.z, c.x);
+        detail::geom_swap(b.z, c.y);
     }
 
     void transpose(const matrix4x3 &o)
@@ -1247,12 +1267,12 @@ struct ivec
     ivec &sub(const ivec &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
     ivec &mask(int n) { x &= n; y &= n; z &= n; return *this; }
     ivec &neg() { x = -x; y = -y; z = -z; return *this; }
-    ivec &min(const ivec &o) { x = ::min(x, o.x); y = ::min(y, o.y); z = ::min(z, o.z); return *this; }
-    ivec &max(const ivec &o) { x = ::max(x, o.x); y = ::max(y, o.y); z = ::max(z, o.z); return *this; }
-    ivec &min(int n) { x = ::min(x, n); y = ::min(y, n); z = ::min(z, n); return *this; }
-    ivec &max(int n) { x = ::max(x, n); y = ::max(y, n); z = ::max(z, n); return *this; }
+    ivec &min(const ivec &o) { x = detail::geom_min(x, o.x); y = detail::geom_min(y, o.y); z = detail::geom_min(z, o.z); return *this; }
+    ivec &max(const ivec &o) { x = detail::geom_max(x, o.x); y = detail::geom_max(y, o.y); z = detail::geom_max(z, o.z); return *this; }
+    ivec &min(int n) { x = detail::geom_min(x, n); y = detail::geom_min(y, n); z = detail::geom_min(z, n); return *this; }
+    ivec &max(int n) { x = detail::geom_max(x, n); y = detail::geom_max(y, n); z = detail::geom_max(z, n); return *this; }
     ivec &abs() { x = ::abs(x); y = ::abs(y); z = ::abs(z); return *this; }
-    ivec &clamp(int l, int h) { x = ::clamp(x, l, h); y = ::clamp(y, l, h); z = ::clamp(z, l, h); return *this; }
+    ivec &clamp(int l, int h) { x = detail::geom_clamp(x, l, h); y = detail::geom_clamp(y, l, h); z = detail::geom_clamp(z, l, h); return *this; }
     ivec &cross(const ivec &a, const ivec &b) { x = a.y*b.z-a.z*b.y; y = a.z*b.x-a.x*b.z; z = a.x*b.y-a.y*b.x; return *this; }
     int dot(const ivec &o) const { return x*o.x + y*o.y + z*o.z; }
     float dist(const plane &p) const { return x*p.x + y*p.y + z*p.z + p.offset; }
@@ -1268,7 +1288,7 @@ static inline bool htcmp(const ivec &x, const ivec &y)
     return x == y;
 }
 
-static inline uint hthash(const ivec &k)
+static inline unsigned int hthash(const ivec &k)
 {
     return k.x^k.y^k.z;
 }
@@ -1305,10 +1325,10 @@ struct ivec2
     ivec2 &sub(const ivec2 &v) { x -= v.x; y -= v.y; return *this; }
     ivec2 &mask(int n) { x &= n; y &= n; return *this; }
     ivec2 &neg() { x = -x; y = -y; return *this; }
-    ivec2 &min(const ivec2 &o) { x = ::min(x, o.x); y = ::min(y, o.y); return *this; }
-    ivec2 &max(const ivec2 &o) { x = ::max(x, o.x); y = ::max(y, o.y); return *this; }
-    ivec2 &min(int n) { x = ::min(x, n); y = ::min(y, n); return *this; }
-    ivec2 &max(int n) { x = ::max(x, n); y = ::max(y, n); return *this; }
+    ivec2 &min(const ivec2 &o) { x = detail::geom_min(x, o.x); y = detail::geom_min(y, o.y); return *this; }
+    ivec2 &max(const ivec2 &o) { x = detail::geom_max(x, o.x); y = detail::geom_max(y, o.y); return *this; }
+    ivec2 &min(int n) { x = detail::geom_min(x, n); y = detail::geom_min(y, n); return *this; }
+    ivec2 &max(int n) { x = detail::geom_max(x, n); y = detail::geom_max(y, n); return *this; }
     ivec2 &abs() { x = ::abs(x); y = ::abs(y); return *this; }
     int dot(const ivec2 &o) const { return x*o.x + y*o.y; }
     int cross(const ivec2 &o) const { return x*o.y - y*o.x; }
@@ -1321,7 +1341,7 @@ static inline bool htcmp(const ivec2 &x, const ivec2 &y)
     return x == y;
 }
 
-static inline uint hthash(const ivec2 &k)
+static inline unsigned int hthash(const ivec2 &k)
 {
     return k.x^k.y;
 }
@@ -1351,7 +1371,7 @@ static inline bool htcmp(const ivec4 &x, const ivec4 &y)
     return x == y;
 }
 
-static inline uint hthash(const ivec4 &k)
+static inline unsigned int hthash(const ivec4 &k)
 {
     return k.x^k.y^k.z^k.w;
 }
@@ -1362,18 +1382,18 @@ struct bvec
 {
     union
     {
-        struct { uchar x, y, z; };
-        struct { uchar r, g, b; };
-        uchar v[3];
+        struct { unsigned char x, y, z; };
+        struct { unsigned char r, g, b; };
+        unsigned char v[3];
     };
 
     bvec() {}
-    bvec(uchar x, uchar y, uchar z) : x(x), y(y), z(z) {}
-    explicit bvec(const vec &v) : x(uchar((v.x+1)*(255.0f/2.0f))), y(uchar((v.y+1)*(255.0f/2.0f))), z(uchar((v.z+1)*(255.0f/2.0f))) {}
+    bvec(unsigned char x, unsigned char y, unsigned char z) : x(x), y(y), z(z) {}
+    explicit bvec(const vec &v) : x(detail::uchar((v.x+1)*(255.0f/2.0f))), y(detail::uchar((v.y+1)*(255.0f/2.0f))), z(detail::uchar((v.z+1)*(255.0f/2.0f))) {}
     explicit bvec(const bvec4 &v);
 
-    uchar &operator[](int i)       { return v[i]; }
-    uchar  operator[](int i) const { return v[i]; }
+    unsigned char &operator[](int i)       { return v[i]; }
+    unsigned char  operator[](int i) const { return v[i]; }
 
     bool operator==(const bvec &v) const { return x==v.x && y==v.y && z==v.z; }
     bool operator!=(const bvec &v) const { return x!=v.x || y!=v.y || z!=v.z; }
@@ -1386,34 +1406,34 @@ struct bvec
     {
         vec n(x-127.5f, y-127.5f, z-127.5f);
         float mag = 127.5f/n.magnitude();
-        x = uchar(n.x*mag+127.5f);
-        y = uchar(n.y*mag+127.5f);
-        z = uchar(n.z*mag+127.5f);
+        x = detail::uchar(n.x*mag+127.5f);
+        y = detail::uchar(n.y*mag+127.5f);
+        z = detail::uchar(n.z*mag+127.5f);
         return *this;
     }
 
     void lerp(const bvec &a, const bvec &b, float t)
     {
-        x = uchar(a.x + (b.x-a.x)*t);
-        y = uchar(a.y + (b.y-a.y)*t);
-        z = uchar(a.z + (b.z-a.z)*t);
+        x = detail::uchar(a.x + (b.x-a.x)*t);
+        y = detail::uchar(a.y + (b.y-a.y)*t);
+        z = detail::uchar(a.z + (b.z-a.z)*t);
     }
 
     void lerp(const bvec &a, const bvec &b, int ka, int kb, int d)
     {
-        x = uchar((a.x*ka + b.x*kb)/d);
-        y = uchar((a.y*ka + b.y*kb)/d);
-        z = uchar((a.z*ka + b.z*kb)/d);
+        x = detail::uchar((a.x*ka + b.x*kb)/d);
+        y = detail::uchar((a.y*ka + b.y*kb)/d);
+        z = detail::uchar((a.z*ka + b.z*kb)/d);
     }
 
     void flip() { x ^= 0x80; y ^= 0x80; z ^= 0x80; }
 
-    void scale(int k, int d) { x = uchar((x*k)/d); y = uchar((y*k)/d); z = uchar((z*k)/d); }
+    void scale(int k, int d) { x = detail::uchar((x*k)/d); y = detail::uchar((y*k)/d); z = detail::uchar((z*k)/d); }
 
     bvec &shl(int n) { x<<= n; y<<= n; z<<= n; return *this; }
     bvec &shr(int n) { x>>= n; y>>= n; z>>= n; return *this; }
 
-    static bvec fromcolor(const vec &v) { return bvec(uchar(v.x*255.0f), uchar(v.y*255.0f), uchar(v.z*255.0f)); }
+    static bvec fromcolor(const vec &v) { return bvec(detail::uchar(v.x*255.0f), detail::uchar(v.y*255.0f), detail::uchar(v.z*255.0f)); }
     vec tocolor() const { return vec(x*(1.0f/255.0f), y*(1.0f/255.0f), z*(1.0f/255.0f)); }
 
     static bvec from565(ushort c) { return bvec((((c>>11)&0x1F)*527 + 15) >> 6, (((c>>5)&0x3F)*259 + 35) >> 6, ((c&0x1F)*527 + 15) >> 6); }
@@ -1429,18 +1449,18 @@ struct bvec4
 {
     union
     {
-        struct { uchar x, y, z, w; };
-        struct { uchar r, g, b, a; };
-        uchar v[4];
-        uint mask;
+        struct { unsigned char x, y, z, w; };
+        struct { unsigned char r, g, b, a; };
+        unsigned char v[4];
+        unsigned int mask;
     };
 
     bvec4() {}
-    bvec4(uchar x, uchar y, uchar z, uchar w = 0) : x(x), y(y), z(z), w(w) {}
-    bvec4(const bvec &v, uchar w = 0) : x(v.x), y(v.y), z(v.z), w(w) {}
+    bvec4(unsigned char x, unsigned char y, unsigned char z, unsigned char w = 0) : x(x), y(y), z(z), w(w) {}
+    bvec4(const bvec &v, unsigned char w = 0) : x(v.x), y(v.y), z(v.z), w(w) {}
 
-    uchar &operator[](int i)       { return v[i]; }
-    uchar  operator[](int i) const { return v[i]; }
+    unsigned char &operator[](int i)       { return v[i]; }
+    unsigned char  operator[](int i) const { return v[i]; }
 
     bool operator==(const bvec4 &v) const { return mask==v.mask; }
     bool operator!=(const bvec4 &v) const { return mask!=v.mask; }
@@ -1451,26 +1471,26 @@ struct bvec4
 
     void lerp(const bvec4 &a, const bvec4 &b, float t)
     {
-        x = uchar(a.x + (b.x-a.x)*t);
-        y = uchar(a.y + (b.y-a.y)*t);
-        z = uchar(a.z + (b.z-a.z)*t);
+        x = detail::uchar(a.x + (b.x-a.x)*t);
+        y = detail::uchar(a.y + (b.y-a.y)*t);
+        z = detail::uchar(a.z + (b.z-a.z)*t);
         w = a.w;
     }
 
     void lerp(const bvec4 &a, const bvec4 &b, int ka, int kb, int d)
     {
-        x = uchar((a.x*ka + b.x*kb)/d);
-        y = uchar((a.y*ka + b.y*kb)/d);
-        z = uchar((a.z*ka + b.z*kb)/d);
+        x = detail::uchar((a.x*ka + b.x*kb)/d);
+        y = detail::uchar((a.y*ka + b.y*kb)/d);
+        z = detail::uchar((a.z*ka + b.z*kb)/d);
         w = a.w;
     }
 
     void lerp(const bvec4 &a, const bvec4 &b, const bvec4 &c, float ta, float tb, float tc)
     {
-        x = uchar(a.x*ta + b.x*tb + c.x*tc);
-        y = uchar(a.y*ta + b.y*tb + c.y*tc);
-        z = uchar(a.z*ta + b.z*tb + c.z*tc);
-        w = uchar(a.w*ta + b.w*tb + c.w*tc);
+        x = detail::uchar(a.x*ta + b.x*tb + c.x*tc);
+        y = detail::uchar(a.y*ta + b.y*tb + c.y*tc);
+        z = detail::uchar(a.z*ta + b.z*tb + c.z*tc);
+        w = detail::uchar(a.w*ta + b.w*tb + c.w*tc);
     }
 
     void flip() { mask ^= 0x80808080; }
@@ -1674,9 +1694,9 @@ struct matrix4
 
     void transpose()
     {
-        swap(a.y, b.x); swap(a.z, c.x); swap(a.w, d.x);
-        swap(b.z, c.y); swap(b.w, d.y);
-        swap(c.w, d.z);
+        detail::geom_swap(a.y, b.x); detail::geom_swap(a.z, c.x); detail::geom_swap(a.w, d.x);
+        detail::geom_swap(b.z, c.y); detail::geom_swap(b.w, d.y);
+        detail::geom_swap(c.w, d.z);
     }
 
     void transpose(const matrix4 &m)
@@ -1698,7 +1718,7 @@ struct matrix4
 
     void perspective(float fovy, float aspect, float znear, float zfar)
     {
-        float ydist = znear * tan(fovy/2*RAD), xdist = ydist * aspect;
+        float ydist = znear * tan(fovy/2*detail::GEOM_RAD), xdist = ydist * aspect;
         frustum(-xdist, xdist, -ydist, ydist, znear, zfar);
     }
 
@@ -1852,7 +1872,7 @@ struct half
         if(exponent <= 0)
         {
             mantissa |= 0x400;
-            mantissa >>= min(1-exponent, 10+1);
+            mantissa >>= detail::geom_min(1-exponent, 10+1);
             exponent = 0;
         }
         else if(exponent >= 0x1F)
