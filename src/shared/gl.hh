@@ -14,4 +14,12 @@
 #  endif
 #endif
 
+static inline uint hthash(GLuint key) {
+    return key;
+}
+
+static inline bool htcmp(GLuint x, GLuint y) {
+    return x==y;
+}
+
 #endif

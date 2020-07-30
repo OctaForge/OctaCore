@@ -535,18 +535,6 @@ static inline bool htcmp(int x, int y)
     return x==y;
 }
 
-#ifdef GL_HH
-static inline uint hthash(GLuint key)
-{
-    return key;
-}
-
-static inline bool htcmp(GLuint x, GLuint y)
-{
-    return x==y;
-}
-#endif
-
 template <class T> struct vector
 {
     static const int MINSIZE = 8;
