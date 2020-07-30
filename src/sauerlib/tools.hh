@@ -56,11 +56,6 @@ static inline T min(T a, T b, T c)
 {
     return min(min(a, b), c);
 }
-template<class T, class U>
-static inline T clamp(T a, U b, U c)
-{
-    return max(T(b), min(a, T(c)));
-}
 
 #ifdef __GNUC__
 #define bitscan(mask) (__builtin_ffs(mask)-1)
