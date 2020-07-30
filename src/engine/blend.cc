@@ -1,5 +1,7 @@
 #include "blend.hh"
 
+#include <algorithm>
+
 #include <shared/command.hh>
 #include <shared/igame.hh>
 
@@ -150,9 +152,9 @@ bool setblendmaporigin(BlendMapCache *cache, const ivec &o, int size)
     BlendMapBranch *bm = blendmap.branch;
     int bmscale = worldscale-BM_SCALE, bmsize = 1<<bmscale,
         x = o.x>>BM_SCALE, y = o.y>>BM_SCALE,
-        x1 = max(x-1, 0), y1 = max(y-1, 0),
-        x2 = min(((o.x + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
-        y2 = min(((o.y + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
+        x1 = std::max(x-1, 0), y1 = std::max(y-1, 0),
+        x2 = std::min(((o.x + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
+        y2 = std::min(((o.y + size + (1<<BM_SCALE)-1)>>BM_SCALE) + 1, bmsize),
         diff = (x1^x2)|(y1^y2);
     if(diff < bmsize) while(!(diff&(1<<(bmscale-1))))
     {
@@ -205,7 +207,7 @@ uchar lookupblendmap(BlendMapCache *cache, const vec &pos)
         rx = ix-cache->origin.x, ry = iy-cache->origin.y;
     loop(vy, 2) loop(vx, 2)
     {
-        int cx = clamp(rx+vx, 0, (1<<cache->scale)-1), cy = clamp(ry+vy, 0, (1<<cache->scale)-1);
+        int cx = std::clamp(rx+vx, 0, (1<<cache->scale)-1), cy = std::clamp(ry+vy, 0, (1<<cache->scale)-1);
         if(cache->node.type==BM_IMAGE)
             *val++ = cache->node.image->data[cy*BM_IMAGE_SIZE + cx];
         else *val++ = lookupblendmap(cx, cy, cache->node.branch, cache->scale);
@@ -217,7 +219,7 @@ uchar lookupblendmap(BlendMapCache *cache, const vec &pos)
 
 static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, int x1, int y1, int x2, int y2)
 {
-    if(max(x1, y1) <= 0 && min(x2, y2) >= size)
+    if(std::max(x1, y1) <= 0 && std::min(x2, y2) >= size)
     {
         node.cleanup(type);
         type = BM_SOLID;
@@ -231,16 +233,16 @@ static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, i
         if(y1 < size)
         {
             if(x1 < size) fillblendmap(node.branch->type[0], node.branch->children[0], size, val,
-                                        x1, y1, min(x2, size), min(y2, size));
+                                        x1, y1, std::min(x2, size), std::min(y2, size));
             if(x2 > size) fillblendmap(node.branch->type[1], node.branch->children[1], size, val,
-                                        max(x1-size, 0), y1, x2-size, min(y2, size));
+                                        std::max(x1-size, 0), y1, x2-size, std::min(y2, size));
         }
         if(y2 > size)
         {
             if(x1 < size) fillblendmap(node.branch->type[2], node.branch->children[2], size, val,
-                                        x1, max(y1-size, 0), min(x2, size), y2-size);
+                                        x1, std::max(y1-size, 0), std::min(x2, size), y2-size);
             if(x2 > size) fillblendmap(node.branch->type[3], node.branch->children[3], size, val,
-                                        max(x1-size, 0), max(y1-size, 0), x2-size, y2-size);
+                                        std::max(x1-size, 0), std::max(y1-size, 0), x2-size, y2-size);
         }
         loopi(4) if(node.branch->type[i]!=BM_SOLID || node.branch->children[i].solid->val!=val) return;
         node.cleanup(type);
@@ -276,11 +278,11 @@ static void fillblendmap(uchar &type, BlendMapNode &node, int size, uchar val, i
 static void fillblendmap(int x, int y, int w, int h, uchar val)
 {
     int bmsize = worldsize>>BM_SCALE,
-        x1 = clamp(x, 0, bmsize),
-        y1 = clamp(y, 0, bmsize),
-        x2 = clamp(x+w, 0, bmsize),
-        y2 = clamp(y+h, 0, bmsize);
-    if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+        x1 = std::clamp(x, 0, bmsize),
+        y1 = std::clamp(y, 0, bmsize),
+        x2 = std::clamp(x+w, 0, bmsize),
+        y2 = std::clamp(y+h, 0, bmsize);
+    if(std::max(x1, y1) >= bmsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     fillblendmap(blendmap.type, blendmap, bmsize, val, x1, y1, x2, y2);
 }
 
@@ -292,16 +294,16 @@ static void invertblendmap(uchar &type, BlendMapNode &node, int size, int x1, in
         if(y1 < size)
         {
             if(x1 < size) invertblendmap(node.branch->type[0], node.branch->children[0], size,
-                                        x1, y1, min(x2, size), min(y2, size));
+                                        x1, y1, std::min(x2, size), std::min(y2, size));
             if(x2 > size) invertblendmap(node.branch->type[1], node.branch->children[1], size,
-                                        max(x1-size, 0), y1, x2-size, min(y2, size));
+                                        std::max(x1-size, 0), y1, x2-size, std::min(y2, size));
         }
         if(y2 > size)
         {
             if(x1 < size) invertblendmap(node.branch->type[2], node.branch->children[2], size,
-                                        x1, max(y1-size, 0), min(x2, size), y2-size);
+                                        x1, std::max(y1-size, 0), std::min(x2, size), y2-size);
             if(x2 > size) invertblendmap(node.branch->type[3], node.branch->children[3], size,
-                                        max(x1-size, 0), max(y1-size, 0), x2-size, y2-size);
+                                        std::max(x1-size, 0), std::max(y1-size, 0), x2-size, y2-size);
         }
         return;
     }
@@ -323,11 +325,11 @@ static void invertblendmap(uchar &type, BlendMapNode &node, int size, int x1, in
 static void invertblendmap(int x, int y, int w, int h)
 {
     int bmsize = worldsize>>BM_SCALE,
-        x1 = clamp(x, 0, bmsize),
-        y1 = clamp(y, 0, bmsize),
-        x2 = clamp(x+w, 0, bmsize),
-        y2 = clamp(y+h, 0, bmsize);
-    if(max(x1, y1) >= bmsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+        x1 = std::clamp(x, 0, bmsize),
+        y1 = std::clamp(y, 0, bmsize),
+        x2 = std::clamp(x+w, 0, bmsize),
+        y2 = std::clamp(y+h, 0, bmsize);
+    if(std::max(x1, y1) >= bmsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
     invertblendmap(blendmap.type, blendmap, bmsize, x1, y1, x2, y2);
 }
 
@@ -405,10 +407,10 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
         memset(node.image->data, val, sizeof(node.image->data));
     }
 
-    int x1 = clamp(sx - bmx, 0, bmsize), y1 = clamp(sy - bmy, 0, bmsize),
-        x2 = clamp(sx+sw - bmx, 0, bmsize), y2 = clamp(sy+sh - bmy, 0, bmsize);
+    int x1 = std::clamp(sx - bmx, 0, bmsize), y1 = std::clamp(sy - bmy, 0, bmsize),
+        x2 = std::clamp(sx+sw - bmx, 0, bmsize), y2 = std::clamp(sy+sh - bmy, 0, bmsize);
     uchar *dst = &node.image->data[y1*BM_IMAGE_SIZE + x1];
-    src += max(bmy - sy, 0)*sw + max(bmx - sx, 0);
+    src += std::max(bmy - sy, 0)*sw + std::max(bmx - sx, 0);
     loopi(y2-y1)
     {
         switch(smode)
@@ -418,19 +420,19 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
                 break;
 
             case 2:
-                loopi(x2 - x1) dst[i] = min(dst[i], src[i]);
+                loopi(x2 - x1) dst[i] = std::min(dst[i], src[i]);
                 break;
 
             case 3:
-                loopi(x2 - x1) dst[i] = max(dst[i], src[i]);
+                loopi(x2 - x1) dst[i] = std::max(dst[i], src[i]);
                 break;
 
             case 4:
-                loopi(x2 - x1) dst[i] = min(dst[i], uchar(0xFF - src[i]));
+                loopi(x2 - x1) dst[i] = std::min(dst[i], uchar(0xFF - src[i]));
                 break;
 
             case 5:
-                loopi(x2 - x1) dst[i] = max(dst[i], uchar(0xFF - src[i]));
+                loopi(x2 - x1) dst[i] = std::max(dst[i], uchar(0xFF - src[i]));
                 break;
         }
         dst += BM_IMAGE_SIZE;
@@ -441,7 +443,7 @@ static void blitblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
 static void blitblendmap(uchar *src, int sx, int sy, int sw, int sh, int smode)
 {
     int bmsize = worldsize>>BM_SCALE;
-    if(max(sx, sy) >= bmsize || min(sx+sw, sy+sh) <= 0 || min(sw, sh) <= 0) return;
+    if(std::max(sx, sy) >= bmsize || std::min(sx+sw, sy+sh) <= 0 || std::min(sw, sh) <= 0) return;
     blitblendmap(blendmap.type, blendmap, 0, 0, bmsize, src, sx, sy, sw, sh, smode);
 }
 
@@ -511,8 +513,8 @@ static int calcblendlayer(uchar &type, BlendMapNode &node, int bmx, int bmy, int
     if(type == BM_SOLID) val = node.solid->val;
     else
     {
-        int x1 = clamp(cx - bmx, 0, bmsize), y1 = clamp(cy - bmy, 0, bmsize),
-            x2 = clamp(cx+cw - bmx, 0, bmsize), y2 = clamp(cy+ch - bmy, 0, bmsize);
+        int x1 = std::clamp(cx - bmx, 0, bmsize), y1 = std::clamp(cy - bmy, 0, bmsize),
+            x2 = std::clamp(cx+cw - bmx, 0, bmsize), y2 = std::clamp(cy+ch - bmy, 0, bmsize);
         uchar *src = &node.image->data[y1*BM_IMAGE_SIZE + x1];
         val = src[0];
         loopi(y2-y1)
@@ -532,10 +534,10 @@ static int calcblendlayer(uchar &type, BlendMapNode &node, int bmx, int bmy, int
 int calcblendlayer(int x1, int y1, int x2, int y2)
 {
     int bmsize = worldsize>>BM_SCALE,
-        ux1 = max(x1, 0) >> BM_SCALE,
-        ux2 = (min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
-        uy1 = max(y1, 0) >> BM_SCALE,
-        uy2 = (min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
+        ux1 = std::max(x1, 0) >> BM_SCALE,
+        ux2 = (std::min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
+        uy1 = std::max(y1, 0) >> BM_SCALE,
+        uy2 = (std::min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
     if(ux1 >= ux2 || uy1 >= uy2) return LAYER_TOP;
     return calcblendlayer(blendmap.type, blendmap, 0, 0, bmsize, ux1, uy1, ux2-ux1, uy2-uy1);
 }
@@ -659,7 +661,7 @@ struct BlendTexture
     bool setup(int sz)
     {
         if(!tex) glGenTextures(1, &tex);
-        sz = min(sz, maxtexsize ? min(maxtexsize, hwtexsize) : hwtexsize);
+        sz = std::min(sz, maxtexsize ? std::min(maxtexsize, hwtexsize) : hwtexsize);
         while(sz&(sz-1)) sz &= sz-1;
         if(sz == size) return false;
         size = sz;
@@ -722,11 +724,11 @@ static void renderblendtexture(uchar &type, BlendMapNode &node, int bmx, int bmy
         return;
     }
 
-    int x1 = clamp(dx - bmx, 0, bmsize), y1 = clamp(dy - bmy, 0, bmsize),
-        x2 = clamp(dx+dw - bmx, 0, bmsize), y2 = clamp(dy+dh - bmy, 0, bmsize),
-        tsize = 1<<(min(worldscale, 12)-BM_SCALE),
+    int x1 = std::clamp(dx - bmx, 0, bmsize), y1 = std::clamp(dy - bmy, 0, bmsize),
+        x2 = std::clamp(dx+dw - bmx, 0, bmsize), y2 = std::clamp(dy+dh - bmy, 0, bmsize),
+        tsize = 1<<(std::min(worldscale, 12)-BM_SCALE),
         step = tsize/dsize, stepw = (x2 - x1)/step, steph = (y2 - y1)/step;
-    dst += max(bmy - dy, 0)/step*dsize + max(bmx - dx, 0)/step;
+    dst += std::max(bmy - dy, 0)/step*dsize + std::max(bmx - dx, 0)/step;
     if(type == BM_SOLID) loopi(steph)
     {
         memset(dst, node.solid->val, stepw);
@@ -748,7 +750,7 @@ static void renderblendtexture(uchar &type, BlendMapNode &node, int bmx, int bmy
 void renderblendtexture(uchar *dst, int dsize, int dx, int dy, int dw, int dh)
 {
     int bmsize = worldsize>>BM_SCALE;
-    if(max(dx, dy) >= bmsize || min(dx+dw, dy+dh) <= 0 || min(dw, dh) <= 0) return;
+    if(std::max(dx, dy) >= bmsize || std::min(dx+dw, dy+dh) <= 0 || std::min(dw, dh) <= 0) return;
     renderblendtexture(blendmap.type, blendmap, 0, 0, bmsize, dst, dsize, dx, dy, dw, dh);
 }
 
@@ -779,10 +781,10 @@ static bool usesblendmap(uchar &type, BlendMapNode &node, int bmx, int bmy, int 
 bool usesblendmap(int x1, int y1, int x2, int y2)
 {
     int bmsize = worldsize>>BM_SCALE,
-        ux1 = max(x1, 0) >> BM_SCALE,
-        ux2 = (min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
-        uy1 = max(y1, 0) >> BM_SCALE,
-        uy2 = (min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
+        ux1 = std::max(x1, 0) >> BM_SCALE,
+        ux2 = (std::min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
+        uy1 = std::max(y1, 0) >> BM_SCALE,
+        uy2 = (std::min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
     if(ux1 >= ux2 || uy1 >= uy2) return false;
     return usesblendmap(blendmap.type, blendmap, 0, 0, bmsize, ux1, uy1, ux2-ux1, uy2-uy1);
 }
@@ -792,7 +794,7 @@ void bindblendtexture(const ivec &p)
     loopv(blendtexs) if(blendtexs[i].contains(p))
     {
         BlendTexture &bt = blendtexs[i];
-        int tsize = 1<<min(worldscale, 12);
+        int tsize = 1<<std::min(worldscale, 12);
         GLOBALPARAMF(blendmapparams, bt.x, bt.y, 1.0f/tsize, 1.0f/tsize);
         glBindTexture(GL_TEXTURE_2D, bt.tex);
         break;
@@ -824,10 +826,10 @@ static void updateblendtextures(uchar &type, BlendMapNode &node, int bmx, int bm
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    int tx1 = max(bmx, ux)&~((0x1000>>BM_SCALE)-1),
-        tx2 = (min(bmx+bmsize, ux+uw) + (0x1000>>BM_SCALE)-1)&~((0x1000>>BM_SCALE)-1),
-        ty1 = max(bmy, uy)&~((0x1000>>BM_SCALE)-1),
-        ty2 = (min(bmy+bmsize, uy+uh) + (0x1000>>BM_SCALE)-1)&~((0x1000>>BM_SCALE)-1);
+    int tx1 = std::max(bmx, ux)&~((0x1000>>BM_SCALE)-1),
+        tx2 = (std::min(bmx+bmsize, ux+uw) + (0x1000>>BM_SCALE)-1)&~((0x1000>>BM_SCALE)-1),
+        ty1 = std::max(bmy, uy)&~((0x1000>>BM_SCALE)-1),
+        ty2 = (std::min(bmy+bmsize, uy+uh) + (0x1000>>BM_SCALE)-1)&~((0x1000>>BM_SCALE)-1);
     for(int ty = ty1; ty < ty2; ty += 0x1000>>BM_SCALE) for(int tx = tx1; tx < tx2; tx += 0x1000>>BM_SCALE)
     {
         BlendTexture *bt = nullptr;
@@ -838,16 +840,16 @@ static void updateblendtextures(uchar &type, BlendMapNode &node, int bmx, int bm
             bt->x = tx<<BM_SCALE;
             bt->y = ty<<BM_SCALE;
         }
-        bt->setup(1<<min(worldscale-BM_SCALE, blendtexsize));
-        int tsize = 1<<(min(worldscale, 12)-BM_SCALE),
+        bt->setup(1<<std::min(worldscale-BM_SCALE, blendtexsize));
+        int tsize = 1<<(std::min(worldscale, 12)-BM_SCALE),
             ux1 = tx, ux2 = tx + tsize, uy1 = ty, uy2 = ty + tsize,
             step = tsize/bt->size;
         if(!bt->valid)
         {
-            ux1 = max(ux1, ux&~(step-1));
-            ux2 = min(ux2, (ux+uw+step-1)&~(step-1));
-            uy1 = max(uy1, uy&~(step-1));
-            uy2 = min(uy2, (uy+uh+step-1)&~(step-1));
+            ux1 = std::max(ux1, ux&~(step-1));
+            ux2 = std::min(ux2, (ux+uw+step-1)&~(step-1));
+            uy1 = std::max(uy1, uy&~(step-1));
+            uy2 = std::min(uy2, (uy+uh+step-1)&~(step-1));
             bt->valid = true;
         }
         uchar *data = bt->data + (uy1-ty)/step*bt->size + (ux1-tx)/step;
@@ -863,10 +865,10 @@ static void updateblendtextures(uchar &type, BlendMapNode &node, int bmx, int bm
 void updateblendtextures(int x1, int y1, int x2, int y2)
 {
     int bmsize = worldsize>>BM_SCALE,
-        ux1 = max(x1, 0) >> BM_SCALE,
-        ux2 = (min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
-        uy1 = max(y1, 0) >> BM_SCALE,
-        uy2 = (min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
+        ux1 = std::max(x1, 0) >> BM_SCALE,
+        ux2 = (std::min(x2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE,
+        uy1 = std::max(y1, 0) >> BM_SCALE,
+        uy2 = (std::min(y2, worldsize) + (1<<BM_SCALE)-1) >> BM_SCALE;
     if(ux1 >= ux2 || uy1 >= uy2) return;
     updateblendtextures(blendmap.type, blendmap, 0, 0, bmsize, ux1, uy1, ux2-ux1, uy2-uy1);
 }
@@ -896,7 +898,7 @@ static void delblendbrush(const char *name)
         delete brushes[i];
         brushes.remove(i--);
     }
-    curbrush = brushes.empty() ? -1 : clamp(curbrush, 0, brushes.length()-1);
+    curbrush = brushes.empty() ? -1 : std::clamp(curbrush, 0, brushes.length()-1);
 }
 
 COMMAND(delblendbrush, "s");
@@ -907,7 +909,7 @@ static void addblendbrush(const char *name, const char *imgname)
 
     ImageData s;
     if(!loadimage(imgname, s)) { conoutf(CON_ERROR, "could not load blend brush image %s", imgname); return; }
-    if(max(s.w, s.h) > (1<<12))
+    if(std::max(s.w, s.h) > (1<<12))
     {
         conoutf(CON_ERROR, "blend brush image size exceeded %dx%d pixels: %s", 1<<12, 1<<12, imgname);
         return;
@@ -973,7 +975,7 @@ ICOMMAND(rotateblendbrush, "i", (int *val),
     if(!canpaintblendmap()) return;
 
     BlendBrush *brush = brushes[curbrush];
-    const texrotation &r = texrotations[*val < 0 ? 3 : clamp(*val, 1, 7)];
+    const texrotation &r = texrotations[*val < 0 ? 3 : std::clamp(*val, 1, 7)];
     brush->reorient(r.flipx, r.flipy, r.swapxy);
 });
 
@@ -982,8 +984,8 @@ static void paintblendmap(bool msg)
     if(!canpaintblendmap(true, false, msg)) return;
 
     BlendBrush *brush = brushes[curbrush];
-    int x = (int)floor(clamp(worldpos.x, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->w),
-        y = (int)floor(clamp(worldpos.y, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->h);
+    int x = (int)floor(std::clamp(worldpos.x, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->w),
+        y = (int)floor(std::clamp(worldpos.y, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->h);
     blitblendmap(brush->data, x, y, brush->w, brush->h, blendpaintmode);
     previewblends(ivec((x-1)<<BM_SCALE, (y-1)<<BM_SCALE, 0),
                   ivec((x+brush->w+1)<<BM_SCALE, (y+brush->h+1)<<BM_SCALE, worldsize));
@@ -1091,12 +1093,12 @@ void renderblendbrush()
     if(!blendpaintmode || !brushes.inrange(curbrush)) return;
 
     BlendBrush *brush = brushes[curbrush];
-    int x1 = (int)floor(clamp(worldpos.x, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->w) << BM_SCALE,
-        y1 = (int)floor(clamp(worldpos.y, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->h) << BM_SCALE,
+    int x1 = (int)floor(std::clamp(worldpos.x, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->w) << BM_SCALE,
+        y1 = (int)floor(std::clamp(worldpos.y, 0.0f, float(worldsize))/(1<<BM_SCALE) - 0.5f*brush->h) << BM_SCALE,
         x2 = x1 + (brush->w << BM_SCALE),
         y2 = y1 + (brush->h << BM_SCALE);
 
-    if(max(x1, y1) >= worldsize || min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
+    if(std::max(x1, y1) >= worldsize || std::min(x2, y2) <= 0 || x1>=x2 || y1>=y2) return;
 
     if(!brush->tex) brush->gentex();
     renderblendbrush(brush->tex, x1, y1, x2 - x1, y2 - y1);

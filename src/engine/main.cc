@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include <algorithm>
+
 #include <sauerlib/encoding.hh>
 
 #include <shared/command.hh>
@@ -518,8 +520,8 @@ VARF(fullscreen, 0, 1, 1, setfullscreen(fullscreen!=0));
 
 static void screenres(int w, int h)
 {
-    scr_w = clamp(w, SCR_MINW, SCR_MAXW);
-    scr_h = clamp(h, SCR_MINH, SCR_MAXH);
+    scr_w = std::clamp(w, SCR_MINW, SCR_MAXW);
+    scr_h = std::clamp(h, SCR_MINH, SCR_MAXH);
     if(screen)
     {
         scr_w = min(scr_w, desktopw);
@@ -850,8 +852,8 @@ static void checkinput()
                         SDL_GetWindowSize(screen, &screenw, &screenh);
                         if(!(SDL_GetWindowFlags(screen) & SDL_WINDOW_FULLSCREEN))
                         {
-                            scr_w = clamp(screenw, SCR_MINW, SCR_MAXW);
-                            scr_h = clamp(screenh, SCR_MINH, SCR_MAXH);
+                            scr_w = std::clamp(screenw, SCR_MINW, SCR_MAXW);
+                            scr_h = std::clamp(screenh, SCR_MINH, SCR_MAXH);
                         }
                         gl_resize();
                         break;
@@ -1102,15 +1104,15 @@ int main(int argc, char **argv)
                 break;
             }
             case 'g': break;
-            case 'w': scr_w = clamp(atoi(&argv[i][2]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-h")) scr_h = -1; break;
-            case 'h': scr_h = clamp(atoi(&argv[i][2]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-w")) scr_w = -1; break;
+            case 'w': scr_w = std::clamp(atoi(&argv[i][2]), SCR_MINW, SCR_MAXW); if(!findarg(argc, argv, "-h")) scr_h = -1; break;
+            case 'h': scr_h = std::clamp(atoi(&argv[i][2]), SCR_MINH, SCR_MAXH); if(!findarg(argc, argv, "-w")) scr_w = -1; break;
             case 'f': fullscreen = atoi(&argv[i][2]); break;
             case 'x': initscript = &argv[i][2]; break;
             default: break;
         }
     }
 
-    numcpus = clamp(SDL_GetCPUCount(), 1, 16);
+    numcpus = std::clamp(SDL_GetCPUCount(), 1, 16);
 
     printf("init: sdl\n");
 

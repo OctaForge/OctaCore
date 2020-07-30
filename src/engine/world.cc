@@ -2,6 +2,8 @@
 
 #include "world.hh"
 
+#include <algorithm>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -764,7 +766,7 @@ static void renderentradius(extentity &e, bool color)
                 float radius = e.attached->attr1;
                 if(radius <= 0) break;
                 vec dir = vec(e.o).sub(e.attached->o).normalize();
-                float angle = clamp(int(e.attr1), 1, 89);
+                float angle = std::clamp(int(e.attr1), 1, 89);
                 renderentattachment(e);
                 renderentcone(*e.attached, dir, radius, angle);
             }
@@ -877,7 +879,7 @@ void renderentselection(const vec &o, const vec &ray, bool entmoving)
         }
         gle::colorub(200,0,0);
         boxs(entorient, eo, es);
-        boxs(entorient, eo, es, clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
+        boxs(entorient, eo, es, std::clamp(0.015f*camera1->o.dist(eo)*tan(fovy*0.5f*RAD), 0.1f, 1.0f));
     }
 
     if(showentradius)

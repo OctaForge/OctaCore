@@ -67,8 +67,8 @@ struct skelbih
         Texture *tex = s[t.mesh].tex; \
         if(tex->type&Texture::ALPHA && (tex->alphamask || loadalphamask(tex))) \
         { \
-            int si = clamp(int(tex->xs * (va.tc.x + u*(vb.tc.x - va.tc.x) + v*(vc.tc.x - va.tc.x))), 0, tex->xs-1), \
-                ti = clamp(int(tex->ys * (va.tc.y + u*(vb.tc.y - va.tc.y) + v*(vc.tc.y - va.tc.y))), 0, tex->ys-1); \
+            int si = std::clamp(int(tex->xs * (va.tc.x + u*(vb.tc.x - va.tc.x) + v*(vc.tc.x - va.tc.x))), 0, tex->xs-1), \
+                ti = std::clamp(int(tex->ys * (va.tc.y + u*(vb.tc.y - va.tc.y) + v*(vc.tc.y - va.tc.y))), 0, tex->ys-1); \
             if(!(tex->alphamask[ti*((tex->xs+7)/8) + si/8] & (1<<(si%8)))) return false; \
         } \
     } \

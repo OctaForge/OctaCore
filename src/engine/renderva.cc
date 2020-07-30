@@ -4,6 +4,8 @@
 
 #include <climits>
 
+#include <algorithm>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -139,7 +141,7 @@ static inline void addvisibleva(vtxarray *va)
     float dist = vadist(va, camera1->o);
     va->distance = int(dist); /*cv.dist(camera1->o) - va->size*SQRT3/2*/
 
-    int hash = clamp(int(dist*VASORTSIZE/worldsize), 0, VASORTSIZE-1);
+    int hash = std::clamp(int(dist*VASORTSIZE/worldsize), 0, VASORTSIZE-1);
     vtxarray **prev = &vasort[hash], *cur = vasort[hash];
 
     while(cur && va->distance >= cur->distance)
@@ -913,7 +915,7 @@ static inline void addshadowva(vtxarray *va, float dist)
 {
     va->rdistance = int(dist);
 
-    int hash = clamp(int(dist*VASORTSIZE/shadowradius), 0, VASORTSIZE-1);
+    int hash = std::clamp(int(dist*VASORTSIZE/shadowradius), 0, VASORTSIZE-1);
     vtxarray **prev = &vasort[hash], *cur = vasort[hash];
 
     while(cur && va->rdistance > cur->rdistance)
@@ -2724,7 +2726,7 @@ shadowmesh *findshadowmesh(int idx, extentity &e)
     switch(m->type)
     {
         case SM_SPOT:
-            if(!e.attached || e.attached->type != ET_SPOTLIGHT || m->spotloc != e.attached->o || m->spotangle < clamp(int(e.attached->attr1), 1, 89))
+            if(!e.attached || e.attached->type != ET_SPOTLIGHT || m->spotloc != e.attached->o || m->spotangle < std::clamp(int(e.attached->attr1), 1, 89))
                 return nullptr;
             break;
     }

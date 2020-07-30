@@ -2,6 +2,8 @@
 
 #include <zlib.h>
 
+#include <algorithm>
+
 #include "command.hh"
 
 #include <engine/console.hh> /* conoutf */
@@ -434,7 +436,7 @@ struct zipstream : stream
                 case SEEK_SET: pos += info->offset; break;
                 default: return false;
             }
-            pos = clamp(pos, offset(info->offset), offset(info->offset + info->size));
+            pos = std::clamp(pos, offset(info->offset), offset(info->offset + info->size));
             arch->owner = nullptr;
             if(fseek(arch->data, int(pos), SEEK_SET) < 0) return false;
             arch->owner = this;

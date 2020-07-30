@@ -285,7 +285,8 @@ struct databuf
 
     databuf subbuf(int sz)
     {
-        sz = clamp(sz, 0, maxlen-len);
+        if (sz < 0) sz = 0;
+        if (sz > (maxlen - len)) sz = maxlen - len;
         len += sz;
         return databuf(&buf[len-sz], sz);
     }

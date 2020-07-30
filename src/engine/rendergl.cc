@@ -4,6 +4,8 @@
 
 #include <ctime>
 
+#include <algorithm>
+
 #include <shared/command.hh>
 #include <shared/glemu.hh>
 #include <shared/igame.hh>
@@ -1474,14 +1476,14 @@ void recomputecamera()
         if(game::collidecamera())
         {
             movecamera(camera1, dir, thirdpersondistance, 1);
-            movecamera(camera1, dir, clamp(thirdpersondistance - camera1->o.dist(player->o), 0.0f, 1.0f), 0.1f);
+            movecamera(camera1, dir, std::clamp(thirdpersondistance - camera1->o.dist(player->o), 0.0f, 1.0f), 0.1f);
             if(thirdpersonup)
             {
                 vec pos = camera1->o;
                 float dist = fabs(thirdpersonup);
                 if(thirdpersonup < 0) up.neg();
                 movecamera(camera1, up, dist, 1);
-                movecamera(camera1, up, clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
+                movecamera(camera1, up, std::clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
             }
             if(thirdpersonside)
             {
@@ -1489,7 +1491,7 @@ void recomputecamera()
                 float dist = fabs(thirdpersonside);
                 if(thirdpersonside < 0) side.neg();
                 movecamera(camera1, side, dist, 1);
-                movecamera(camera1, side, clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
+                movecamera(camera1, side, std::clamp(dist - camera1->o.dist(pos), 0.0f, 1.0f), 0.1f);
             }
         }
         else
@@ -1904,7 +1906,7 @@ static void blendfog(int fogmat, float below, float blend, float logblend, float
         {
             const bvec &wcol = getwatercolour(fogmat), &wdeepcol = getwaterdeepcolour(fogmat);
             int wfog = getwaterfog(fogmat), wdeep = getwaterdeep(fogmat);
-            float deepfade = clamp(below/max(wdeep, wfog), 0.0f, 1.0f);
+            float deepfade = std::clamp(below/max(wdeep, wfog), 0.0f, 1.0f);
             vec color;
             color.lerp(wcol.tocolor(), wdeepcol.tocolor(), deepfade);
             fogc.add(vec(color).mul(blend));
@@ -1985,7 +1987,7 @@ static void blendfogoverlay(int fogmat, float below, float blend, vec &overlay)
         {
             const bvec &wcol = getwatercolour(fogmat), &wdeepcol = getwaterdeepcolour(fogmat);
             int wfog = getwaterfog(fogmat), wdeep = getwaterdeep(fogmat);
-            float deepfade = clamp(below/max(wdeep, wfog), 0.0f, 1.0f);
+            float deepfade = std::clamp(below/max(wdeep, wfog), 0.0f, 1.0f);
             vec color = vec(wcol.r, wcol.g, wcol.b).lerp(vec(wdeepcol.r, wdeepcol.g, wdeepcol.b), deepfade);
             overlay.add(color.div(min(32.0f + max(color.r, max(color.g, color.b))*7.0f/8.0f, 255.0f)).max(0.4f).mul(blend));
             break;
@@ -2262,7 +2264,7 @@ void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapsi
 
             renderwaterfog(fogmat, fogbelow);
 
-            setfog(fogmat, fogbelow, clamp(fogbelow, 0.0f, 1.0f), abovemat);
+            setfog(fogmat, fogbelow, std::clamp(fogbelow, 0.0f, 1.0f), abovemat);
         }
 
         rendertransparent();
@@ -2458,7 +2460,7 @@ void gl_drawview()
 
         renderwaterfog(fogmat, fogbelow);
 
-        setfog(fogmat, fogbelow, clamp(fogbelow, 0.0f, 1.0f), abovemat);
+        setfog(fogmat, fogbelow, std::clamp(fogbelow, 0.0f, 1.0f), abovemat);
     }
 
     rendertransparent();
@@ -2492,7 +2494,7 @@ void gl_drawview()
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
-    if(fogoverlay && fogmat != MAT_AIR) drawfogoverlay(fogmat, fogbelow, clamp(fogbelow, 0.0f, 1.0f), abovemat);
+    if(fogoverlay && fogmat != MAT_AIR) drawfogoverlay(fogmat, fogbelow, std::clamp(fogbelow, 0.0f, 1.0f), abovemat);
 
     doaa(setuppostfx(vieww, viewh, scalefbo), processhdr);
     renderpostfx(scalefbo);

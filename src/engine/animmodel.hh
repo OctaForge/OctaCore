@@ -42,8 +42,8 @@ struct animmodel : model
             }
             else
             {
-                fr1 = min(fr1, info.range-1)+info.frame;
-                fr2 = min(fr1+1, info.frame+info.range-1);
+                fr1 = std::min(fr1, info.range-1)+info.frame;
+                fr2 = std::min(fr1+1, info.frame+info.range-1);
             }
             if(info.anim&ANIM_REVERSE)
             {
@@ -547,7 +547,7 @@ struct animmodel : model
         virtual int totalframes() const { return 1; }
         bool hasframe(int i) const { return i>=0 && i<totalframes(); }
         bool hasframes(int i, int n) const { return i>=0 && i+n<=totalframes(); }
-        int clipframes(int i, int n) const { return min(n, totalframes() - i); }
+        int clipframes(int i, int n) const { return std::min(n, totalframes() - i); }
 
         virtual void cleanup() {}
         virtual void preload(part *p) {}
@@ -837,7 +837,7 @@ struct animmodel : model
             if(d && interp>=0)
             {
                 animinterpinfo &ai = d->animinterp[interp];
-                if((info.anim&(ANIM_LOOP|ANIM_CLAMP))==ANIM_CLAMP) aitime = min(aitime, int(info.range*info.speed*0.5e-3f));
+                if((info.anim&(ANIM_LOOP|ANIM_CLAMP))==ANIM_CLAMP) aitime = std::min(aitime, int(info.range*info.speed*0.5e-3f));
                 void *ak = meshes->animkey();
                 if(d->ragdoll && d->ragdoll->millis != lastmillis)
                 {
@@ -894,7 +894,7 @@ struct animmodel : model
             vec oaxis, oforward, oo, oray;
             matrixstack[matrixpos].transposedtransformnormal(axis, oaxis);
             float pitchamount = pitchscale*pitch + pitchoffset;
-            if((pitchmin || pitchmax) && pitchmin <= pitchmax) pitchamount = clamp(pitchamount, pitchmin, pitchmax);
+            if((pitchmin || pitchmax) && pitchmin <= pitchmax) pitchamount = std::clamp(pitchamount, pitchmin, pitchmax);
             if(as->cur.anim&ANIM_NOPITCH || (as->interp < 1 && as->prev.anim&ANIM_NOPITCH))
                 pitchamount *= (as->cur.anim&ANIM_NOPITCH ? 0 : as->interp) + (as->interp < 1 && as->prev.anim&ANIM_NOPITCH ? 0 : 1-as->interp);
             if(pitchamount)
@@ -980,7 +980,7 @@ struct animmodel : model
             vec oaxis, oforward;
             matrixstack[matrixpos].transposedtransformnormal(axis, oaxis);
             float pitchamount = pitchscale*pitch + pitchoffset;
-            if(pitchmin || pitchmax) pitchamount = clamp(pitchamount, pitchmin, pitchmax);
+            if(pitchmin || pitchmax) pitchamount = std::clamp(pitchamount, pitchmin, pitchmax);
             if(as->cur.anim&ANIM_NOPITCH || (as->interp < 1 && as->prev.anim&ANIM_NOPITCH))
                 pitchamount *= (as->cur.anim&ANIM_NOPITCH ? 0 : as->interp) + (as->interp < 1 && as->prev.anim&ANIM_NOPITCH ? 0 : 1-as->interp);
             if(pitchamount)
@@ -1786,7 +1786,7 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setgloss(char *meshname, int *gloss)
     {
-        loopskins(meshname, s, s.gloss = clamp(*gloss, 0, 2));
+        loopskins(meshname, s, s.gloss = std::clamp(*gloss, 0, 2));
     }
 
     static void setglow(char *meshname, float *percent, float *delta, float *pulse)
@@ -1798,7 +1798,7 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setalphatest(char *meshname, float *cutoff)
     {
-        loopskins(meshname, s, s.alphatest = max(0.0f, min(1.0f, *cutoff)));
+        loopskins(meshname, s, s.alphatest = std::max(0.0f, std::min(1.0f, *cutoff)));
     }
 
     static void setcullface(char *meshname, int *cullface)

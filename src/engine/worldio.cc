@@ -4,6 +4,8 @@
 
 #include <new>
 
+#include <algorithm>
+
 #include <sauerlib/encoding.hh>
 
 #include <shared/command.hh>
@@ -475,7 +477,7 @@ static void loadvslot(stream *f, VSlot &vs, int changed)
         }
     }
     if(vs.changed & (1<<VSLOT_SCALE)) vs.scale = f->getlil<float>();
-    if(vs.changed & (1<<VSLOT_ROTATION)) vs.rotation = clamp(f->getlil<int>(), 0, 7);
+    if(vs.changed & (1<<VSLOT_ROTATION)) vs.rotation = std::clamp(f->getlil<int>(), 0, 7);
     if(vs.changed & (1<<VSLOT_OFFSET))
     {
         loopk(2) vs.offset[k] = f->getlil<int>();

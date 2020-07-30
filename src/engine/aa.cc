@@ -1,5 +1,7 @@
 #include "aa.hh"
 
+#include <algorithm>
+
 #include <shared/glemu.hh>
 #include <shared/command.hh>
 
@@ -84,7 +86,7 @@ VAR(debugtqaa, 0, 0, 2);
 
 static void viewtqaa()
 {
-    int w = min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
+    int w = std::min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
     SETSHADER(hudrect);
     gle::colorf(1, 1, 1);
     switch(debugtqaa)
@@ -330,7 +332,7 @@ static inline vec2 areaortho(float p1x, float p1y, float p2x, float p2y, float l
 static inline void smootharea(float d, vec2 &a1, vec2 &a2)
 {
     vec2 b1(sqrtf(a1.x*2)*0.5f, sqrtf(a1.y*2)*0.5f), b2(sqrtf(a2.x*2)*0.5f, sqrtf(a2.y*2)*0.5f);
-    float p = clamp(d / 32.0f, 0.0f, 1.0f);
+    float p = std::clamp(d / 32.0f, 0.0f, 1.0f);
     a1.lerp(b1, a1, p);
     a2.lerp(b2, a2, p);
 }
@@ -387,9 +389,9 @@ static float areaunderdiag(const vec2 &p1, const vec2 &p2, const vec2 &p)
     if(!d.x)
     {
         if(!d.y) return 1;
-        return clamp(d.y > 0 ? 1 - dp/d.y : dp/d.y, 0.0f, 1.0f);
+        return std::clamp(d.y > 0 ? 1 - dp/d.y : dp/d.y, 0.0f, 1.0f);
     }
-    if(!d.y) return clamp(d.x > 0 ? 1 - dp/d.x : dp/d.x, 0.0f, 1.0f);
+    if(!d.y) return std::clamp(d.x > 0 ? 1 - dp/d.x : dp/d.x, 0.0f, 1.0f);
     float l = dp/d.y, r = (dp-d.x)/d.y, b = dp/d.x, t = (dp-d.y)/d.x;
     if(0 <= dp)
     {
@@ -400,25 +402,25 @@ static float areaunderdiag(const vec2 &p1, const vec2 &p2, const vec2 &p)
                 if(d.y+d.x <= dp) return 0;
                 return 0.5f*(1-r)*(1-t);
             }
-            if(d.y+d.x > dp) return min(1-b, 1-t) + 0.5f*fabs(b-t);
+            if(d.y+d.x > dp) return std::min(1-b, 1-t) + 0.5f*fabs(b-t);
             return 0.5f*(1-b)*r;
         }
         if(d.x <= dp)
         {
             if(d.y+d.x <= dp) return 0.5f*(1-l)*t;
-            return min(1-l, 1-r) + 0.5f*fabs(r-l);
+            return std::min(1-l, 1-r) + 0.5f*fabs(r-l);
         }
         return 1 - 0.5f*l*b;
     }
     if(d.y <= dp)
     {
         if(d.x <= dp) return 0.5f*l*b;
-        if(d.y+d.x <= dp) return min(l, r) + 0.5f*fabs(r-l);
+        if(d.y+d.x <= dp) return std::min(l, r) + 0.5f*fabs(r-l);
         return 1 - 0.5f*(1-l)*t;
     }
     if(d.x <= dp)
     {
-        if(d.y+d.x <= dp) return min(b, t) + 0.5f*fabs(b-t);
+        if(d.y+d.x <= dp) return std::min(b, t) + 0.5f*fabs(b-t);
         return 1 - 0.5f*(1-b)*r;
     }
     if(d.y+d.x <= dp) return 1 - 0.5f*(1-t)*(1-r);
@@ -570,7 +572,7 @@ static void setupsmaa(int w, int h)
 
 static void viewsmaa()
 {
-    int w = min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
+    int w = std::min(hudw, hudh)*1.0f, h = (w*hudh)/hudw, tw = gw, th = gh;
     SETSHADER(hudrect);
     gle::colorf(1, 1, 1);
     switch(debugsmaa)

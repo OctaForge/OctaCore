@@ -7,6 +7,8 @@
 
 #include <cassert>
 
+#include <algorithm>
+
 #include <shared/command.hh>
 #include <shared/igame.hh>
 
@@ -455,7 +457,7 @@ static bool ellipseboxcollide(physent *d, const vec &dir, const vec &o, const ve
     yo.rotate_around_z(-yaw*RAD);
     yo.sub(center);
 
-    float dx = clamp(yo.x, -xr, xr) - yo.x, dy = clamp(yo.y, -yr, yr) - yo.y,
+    float dx = std::clamp(yo.x, -xr, xr) - yo.x, dy = std::clamp(yo.y, -yr, yr) - yo.y,
           dist = sqrtf(dx*dx + dy*dy) - d->radius;
     if(dist < 0)
     {
@@ -1828,12 +1830,12 @@ static void modifygravity(physent *pl, bool water, int curtime)
     if(water || pl->physstate >= PHYS_SLOPE)
     {
         float fric = water ? 2.0f : 6.0f,
-              c = water ? 1.0f : clamp((pl->floor.z - SLOPEZ)/(FLOORZ-SLOPEZ), 0.0f, 1.0f);
+              c = water ? 1.0f : std::clamp((pl->floor.z - SLOPEZ)/(FLOORZ-SLOPEZ), 0.0f, 1.0f);
         pl->falling.mul(pow(1 - c/fric, curtime/20.0f));
 // old fps friction
 //        float friction = water ? 2.0f : 6.0f,
 //              fpsfric = friction/curtime*20.0f,
-//              c = water ? 1.0f : clamp((pl->floor.z - SLOPEZ)/(FLOORZ-SLOPEZ), 0.0f, 1.0f);
+//              c = water ? 1.0f : std::clamp((pl->floor.z - SLOPEZ)/(FLOORZ-SLOPEZ), 0.0f, 1.0f);
 //        pl->falling.mul(1 - c/fpsfric);
     }
 }
@@ -1889,7 +1891,7 @@ bool moveplayer(physent *pl, int moveres, bool local, int curtime)
 
     // automatically apply smooth roll when strafing
 
-    if(pl->strafe && maxroll) pl->roll = clamp(pl->roll - pow(clamp(1.0f + pl->strafe*pl->roll/maxroll, 0.0f, 1.0f), 0.33f)*pl->strafe*curtime*straferoll, -maxroll, maxroll);
+    if(pl->strafe && maxroll) pl->roll = std::clamp(pl->roll - pow(std::clamp(1.0f + pl->strafe*pl->roll/maxroll, 0.0f, 1.0f), 0.33f)*pl->strafe*curtime*straferoll, float(-maxroll), float(maxroll));
     else pl->roll *= curtime == PHYSFRAMETIME ? faderoll : pow(faderoll, curtime/float(PHYSFRAMETIME));
 
     // play sounds on water transitions
@@ -1916,7 +1918,7 @@ void physicsframe()          // optimally schedule physics frames inside the gra
     if(diff <= 0) physsteps = 0;
     else
     {
-        physframetime = clamp(game::scaletime(PHYSFRAMETIME)/100, 1, PHYSFRAMETIME);
+        physframetime = std::clamp(game::scaletime(PHYSFRAMETIME)/100, 1, PHYSFRAMETIME);
         physsteps = (diff + physframetime - 1)/physframetime;
         lastphysframe += physsteps * physframetime;
     }

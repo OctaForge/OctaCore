@@ -93,13 +93,13 @@ static int conskip = 0, miniconskip = 0;
 static void setconskip(int &skip, int filter, int n)
 {
     int offset = abs(n), dir = n < 0 ? -1 : 1;
-    skip = clamp(skip, 0, conlines.length()-1);
+    skip = std::clamp(skip, 0, conlines.length()-1);
     while(offset)
     {
         skip += dir;
         if(!conlines.inrange(skip))
         {
-            skip = clamp(skip, 0, conlines.length()-1);
+            skip = std::clamp(skip, 0, conlines.length()-1);
             return;
         }
         if(conlines[skip].type&filter) --offset;
@@ -113,7 +113,7 @@ ICOMMAND(clearconsole, "", (), { while(conlines.length()) delete[] conlines.pop(
 
 static float drawconlines(int conskip, int confade, float conwidth, float conheight, float conoff, int filter, float y = 0, int dir = 1)
 {
-    int numl = conlines.length(), offset = min(conskip, numl);
+    int numl = conlines.length(), offset = std::min(conskip, numl);
 
     if(confade)
     {
@@ -164,11 +164,11 @@ float renderfullconsole(float w, float h)
 float renderconsole(float w, float h, float abovehud)
 {
     float conpad = FONTH/2,
-          conheight = min(float(FONTH*consize), h - 2*conpad),
+          conheight = std::min(float(FONTH*consize), h - 2*conpad),
           conwidth = w - 2*conpad - game::clipconsole(w, h);
     float y = drawconlines(conskip, confade, conwidth, conheight, conpad, confilter);
     if(miniconsize && miniconwidth)
-        drawconlines(miniconskip, miniconfade, (miniconwidth*(w - 2*conpad))/100, min(float(FONTH*miniconsize), abovehud - y), conpad, miniconfilter, abovehud, -1);
+        drawconlines(miniconskip, miniconfade, (miniconwidth*(w - 2*conpad))/100, std::min(float(FONTH*miniconsize), abovehud - y), conpad, miniconfilter, abovehud, -1);
     return y;
 }
 
@@ -474,7 +474,7 @@ static bool consoleinput(const char *str, int len)
 
     resetcomplete();
     int cmdlen = (int)strlen(commandbuf), cmdspace = int(sizeof(commandbuf)) - (cmdlen+1);
-    len = min(len, cmdspace);
+    len = std::min(len, cmdspace);
     if(commandpos<0)
     {
         memcpy(&commandbuf[cmdlen], str, len);
@@ -798,7 +798,7 @@ static void complete(char *s, int maxlen, const char *cmdprefix)
     DELETEA(lastcomplete);
     if(nextcomplete)
     {
-        cmdlen = min(cmdlen, maxlen-1);
+        cmdlen = std::min(cmdlen, maxlen-1);
         if(cmdlen) memmove(s, cmdprefix, cmdlen);
         copystring(&s[cmdlen], nextcomplete, maxlen-cmdlen);
         lastcomplete = newstring(nextcomplete);
