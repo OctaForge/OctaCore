@@ -21,6 +21,7 @@ namespace detail {
     }
 
     using uchar = unsigned char;
+    using ushort = unsigned short;
 
     static constexpr float GEOM_PI = 3.14159265358979f;
     static constexpr float GEOM_RAD = GEOM_PI / 180.0f;
@@ -1436,7 +1437,7 @@ struct bvec
     static bvec fromcolor(const vec &v) { return bvec(detail::uchar(v.x*255.0f), detail::uchar(v.y*255.0f), detail::uchar(v.z*255.0f)); }
     vec tocolor() const { return vec(x*(1.0f/255.0f), y*(1.0f/255.0f), z*(1.0f/255.0f)); }
 
-    static bvec from565(ushort c) { return bvec((((c>>11)&0x1F)*527 + 15) >> 6, (((c>>5)&0x3F)*259 + 35) >> 6, ((c&0x1F)*527 + 15) >> 6); }
+    static bvec from565(detail::ushort c) { return bvec((((c>>11)&0x1F)*527 + 15) >> 6, (((c>>5)&0x3F)*259 + 35) >> 6, ((c&0x1F)*527 + 15) >> 6); }
 
     static bvec hexcolor(int color)
     {
@@ -1502,12 +1503,12 @@ struct usvec
 {
     union
     {
-        struct { ushort x, y, z; };
-        ushort v[3];
+        struct { detail::ushort x, y, z; };
+        detail::ushort v[3];
     };
 
-    ushort &operator[](int i) { return v[i]; }
-    ushort operator[](int i) const { return v[i]; }
+    detail::ushort &operator[](int i) { return v[i]; }
+    detail::ushort operator[](int i) const { return v[i]; }
 };
 
 inline vec::vec(const usvec &v) : x(v.x), y(v.y), z(v.z) {}
@@ -1860,14 +1861,14 @@ struct matrix2
 
 struct half
 {
-    ushort val;
+    detail::ushort val;
 
     half() {}
     half(float f)
     {
         union { int i; float f; } conv;
         conv.f = f;
-        ushort signbit = (conv.i>>(31-15)) & (1<<15), mantissa = (conv.i>>(23-10)) & 0x3FF;
+        detail::ushort signbit = (conv.i>>(31-15)) & (1<<15), mantissa = (conv.i>>(23-10)) & 0x3FF;
         int exponent = ((conv.i>>23)&0xFF) - 127 + 15;
         if(exponent <= 0)
         {
@@ -1880,7 +1881,7 @@ struct half
             mantissa = 0;
             exponent = 0x1F;
         }
-        val = signbit | (ushort(exponent)<<10) | mantissa;
+        val = signbit | (detail::ushort(exponent)<<10) | mantissa;
     }
 
     bool operator==(const half &h) const { return val == h.val; }
