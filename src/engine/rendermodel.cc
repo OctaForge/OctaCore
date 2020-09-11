@@ -130,6 +130,13 @@ static void mdlalphatest(float *cutoff)
 }
 COMMAND(mdlalphatest, "f");
 
+static void mdldither(int *dither)
+{
+    checkmdl;
+    loadingmodel->setdither(*dither != 0);
+}
+COMMAND(mdldither, "i");
+
 static void mdldepthoffset(int *offset)
 {
     checkmdl;
@@ -483,7 +490,7 @@ void cleanupmodels()
 static void clearmodel(char *name)
 {
     model *m = models.find(name, nullptr);
-    if(!m) { conoutf("model %s is not loaded", name); return; }
+    if(!m) { conoutf(CON_WARN, "model %s is not loaded", name); return; }
     loopv(mapmodels)
     {
         mapmodelinfo &mmi = mapmodels[i];

@@ -141,6 +141,10 @@ struct vec
     float squaredot(const vec &o) const { float k = dot(o); return k*k; }
     float absdot(const vec &o) const { return fabs(x*o.x) + fabs(y*o.y) + fabs(z*o.z); }
     float zdot(const vec &o) const { return z*o.z; }
+    vec &pow(float f)        { x = ::pow(x, f); y = ::pow(y, f); z = ::pow(z, f); return *this; }
+    vec &exp()               { x = ::exp(x); y = ::exp(y); z = ::exp(z); return *this; }
+    vec &exp2()              { x = ::exp2(x); y = ::exp2(y); z = ::exp2(z); return *this; }
+    vec &sqrt()              { x = sqrtf(x); y = sqrtf(y); z = sqrtf(z); return *this; }
     vec &mul(const vec &o)   { x *= o.x; y *= o.y; z *= o.z; return *this; }
     vec &mul(float f)        { x *= f; y *= f; z *= f; return *this; }
     vec &mul2(float f)       { x *= f; y *= f; return *this; }
@@ -934,6 +938,10 @@ struct matrix4x3
     void translate(const vec &p) { d.madd(a, p.x).madd(b, p.y).madd(c, p.z); }
     void translate(float x, float y, float z) { translate(vec(x, y, z)); }
     void translate(const vec &p, float scale) { translate(vec(p).mul(scale)); }
+
+    void posttranslate(const vec &p) { d.add(p); }
+    void posttranslate(float x, float y, float z) { posttranslate(vec(x, y, z)); }
+    void posttranslate(const vec &p, float scale) { d.madd(p, scale); }
 
     void accumulate(const matrix4x3 &m, float k)
     {

@@ -110,18 +110,24 @@ struct animmodel : model
 
     struct skin : shaderparams
     {
+        enum
+        {
+            DITHER = 1<<0
+        };
+
         part *owner;
         Texture *tex, *decal, *masks, *envmap, *normalmap;
         Shader *shader, *rsmshader;
-        int cullface;
+        int cullface, flags;
         shaderparamskey *key;
 
-        skin() : owner(0), tex(notexture), decal(nullptr), masks(notexture), envmap(nullptr), normalmap(nullptr), shader(nullptr), rsmshader(nullptr), cullface(1), key(nullptr) {}
+        skin() : owner(0), tex(notexture), decal(nullptr), masks(notexture), envmap(nullptr), normalmap(nullptr), shader(nullptr), rsmshader(nullptr), cullface(1), flags(0), key(nullptr) {}
 
         bool masked() const { return masks != notexture; }
         bool envmapped() const { return envmapmax>0; }
         bool bumpmapped() const { return normalmap != nullptr; }
         bool alphatested() const { return alphatest > 0 && tex->type&Texture::ALPHA; }
+        bool dithered() const { return (flags&DITHER) != 0; }
         bool decaled() const { return decal != nullptr; }
 
         void setkey()
@@ -187,7 +193,11 @@ struct animmodel : model
 
             string opts;
             int optslen = 0;
-            if(alphatested()) opts[optslen++] = 'a';
+            if(alphatested())
+            {
+                opts[optslen++] = 'a';
+                if(dithered()) opts[optslen++] = 'u';
+            }
             if(decaled()) opts[optslen++] = decal->type&Texture::ALPHA ? 'D' : 'd';
             if(bumpmapped()) opts[optslen++] = 'n';
             if(envmapped()) { opts[optslen++] = 'm'; opts[optslen++] = 'e'; }
@@ -1060,7 +1070,7 @@ struct animmodel : model
             if(animpart<0 || animpart>=MAXANIMPARTS || num<0 || num>=NUM_ANIMS) return;
             if(frame<0 || range<=0 || !meshes || !meshes->hasframes(frame, range))
             {
-                conoutf("invalid frame %d, range %d in model %s", frame, range, model->name);
+                conoutf(CON_ERROR, "invalid frame %d, range %d in model %s", frame, range, model->name);
                 return;
             }
             if(!anims[animpart]) anims[animpart] = new vector<animspec>[NUM_ANIMS];
@@ -1564,6 +1574,17 @@ struct animmodel : model
         loopv(parts) loopvj(parts[i]->skins) parts[i]->skins[j].alphatest = alphatest;
     }
 
+    void setdither(bool val)
+    {
+        if(parts.empty()) loaddefaultparts();
+        loopv(parts) loopvj(parts[i]->skins)
+        {
+            skin &s = parts[i]->skins[j];
+            if(val) s.flags |= skin::DITHER;
+            else s.flags &= ~skin::DITHER;
+        }
+    }
+
     void setfullbright(float fullbright)
     {
         if(parts.empty()) loaddefaultparts();
@@ -1745,12 +1766,12 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setdir(char *name)
     {
-        if(!MDL::loading) { conoutf("not loading an %s", MDL::formatname()); return; }
+        if(!MDL::loading) { conoutf(CON_ERROR, "not loading an %s", MDL::formatname()); return; }
         formatstring(MDL::dir, "media/model/%s", name);
     }
 
     #define loopmeshes(meshname, m, body) do { \
-        if(!MDL::loading || MDL::loading->parts.empty()) { conoutf("not loading an %s", MDL::formatname()); return; } \
+        if(!MDL::loading || MDL::loading->parts.empty()) { conoutf(CON_ERROR, "not loading an %s", MDL::formatname()); return; } \
         part &mdl = *MDL::loading->parts.last(); \
         if(!mdl.meshes) return; \
         loopv(mdl.meshes->meshes) \
@@ -1799,6 +1820,11 @@ template<class MDL, class MESH> struct modelcommands
     static void setalphatest(char *meshname, float *cutoff)
     {
         loopskins(meshname, s, s.alphatest = std::max(0.0f, std::min(1.0f, *cutoff)));
+    }
+
+    static void setdither(char *meshname, int *dither)
+    {
+        loopskins(meshname, s, { if(*dither) s.flags |= skin::DITHER; else s.flags &= ~skin::DITHER; });
     }
 
     static void setcullface(char *meshname, int *cullface)
@@ -1861,9 +1887,9 @@ template<class MDL, class MESH> struct modelcommands
 
     static void setlink(int *parent, int *child, char *tagname, float *x, float *y, float *z)
     {
-        if(!MDL::loading) { conoutf("not loading an %s", MDL::formatname()); return; }
-        if(!MDL::loading->parts.inrange(*parent) || !MDL::loading->parts.inrange(*child)) { conoutf("no models loaded to link"); return; }
-        if(!MDL::loading->parts[*parent]->link(MDL::loading->parts[*child], tagname, vec(*x, *y, *z))) conoutf("could not link model %s", MDL::loading->name);
+        if(!MDL::loading) { conoutf(CON_ERROR, "not loading an %s", MDL::formatname()); return; }
+        if(!MDL::loading->parts.inrange(*parent) || !MDL::loading->parts.inrange(*child)) { conoutf(CON_ERROR, "no models loaded to link"); return; }
+        if(!MDL::loading->parts[*parent]->link(MDL::loading->parts[*child], tagname, vec(*x, *y, *z))) conoutf(CON_ERROR, "could not link model %s", MDL::loading->name);
     }
 
     template<class F> void modelcommand(F *fun, const char *suffix, const char *args)
@@ -1882,6 +1908,7 @@ template<class MDL, class MESH> struct modelcommands
             modelcommand(setgloss, "gloss", "si");
             modelcommand(setglow, "glow", "sfff");
             modelcommand(setalphatest, "alphatest", "sf");
+            modelcommand(setdither, "dither", "si");
             modelcommand(setcullface, "cullface", "si");
             modelcommand(setcolor, "color", "sfff");
             modelcommand(setenvmap, "envmap", "ss");

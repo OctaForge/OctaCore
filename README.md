@@ -1,5 +1,9 @@
 # OctaCore
 
-This is the upcoming engine part of the newly revived OctaForge project. For
-now there is nothing much to see here, besides a plain Tesseract codebase
-import. This is going to change in near future; stay tuned.
+**Last Tesseract SVN import:** 2425
+
+This is the work in progress engine part of the newly revived OctaForge
+project.
+
+Nothing much to see here yet, besides a stripped down, partially refactored
+Tesseract codebase.

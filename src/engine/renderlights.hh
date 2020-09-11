@@ -10,7 +10,7 @@
 #define LIGHTTILE_MAXW 16
 #define LIGHTTILE_MAXH 16
 
-enum { L_NOSHADOW = 1<<0, L_NODYNSHADOW = 1<<1, L_VOLUMETRIC = 1<<2, L_NOSPEC = 1<<3 };
+enum { L_NOSHADOW = 1<<0, L_NODYNSHADOW = 1<<1, L_VOLUMETRIC = 1<<2, L_NOSPEC = 1<<3, L_SMALPHA = 1<<4 };
 
 /* only for the inlines below */
 extern int lighttilealignw, lighttilealignh, lighttilevieww, lighttileviewh, lighttilew, lighttileh;

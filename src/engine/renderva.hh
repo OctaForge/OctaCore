@@ -38,11 +38,12 @@ int cullfrustumsides(const vec &lightpos, float lightradius, float size, float b
 
 extern vec shadoworigin, shadowdir;
 extern float shadowradius, shadowbias;
-extern int shadowside, shadowspot;
+extern int shadowside, shadowspot, shadowtransparent;
 
-extern void findshadowvas();
-extern void findshadowmms();
+void findshadowvas(bool transparent = false);
+void findshadowmms();
 
+int dynamicshadowvas();
 int dynamicshadowvabounds(int mask, vec &bbmin, vec &bbmax);
 
 void rendershadowmapworld();
@@ -64,6 +65,7 @@ extern uint alphatiles[LIGHTTILE_MAXH];
 int findalphavas();
 void renderrefractmask();
 void renderalphageom(int side);
+void renderalphashadow(bool cullside = false);
 
 bool renderexplicitsky(bool outline = false);
 

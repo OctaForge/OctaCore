@@ -61,7 +61,6 @@ extern int fullbright, fullbrightlevel;
 
 extern void clearlights();
 extern void initlights();
-extern void clearlightcache(int id = -1);
 extern void brightencube(cube &c);
 extern void setsurfaces(cube &c, const surfaceinfo *surfs, const vertinfo *verts, int numverts);
 extern void setsurface(cube &c, int orient, const surfaceinfo &surf, const vertinfo *verts, int numverts);
@@ -91,7 +90,5 @@ extern bool calclight_canceled;
 extern volatile bool check_calclight_progress;
 
 extern void check_calclight_canceled();
-
-extern const vector<int> &checklightcache(int x, int y);
 
 #endif

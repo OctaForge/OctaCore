@@ -18,6 +18,7 @@ It provides a bunch of new rendering features such as:
 * HDR rendering with tonemapping and bloom
 * real-time diffuse global illumination for sunlight (radiance hints)
 * volumetric lighting
+* transparent shadows
 * screen-space ambient occlusion
 * screen-space reflections and refractions for water and glass (use as many water planes as you want now!)
 * screen-space refractive alpha cubes
@@ -80,4 +81,19 @@ To make volumetric lights:
 Set attribute 5 of a light entity to 4.
 
 The intensity of the volumetric lighting medium can be controlled by volscale and the color can by controlled by volcolour.
+
+To make transparent shadows:
+
+This is toggled on a per-map basis by setting "alphashadow" to 0 (off), 1 (sunlight), or 2 (sunlight and point lights). 
+If set to 1, you must set attribute 5 of a light entity to 16 to enable transparent shadows for that point light.
+If set to 2, all point lights automatically cast transparent shadows.
+If a light is volumetric, regardless of "alphashadow" setting, the light entity's attribute 5 must be set to 20 (4 | 16) for it
+to cast a volumetric transparent shadow.
+
+To make a cube cast transparent shadows, use the "alpha" material. The texalpha/valpha commands can be then used to control the alpha
+of the cube, which then is used to determine the intensity of the transparent shadow. This intensity can be further scaled by setting
+the global map variable "alphashadowscale" (0..2).
+
+If a texture slot has an alpha texture (slot "a"), this can be used to mask the alpha of the cube. This masked alpha will then be used
+to further mask the transparent shadow.
 

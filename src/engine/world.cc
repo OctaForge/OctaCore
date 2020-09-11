@@ -220,7 +220,7 @@ static void modifyoctaentity(int flags, int id, extentity &e, cube *c, const ive
 }
 
 vector<int> outsideents;
-int spotlights = 0, volumetriclights = 0, nospeclights = 0;
+int spotlights = 0, volumetriclights = 0, nospeclights = 0, smalphalights = 0, volumetricsmalphalights = 0;
 
 static bool modifyoctaent(int flags, int id, extentity &e)
 {
@@ -250,9 +250,13 @@ static bool modifyoctaent(int flags, int id, extentity &e)
     switch(e.type)
     {
         case ET_LIGHT:
-            clearlightcache(id);
             if(e.attr5&L_VOLUMETRIC) { if(flags&MODOE_ADD) volumetriclights++; else --volumetriclights; }
             if(e.attr5&L_NOSPEC) { if(!(flags&MODOE_ADD ? nospeclights++ : --nospeclights)) cleardeferredlightshaders(); }
+            if(e.attr5&L_SMALPHA)
+            {
+                if(!(flags&MODOE_ADD ?  smalphalights++ : --smalphalights)) cleardeferredlightshaders();
+                if(e.attr5&L_VOLUMETRIC) { if(!(flags&MODOE_ADD ?  volumetricsmalphalights++ : --volumetricsmalphalights)) cleanupvolumetric(); }
+            }
             break;
         case ET_SPOTLIGHT: if(!(flags&MODOE_ADD ? spotlights++ : --spotlights)) { cleardeferredlightshaders(); cleanupvolumetric(); } break;
         case ET_PARTICLES: clearparticleemitters(); break;
@@ -1074,7 +1078,7 @@ static extentity *newentity(bool local, const vec &o, int type, int v1, int v2, 
     {
         idx = -1;
         for(int i = keepents; i < ents.length(); i++) if(ents[i]->type == ET_EMPTY) { idx = i; break; }
-        if(idx < 0 && ents.length() >= MAXENTS) { conoutf("too many entities"); return nullptr; }
+        if(idx < 0 && ents.length() >= MAXENTS) { conoutf(CON_ERROR, "too many entities"); return nullptr; }
     }
     else while(ents.length() < idx) ents.add(entities::newentity())->type = ET_EMPTY;
     extentity &e = *entities::newentity();
@@ -1330,6 +1334,8 @@ void resetmap()
     spotlights = 0;
     volumetriclights = 0;
     nospeclights = 0;
+    smalphalights = 0;
+    volumetricsmalphalights = 0;
 }
 
 void startmap(const char *name)
